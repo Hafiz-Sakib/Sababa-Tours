@@ -1,4 +1,5 @@
 import "./App.css";
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import Home from "./Components/Home/Home";
@@ -20,8 +21,14 @@ import AuthRedirectHandler from "./Components/Auth/AuthRedirectHandler";
 import Booking from "./Components/Booking/Booking";
 import MyBookings from "./Components/MyBookings/MyBookings";
 import AdminDashboard from "./Components/Admin/AdminDashboard";
+import { API_BASE_URL } from "./config";
 
 function App() {
+  // Wake up the Render free instance as soon as the site opens
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/health`).catch(() => {});
+  }, []);
+
   return (
     <div className="App">
       <NavBar />

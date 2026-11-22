@@ -1,6 +1,7 @@
 // src/Components/Services/Services.js
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiFilter, FiSearch, FiX } from "react-icons/fi";
+import toast from "react-hot-toast";
 import ServiceCard from "./ServiceCard";
 
 const API = "https://sababa-tours-backend.onrender.com/api/services";
@@ -21,6 +22,13 @@ const Services = () => {
 
   useEffect(() => {
     const fetchServices = async () => {
+      // Render free tier may take ~50s to wake up
+      const wakeTimer = setTimeout(() => {
+        toast.loading("Server jagche, ektu opekkha korun...", {
+          id: "server-wake",
+          duration: 60000,
+        });
+      }, 4000);
       try {
         const res = await fetch(API);
 
@@ -41,6 +49,8 @@ const Services = () => {
         console.error("Failed to fetch services:", error);
         setServices([]); // fallback
       } finally {
+        clearTimeout(wakeTimer);
+        toast.dismiss("server-wake");
         setLoading(false);
       }
     };
