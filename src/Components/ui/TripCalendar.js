@@ -26,7 +26,7 @@ const TripCalendar = ({ value, onChange, min, maxDays = 365 }) => {
   const canPrev = iso(new Date(y, m, 0)) >= min;
   const canNext = iso(new Date(y, m + 1, 1)) <= max;
   const navBtn =
-    "flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0d1f35] ring-1 ring-[#e7dfd0] transition enabled:hover:bg-[#f5f0e8] enabled:active:scale-90 disabled:opacity-30";
+    "flex h-10 w-10 items-center justify-center rounded-full bg-surface text-ink ring-1 ring-line transition enabled:hover:bg-sandy enabled:active:scale-90 disabled:opacity-30";
 
   return (
     <div>
@@ -41,7 +41,7 @@ const TripCalendar = ({ value, onChange, min, maxDays = 365 }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: dir * -10 }}
             transition={{ duration: 0.15 }}
-            className="font-semibold text-[#0d1f35]"
+            className="font-semibold text-ink"
           >
             {view.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
           </motion.p>
@@ -50,7 +50,7 @@ const TripCalendar = ({ value, onChange, min, maxDays = 365 }) => {
           <FiChevronRight />
         </button>
       </div>
-      <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-[#5a6a7e]">
+      <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted">
         {DOW.map((d) => (
           <span key={d} className="py-1">{d}</span>
         ))}
@@ -72,14 +72,14 @@ const TripCalendar = ({ value, onChange, min, maxDays = 365 }) => {
                 sel
                   ? "text-white"
                   : off
-                    ? "text-[#5a6a7e]/40"
-                    : "bg-[#f5f0e8] text-[#0d1f35] hover:bg-[#0b6b62]/10 hover:text-[#0b6b62]"
+                    ? "text-muted/40"
+                    : "bg-sandy text-ink hover:bg-lagoon/10 hover:text-lagoon-ink"
               }`}
             >
               {sel && (
                 <motion.span
                   layoutId="trip-cal-sel"
-                  className="absolute inset-0 rounded-2xl bg-[#0d1f35] shadow-lg"
+                  className="absolute inset-0 rounded-2xl bg-btn shadow-lg"
                   transition={{ type: "spring", stiffness: 400, damping: 32 }}
                 />
               )}

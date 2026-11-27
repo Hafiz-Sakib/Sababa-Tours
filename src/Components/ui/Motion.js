@@ -186,7 +186,7 @@ export const PillTabs = ({
       className={`relative inline-flex max-w-full gap-1 overflow-x-auto rounded-full p-1.5 ${
         dark
           ? "bg-white/10 border border-white/15 backdrop-blur"
-          : "bg-white border border-[#e7dfd0] shadow-[0_8px_30px_rgba(13,31,53,0.08)]"
+          : "bg-surface border border-line shadow-[0_8px_30px_rgba(13,31,53,0.08)]"
       } ${className}`}
     >
       {items.map((it) => {
@@ -200,11 +200,11 @@ export const PillTabs = ({
             className={`relative z-0 flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold capitalize transition-colors ${
               active
                 ? dark
-                  ? "text-[#0d1f35]"
+                  ? "text-ink"
                   : "text-white"
                 : dark
                   ? "text-white/70 hover:text-white"
-                  : "text-[#5a6a7e] hover:text-[#0d1f35]"
+                  : "text-muted hover:text-ink"
             }`}
           >
             {active && (
@@ -213,7 +213,7 @@ export const PillTabs = ({
                 className={`absolute inset-0 -z-10 rounded-full ${
                   dark
                     ? "bg-gradient-to-r from-[#c9a84c] to-[#e8c96a]"
-                    : "bg-[#0d1f35] shadow-lg"
+                    : "bg-btn shadow-lg"
                 }`}
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
               />
@@ -224,10 +224,10 @@ export const PillTabs = ({
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
                   it.badgeTone === "alert"
-                    ? "bg-[#e85d45] text-white"
+                    ? "bg-coral text-white"
                     : active
                       ? "bg-white/20"
-                      : "bg-[#f5f0e8] text-[#5a6a7e]"
+                      : "bg-sandy text-muted"
                 }`}
               >
                 {it.badge}
@@ -252,7 +252,7 @@ export const Aurora = ({ className = "" }) => (
       style={{ animationDelay: "-6s" }}
     />
     <div
-      className="mb-blob absolute bottom-[-120px] left-1/3 h-[360px] w-[360px] rounded-full bg-[#e85d45]/15 blur-[100px]"
+      className="mb-blob absolute bottom-[-120px] left-1/3 h-[360px] w-[360px] rounded-full bg-coral/15 blur-[100px]"
       style={{ animationDelay: "-12s" }}
     />
   </div>
@@ -261,7 +261,7 @@ export const Aurora = ({ className = "" }) => (
 /* ───────────── Shimmer line for loading states ───────────── */
 export const Shimmer = ({ className = "" }) => (
   <div
-    className={`relative overflow-hidden rounded-2xl bg-[#e7dfd0]/60 ${className}`}
+    className={`relative overflow-hidden rounded-2xl bg-line/60 ${className}`}
   >
     <div className="mb-shimmer absolute inset-0" />
   </div>
@@ -275,7 +275,7 @@ export const Backdrop = ({ onClick, className = "" }) => (
     exit={{ opacity: 0 }}
     transition={{ duration: 0.2 }}
     onClick={onClick}
-    className={`absolute inset-0 bg-[#0d1f35]/60 backdrop-blur-sm ${className}`}
+    className={`absolute inset-0 bg-navy/60 backdrop-blur-sm ${className}`}
   />
 );
 
@@ -352,7 +352,7 @@ export const RollingNumber = ({ value, prefix = "", className = "" }) => (
 export const BlurAccordion = ({ items }) => {
   const [open, setOpen] = useState(0);
   return (
-    <div className="divide-y divide-[#e7dfd0] overflow-hidden rounded-[28px] border border-[#e7dfd0] bg-white">
+    <div className="divide-y divide-line overflow-hidden rounded-[28px] border border-line bg-surface">
       {items.map((it, i) => {
         const isOpen = open === i;
         return (
@@ -362,13 +362,13 @@ export const BlurAccordion = ({ items }) => {
               aria-expanded={isOpen}
               className="flex w-full items-center justify-between gap-4 px-7 py-6 text-left"
             >
-              <span className="text-lg font-bold text-[#0d1f35]" style={{ fontFamily: "var(--font-display)" }}>
+              <span className="text-lg font-bold text-ink" style={{ fontFamily: "var(--font-display)" }}>
                 {it.q}
               </span>
-              <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f5f0e8]">
-                <span className="absolute h-0.5 w-3.5 rounded bg-[#0d1f35]" />
+              <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sandy">
+                <span className="absolute h-0.5 w-3.5 rounded bg-ink" />
                 <motion.span
-                  className="absolute h-0.5 w-3.5 rounded bg-[#0d1f35]"
+                  className="absolute h-0.5 w-3.5 rounded bg-ink"
                   animate={{ rotate: isOpen ? 0 : 90 }}
                   transition={{ type: "spring", stiffness: 400, damping: 26 }}
                 />
@@ -383,7 +383,7 @@ export const BlurAccordion = ({ items }) => {
                   transition={{ type: "spring", stiffness: 260, damping: 30 }}
                   className="overflow-hidden"
                 >
-                  <p className="px-7 pb-7 leading-relaxed text-[#5a6a7e]">{it.a}</p>
+                  <p className="px-7 pb-7 leading-relaxed text-muted">{it.a}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -401,7 +401,7 @@ export const ScrollProgress = () => {
   return (
     <motion.div
       aria-hidden
-      className="fixed inset-x-0 top-[72px] z-[45] h-[3px] origin-left bg-gradient-to-r from-[#c9a84c] to-[#0b6b62]"
+      className="fixed inset-x-0 top-[72px] z-[45] h-[3px] origin-left bg-gradient-to-r from-[#c9a84c] to-lagoon"
       style={{ scaleX: x }}
     />
   );

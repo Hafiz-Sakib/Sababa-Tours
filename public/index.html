@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#f6f2ea" />
     <meta
       name="description"
       content="Web site created using create-react-app"
@@ -25,6 +25,8 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Sababa Tours</title>
+    <!-- apply the saved (or system) theme before first paint: no flash -->
+    <script>try{var t=localStorage.getItem("sababa-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches)){var d=document.documentElement;d.classList.add("dark");d.style.colorScheme="dark";document.querySelector('meta[name="theme-color"]').setAttribute("content","#070f1b")}}catch(e){}</script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

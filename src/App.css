@@ -1,3 +1,44 @@
+/* ═════════════ Theme tokens ═════════════
+   Space-separated RGB so Tailwind can add opacity (bg-ink/10). Components use the semantic classes
+   (bg-surface, text-ink, border-line ...), so nothing needs a `dark:` prefix and nothing needs !important.
+
+   DAY   "ivory dunes": warm ivory page, white cards, deep-navy ink, lagoon teal + gold accents.
+   NIGHT "moonlit lagoon": deep navy, lifted surfaces with a visible hairline, moonlight text,
+         brighter teal for readability, same gold. */
+:root {
+  --page: 246 242 234;
+  --page-alt: 250 247 242;
+  --sandy: 245 240 232;
+  --surface: 255 255 255;
+  --line: 231 223 208;
+  --ink: 13 31 53;
+  --muted: 90 106 126;
+  --panel: 13 31 53;
+  --panel2: 19 34 54;
+  --btn: 13 31 53;
+  --lagoon: 11 107 98;
+  --lagoon-ink: 11 107 98;
+  --coral: 214 77 56;
+  --shadow-card: 0 1px 2px rgba(13, 31, 53, 0.04), 0 16px 40px -16px rgba(13, 31, 53, 0.16);
+  --shadow-dock: 0 12px 40px -10px rgba(13, 31, 53, 0.28), 0 2px 6px rgba(13, 31, 53, 0.08);
+}
+html.dark {
+  --page: 7 15 27;
+  --page-alt: 10 21 36;
+  --sandy: 12 25 43;
+  --surface: 16 31 52;
+  --line: 34 52 79;
+  --ink: 232 239 248;
+  --muted: 150 167 190;
+  --panel: 12 27 47;
+  --panel2: 15 32 54;
+  --btn: 12 120 111;
+  --lagoon: 16 142 130;
+  --lagoon-ink: 94 212 199;
+  --coral: 255 128 105;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.45), 0 18px 48px -16px rgba(0, 0, 0, 0.75);
+  --shadow-dock: 0 12px 40px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
 
 /* ─── CSS Variables ─── */
 :root {
@@ -22,7 +63,7 @@
   --teal-lt: #0f8f84;
   --gold: #c9a84c;
   --gold-lt: #e8c96a;
-  --sand: #f5f0e8;
+  --sand: rgb(var(--page));
   --sand-lt: #faf7f2;
   --coral: #e85d45;
   --slate: #5a6a7e;
@@ -54,78 +95,86 @@ body {
   line-height: 1.75;
   letter-spacing: -0.01em;
 
-  background: var(--sand);
-  color: var(--navy);
+  background: rgb(var(--page));
+  color: rgb(var(--ink));
 
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* ─── Dark Mode ─── */
+/* ─── Night extras (the colours themselves come from the tokens above) ─── */
 html.dark {
-  color-scheme: dark;
-  --navy: #e4ecf7;
+  --navy: #e4ecf7; /* legacy var(--navy) users */
   --navy-deep: #f2f6fc;
-  --sand: #080f1c;
-  --sand-lt: #0d1828;
-  --border: rgba(201, 168, 76, 0.12);
-  background: #070e1c;
+  --sand-lt: rgb(var(--page-alt));
+  --border: rgba(201, 168, 76, 0.16);
 }
 
-html.dark body,
-html.dark .App {
-  background: #070e1c;
+/* ambient glow, only visible through transparent sections */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(52rem 34rem at 8% -6%, rgba(201, 168, 76, 0.1), transparent 60%),
+    radial-gradient(44rem 30rem at 100% 105%, rgba(11, 107, 98, 0.08), transparent 60%);
+}
+html.dark body::before {
+  background:
+    radial-gradient(56rem 36rem at 8% -8%, rgba(16, 142, 130, 0.16), transparent 60%),
+    radial-gradient(46rem 30rem at 100% 108%, rgba(201, 168, 76, 0.08), transparent 60%),
+    radial-gradient(40rem 28rem at 60% 40%, rgba(99, 102, 241, 0.05), transparent 65%);
 }
 
-html.dark .bg-white,
-html.dark .bg-white\/95 {
-  background-color: #0d1828 !important;
-}
-
-html.dark main,
-html.dark .bg-\[\#f6f2ea\],
-html.dark .bg-\[\#fbf8f2\],
-html.dark .bg-\[\#f5f0e8\] {
-  background-color: #080f1c !important;
-}
-
-html.dark .bg-\[\#132236\],
-html.dark .bg-\[\#0d1f35\] {
-  background-color: #040a14 !important;
-}
-
-html.dark .text-\[\#132236\],
-html.dark .text-\[\#0d1f35\] {
-  color: #e4ecf7 !important;
-}
-
-html.dark .text-\[\#65758a\],
-html.dark .text-\[\#5a6a7e\] {
-  color: #8fa3bb !important;
-}
-
-html.dark .border-\[\#e7dfd0\] {
-  border-color: rgba(201, 168, 76, 0.14) !important;
-}
-
-html.dark input,
-html.dark textarea,
-html.dark select {
-  background-color: #0b1525 !important;
-  border-color: rgba(201, 168, 76, 0.18) !important;
-  color: #e4ecf7 !important;
-}
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: rgba(180, 195, 215, 0.5) !important;
-}
-
-html.dark img {
-  filter: saturate(0.9) brightness(0.82);
+/* photos: a touch calmer at night; logos in nav / footer stay true */
+html.dark img:not([data-keep]) {
+  filter: saturate(0.94) brightness(0.88);
 }
 html.dark nav img,
 html.dark footer img {
   filter: none;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: rgb(var(--muted) / 0.55);
+}
+html.dark input,
+html.dark textarea,
+html.dark select {
+  color-scheme: dark;
+}
+/* autofill would otherwise paint a pale yellow field at night */
+html.dark input:-webkit-autofill {
+  -webkit-text-fill-color: rgb(var(--ink));
+  box-shadow: 0 0 0 1000px rgb(var(--sandy)) inset;
+}
+
+/* Google Maps embeds are always bright: tone them for night (invert + rotate keeps water blue, roads light) */
+html.dark iframe[src*="maps"] {
+  filter: invert(0.92) hue-rotate(180deg) saturate(0.85) contrast(0.92);
+}
+
+/* soft status colours at night (red / amber / green utilities used for alerts, badges, validation) */
+html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.12); }
+html.dark .bg-red-100 { background-color: rgba(239, 68, 68, 0.18); }
+html.dark .text-red-400, html.dark .text-red-500, html.dark .text-red-600 { color: #fca5a5; }
+html.dark .border-red-200 { border-color: rgba(248, 113, 113, 0.35); }
+html.dark .ring-red-200 { --tw-ring-color: rgba(248, 113, 113, 0.35); }
+html.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.12); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.18); }
+html.dark .text-amber-600, html.dark .text-amber-700, html.dark .text-amber-800, html.dark .text-amber-900 { color: #fcd34d; }
+html.dark .border-amber-200 { border-color: rgba(251, 191, 36, 0.35); }
+html.dark .ring-amber-200 { --tw-ring-color: rgba(251, 191, 36, 0.35); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.18); }
+html.dark .text-emerald-600, html.dark .text-emerald-700, html.dark .text-green-600 { color: #6ee7b7; }
+html.dark .ring-emerald-200 { --tw-ring-color: rgba(52, 211, 153, 0.35); }
+
+/* the footer is always dark; at night give it a gold hairline so it does not melt into the page */
+html.dark footer {
+  border-top: 1px solid rgba(201, 168, 76, 0.14);
 }
 
 /* ─── Page Entry Animations ─── */
@@ -313,6 +362,11 @@ html.dark footer img {
     0 28px 70px rgba(13, 31, 53, 0.14),
     0 4px 12px rgba(13, 31, 53, 0.06);
 }
+html.dark .card-premium:hover {
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(201, 168, 76, 0.22);
+}
 
 /* ─── Pulse Ring (for active badges etc) ─── */
 .pulse-ring::after {
@@ -359,7 +413,7 @@ html.dark footer img {
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .glass-sand {
-  background: rgba(245, 240, 232, 0.72);
+  background: rgb(var(--sandy) / 0.72);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(201, 168, 76, 0.16);
 }
@@ -446,7 +500,7 @@ h6 {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--sand);
+  background: rgb(var(--page));
 }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(var(--gold), var(--teal));
@@ -466,15 +520,6 @@ h6 {
   outline-offset: 2px;
 }
 
-html.dark .planner-shell {
-  background-color: #0d1828 !important;
-}
-html.dark .planner-control-panel {
-  background-color: #0b1525 !important;
-}
-html.dark .planner-choice:not(.active) {
-  background-color: #0d1828 !important;
-}
 
 /* ─── About stat card ─── */
 .about-stat-card {
@@ -511,12 +556,8 @@ html.dark .planner-choice:not(.active) {
 }
 /* Premium Gradient Cards */
 .gradient-card {
-  background: linear-gradient(145deg, #ffffff, #f8f4eb);
+  background: linear-gradient(145deg, rgb(var(--surface)), rgb(var(--sandy)));
   border: 1px solid rgba(201, 168, 76, 0.2);
-}
-
-html.dark .gradient-card {
-  background: linear-gradient(145deg, #0d1828, #132236);
 }
 
 /* ─── Motion kit (Components/ui/Motion.js) ─── */
@@ -553,7 +594,7 @@ html.dark .gradient-card {
   animation: mbShimmer 1.4s infinite;
 }
 .mb-glass {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgb(var(--surface) / 0.7);
   backdrop-filter: blur(18px) saturate(1.4);
   -webkit-backdrop-filter: blur(18px) saturate(1.4);
 }
@@ -564,3 +605,51 @@ html.dark .gradient-card {
   }
 }
 
+
+/* ─── Day / night switch: the new theme grows out of the toggle button ───
+   Timing (set from src/theme.js): --vt-ms = 1100ms, --vt-ease = cubic-bezier(.5,.05,.25,1)
+   to-dark : the light page gets a hole that widens from the toggle, night spreads out like an eclipse.
+   to-light: the dark page shrinks back into the toggle, daylight floods in from the edges. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+:root[data-theme-switch]::view-transition-old(root) { z-index: 2; }
+:root[data-theme-switch]::view-transition-new(root) { z-index: 1; }
+
+@property --vt-r {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes vt-hole {
+  from { --vt-r: 0px; }
+  to { --vt-r: var(--vt-reach); }
+}
+:root[data-theme-switch="to-dark"]::view-transition-old(root) {
+  -webkit-mask-image: radial-gradient(circle at var(--vt-x) var(--vt-y), transparent var(--vt-r), #000 calc(var(--vt-r) + 1.5px));
+  mask-image: radial-gradient(circle at var(--vt-x) var(--vt-y), transparent var(--vt-r), #000 calc(var(--vt-r) + 1.5px));
+  animation: vt-hole var(--vt-ms) var(--vt-ease) both;
+}
+@keyframes vt-close {
+  from { clip-path: circle(var(--vt-reach) at var(--vt-x) var(--vt-y)); }
+  to { clip-path: circle(0px at var(--vt-x) var(--vt-y)); }
+}
+:root[data-theme-switch="to-light"]::view-transition-old(root) {
+  animation: vt-close var(--vt-ms) var(--vt-ease) both;
+}
+
+/* fallback for browsers without View Transitions: a calm cross-fade */
+.theme-fade,
+.theme-fade *,
+.theme-fade *::before,
+.theme-fade *::after {
+  transition:
+    background-color 1s ease,
+    color 1s ease,
+    border-color 1s ease,
+    box-shadow 1s ease !important;
+}

@@ -14,7 +14,7 @@ const ServiceCard = ({ service, dark = false }) => {
       ${
         dark
           ? "bg-white/6 border-white/10 hover:border-[#c9a84c]/30 hover:bg-white/9"
-          : "bg-white border-[#e7dfd0] hover:border-[#c9a84c]/30 hover:shadow-2xl"
+          : "bg-surface border-line hover:border-[#c9a84c]/30 hover:shadow-2xl"
       }
     `}
     >
@@ -34,9 +34,9 @@ const ServiceCard = ({ service, dark = false }) => {
           </span>
 
           {/* Rating */}
-          <div className="absolute bottom-5 right-5 flex items-center gap-1 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full">
+          <div className="absolute bottom-5 right-5 flex items-center gap-1 bg-surface/95 backdrop-blur px-3 py-1.5 rounded-full">
             <FiStar className="text-[#c9a84c] h-3.5 w-3.5 fill-current" />
-            <span className="text-xs font-black text-[#0d1f35]">4.9</span>
+            <span className="text-xs font-black text-ink">4.9</span>
           </div>
         </div>
       </Link>
@@ -47,14 +47,14 @@ const ServiceCard = ({ service, dark = false }) => {
           <h3
             className={`
             text-xl font-black leading-tight line-clamp-2 flex-1
-            ${dark ? "text-white" : "text-[#0d1f35]"}
+            ${dark ? "text-white" : "text-ink"}
           `}
             style={{ fontFamily: "var(--font-display)" }}
           >
             {name}
           </h3>
           <p
-            className="text-2xl font-black text-[#e85d45] shrink-0"
+            className="text-2xl font-black text-coral shrink-0"
             style={{ fontFamily: "var(--font-display)" }}
           >
             {balance}
@@ -62,19 +62,19 @@ const ServiceCard = ({ service, dark = false }) => {
         </div>
 
         <p
-          className={`text-sm leading-relaxed line-clamp-2 mb-6 ${dark ? "text-white/55" : "text-[#5a6a7e]"}`}
+          className={`text-sm leading-relaxed line-clamp-2 mb-6 ${dark ? "text-white/55" : "text-muted"}`}
         >
           {about}
         </p>
 
         <div
-          className={`flex items-center gap-5 text-xs mb-7 ${dark ? "text-white/40" : "text-[#5a6a7e]"}`}
+          className={`flex items-center gap-5 text-xs mb-7 ${dark ? "text-white/40" : "text-muted"}`}
         >
           <span className="flex items-center gap-1.5">
-            <FiClock className="text-[#0b6b62]" /> Flexible
+            <FiClock className="text-lagoon-ink" /> Flexible
           </span>
           <span className="flex items-center gap-1.5">
-            <FiMapPin className="text-[#0b6b62]" /> Guided
+            <FiMapPin className="text-lagoon-ink" /> Guided
           </span>
         </div>
 
@@ -85,8 +85,8 @@ const ServiceCard = ({ service, dark = false }) => {
             rounded-2xl transition-all duration-300 active:scale-95 btn-glow
             ${
               dark
-                ? "bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-[#0d1f35] hover:shadow-lg hover:shadow-[#c9a84c]/20"
-                : "bg-[#0d1f35] text-white hover:bg-[#0b6b62]"
+                ? "bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-navy hover:shadow-lg hover:shadow-[#c9a84c]/20"
+                : "bg-btn text-white hover:bg-lagoon"
             }
           `}
         >

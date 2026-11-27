@@ -102,16 +102,16 @@ const fmtLong = (d) =>
 
 const EASE = [0.22, 1, 0.36, 1];
 const inputBase =
-  "w-full border bg-[#f5f0e8] rounded-2xl px-4 py-3.5 text-base sm:text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-4 focus:ring-[#0b6b62]/10";
+  "w-full border bg-sandy rounded-2xl px-4 py-3.5 text-base sm:text-sm outline-none transition-all duration-200 focus:bg-surface focus:ring-4 focus:ring-lagoon/10";
 const inputCls = (err) =>
-  `${inputBase} ${err ? "border-red-400 focus:border-red-500" : "border-[#e7dfd0] focus:border-[#0b6b62]/60"}`;
+  `${inputBase} ${err ? "border-red-400 focus:border-red-500" : "border-line focus:border-lagoon/60"}`;
 
 const Label = ({ icon, children, optional }) => (
-  <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#5a6a7e] mb-2.5">
+  <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted mb-2.5">
     {icon}
     {children}
     {optional && (
-      <span className="normal-case tracking-normal font-medium text-[#5a6a7e]/60">(optional)</span>
+      <span className="normal-case tracking-normal font-medium text-muted/60">(optional)</span>
     )}
   </label>
 );
@@ -133,8 +133,8 @@ const FieldError = ({ msg }) => (
 
 const Heading = ({ title, text }) => (
   <div className="mb-4">
-    <h3 className="text-lg font-bold text-[#0d1f35] sm:text-xl">{title}</h3>
-    {text && <p className="mt-0.5 text-xs text-[#5a6a7e] sm:text-sm">{text}</p>}
+    <h3 className="text-lg font-bold text-ink sm:text-xl">{title}</h3>
+    {text && <p className="mt-0.5 text-xs text-muted sm:text-sm">{text}</p>}
   </div>
 );
 
@@ -154,10 +154,10 @@ const Stepper = ({ step, onJump }) => (
             {i > 0 && (
               <span
                 aria-hidden
-                className="absolute right-1/2 top-[17px] h-0.5 w-full -translate-y-1/2 overflow-hidden rounded-full bg-[#e7dfd0]"
+                className="absolute right-1/2 top-[17px] h-0.5 w-full -translate-y-1/2 overflow-hidden rounded-full bg-line"
               >
                 <motion.span
-                  className="block h-full origin-left bg-[#0b6b62]"
+                  className="block h-full origin-left bg-lagoon"
                   initial={false}
                   animate={{ scaleX: i <= step ? 1 : 0 }}
                   transition={{ duration: 0.5, ease: EASE }}
@@ -169,24 +169,24 @@ const Stepper = ({ step, onJump }) => (
               disabled={!done}
               onClick={() => onJump(i)}
               aria-label={`${done ? "Go back to " : ""}${s.label}`}
-              className={`relative z-10 grid h-9 w-9 place-items-center rounded-full text-sm font-semibold ring-4 ring-white transition-colors disabled:cursor-default ${
+              className={`relative z-10 grid h-9 w-9 place-items-center rounded-full text-sm font-semibold ring-4 ring-surface transition-colors disabled:cursor-default ${
                 done
-                  ? "bg-[#0b6b62] text-white hover:bg-[#0d1f35]"
+                  ? "bg-lagoon text-white hover:bg-btn"
                   : cur
-                    ? "bg-[#0d1f35] text-white"
-                    : "bg-[#f5f0e8] text-[#5a6a7e]"
+                    ? "bg-btn text-white"
+                    : "bg-sandy text-muted"
               }`}
             >
               {done ? <FiCheck size={16} strokeWidth={3} /> : i + 1}
             </button>
             <span
               className={`mt-2 text-[11px] font-semibold leading-tight sm:text-sm ${
-                cur ? "text-[#0d1f35]" : done ? "text-[#0b6b62]" : "text-[#5a6a7e]/60"
+                cur ? "text-ink" : done ? "text-lagoon-ink" : "text-muted/60"
               }`}
             >
               {s.label}
             </span>
-            <span className="mt-0.5 hidden text-xs text-[#5a6a7e]/70 md:block">{s.hint}</span>
+            <span className="mt-0.5 hidden text-xs text-muted/70 md:block">{s.hint}</span>
           </li>
         );
       })}
@@ -196,27 +196,27 @@ const Stepper = ({ step, onJump }) => (
 
 /* ───────── Receipt ───────── */
 const Row = ({ k, v }) => (
-  <div className="flex items-start justify-between gap-4 py-1.5 text-sm text-[#5a6a7e]">
+  <div className="flex items-start justify-between gap-4 py-1.5 text-sm text-muted">
     <span className="min-w-0">{k}</span>
-    <span className="shrink-0 text-right font-medium tabular-nums text-[#0d1f35]">{v}</span>
+    <span className="shrink-0 text-right font-medium tabular-nums text-ink">{v}</span>
   </div>
 );
 
 const Receipt = ({ service, travelers, date, total, className = "" }) => (
   <div
-    className={`relative overflow-hidden rounded-[1.75rem] bg-white p-5 shadow-[0_20px_60px_rgba(13,31,53,0.12)] ring-1 ring-[#e7dfd0] sm:p-6 ${className}`}
+    className={`relative overflow-hidden rounded-[1.75rem] bg-surface p-5 shadow-[0_20px_60px_rgba(13,31,53,0.12)] ring-1 ring-line sm:p-6 ${className}`}
   >
-    <div aria-hidden className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#c9a84c] via-[#e8c96a] to-[#0b6b62]" />
+    <div aria-hidden className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#c9a84c] via-[#e8c96a] to-lagoon" />
     <div className="flex items-center justify-between gap-3 pt-1">
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-[#5a6a7e]">Your request</p>
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">Your request</p>
       {service.category && (
-        <span className="rounded-full bg-[#0b6b62]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#0b6b62]">
+        <span className="rounded-full bg-lagoon/10 px-2.5 py-0.5 text-[11px] font-semibold text-lagoon-ink">
           {service.category}
         </span>
       )}
     </div>
-    <p className="mt-3 line-clamp-2 text-base font-bold leading-snug text-[#0d1f35]">{service.name}</p>
-    <div className="mt-3 divide-y divide-dashed divide-[#e7dfd0]">
+    <p className="mt-3 line-clamp-2 text-base font-bold leading-snug text-ink">{service.name}</p>
+    <div className="mt-3 divide-y divide-dashed divide-line">
       <div className="pb-2">
         <Row k="Location" v={service.location || "Bangladesh"} />
         <Row k="Duration" v={service.duration || "Flexible"} />
@@ -227,11 +227,11 @@ const Receipt = ({ service, travelers, date, total, className = "" }) => (
         <Row k={`${service.balance} × ${travelers}`} v={`BDT ${total.toLocaleString()}`} />
       </div>
     </div>
-    <div className="mt-3 flex items-end justify-between gap-4 border-t border-[#e7dfd0] pt-4">
-      <span className="text-sm font-semibold text-[#0d1f35]">Total estimate</span>
-      <RollingNumber value={total} prefix="BDT " className="text-3xl font-bold text-[#e85d45]" />
+    <div className="mt-3 flex items-end justify-between gap-4 border-t border-line pt-4">
+      <span className="text-sm font-semibold text-ink">Total estimate</span>
+      <RollingNumber value={total} prefix="BDT " className="text-3xl font-bold text-coral" />
     </div>
-    <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-[#5a6a7e]">
+    <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-muted">
       <FiClock size={14} className="mt-0.5 shrink-0" />
       Nothing is charged now. Our team confirms the final amount and next steps within 24 hours.
     </p>
@@ -506,7 +506,7 @@ const Booking = () => {
   /* ─────────── Loading / not found ─────────── */
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#f5f0e8] pt-[76px]">
+      <main className="min-h-screen bg-sandy pt-[76px]">
         <Shimmer className="h-[340px] rounded-none" />
         <div className="mx-auto mt-8 grid max-w-7xl gap-6 px-6 lg:grid-cols-[1fr_380px] lg:px-10">
           <Shimmer className="h-96 rounded-3xl" />
@@ -518,13 +518,13 @@ const Booking = () => {
 
   if (!service) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center bg-[#f5f0e8] px-6 text-center">
+      <main className="min-h-screen flex flex-col items-center justify-center bg-sandy px-6 text-center">
         <div className="text-6xl mb-6">🗺️</div>
-        <h1 className="text-4xl md:text-5xl font-black text-[#0d1f35] mb-4" style={{ fontFamily: "var(--font-display)" }}>
+        <h1 className="text-4xl md:text-5xl font-black text-ink mb-4" style={{ fontFamily: "var(--font-display)" }}>
           Package Not Found
         </h1>
-        <p className="text-[#5a6a7e] mb-8">Sorry, the tour you're looking for is no longer available.</p>
-        <Link to="/services" className="px-8 py-4 bg-[#0d1f35] text-white rounded-full font-bold hover:bg-[#0b6b62] transition-all">
+        <p className="text-muted mb-8">Sorry, the tour you're looking for is no longer available.</p>
+        <Link to="/services" className="px-8 py-4 bg-btn text-white rounded-full font-bold hover:bg-lagoon transition-all">
           Browse All Packages
         </Link>
       </main>
@@ -548,16 +548,16 @@ const Booking = () => {
   const e = tried || Object.keys(errors).length ? errors : {};
 
   return (
-    <main className="min-h-screen bg-[#f5f0e8] pt-[76px] text-[#0d1f35] pb-28 lg:pb-0">
+    <main className="min-h-screen bg-sandy pt-[76px] text-ink pb-28 lg:pb-0">
       {/* ───────── Hero ───────── */}
-      <section className="relative bg-[#0d1f35] overflow-hidden">
+      <section className="relative bg-panel overflow-hidden">
         <img
           src={service.picture}
           alt={service.name}
           onLoad={() => setImgLoaded(true)}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imgLoaded ? "opacity-55" : "opacity-0"}`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d1f35] via-[#0d1f35]/60 to-[#0d1f35]/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-navy/30" />
         <Aurora className="opacity-60" />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-8 pb-14 md:pb-16 min-h-[320px] md:min-h-[380px] flex flex-col justify-between">
           <Link
@@ -597,28 +597,28 @@ const Booking = () => {
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-8 lg:py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 -mt-14 md:-mt-16 mb-8 relative z-10">
           {highlights.map((h) => (
-            <div key={h.label} className="bg-white border border-[#e7dfd0] rounded-2xl p-4 text-center shadow-sm">
-              <div className="text-[#0b6b62] text-lg mb-1.5 flex justify-center">{h.icon}</div>
-              <p className="font-bold text-[#0d1f35] leading-tight text-sm">{h.value}</p>
-              <p className="text-[10px] uppercase tracking-widest text-[#5a6a7e] font-bold mt-1">{h.label}</p>
+            <div key={h.label} className="bg-surface border border-line rounded-2xl p-4 text-center shadow-sm">
+              <div className="text-lagoon-ink text-lg mb-1.5 flex justify-center">{h.icon}</div>
+              <p className="font-bold text-ink leading-tight text-sm">{h.value}</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted font-bold mt-1">{h.label}</p>
             </div>
           ))}
         </div>
 
         <div ref={wizardTop} className="scroll-mt-24 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8">
-          <div className="min-w-0 rounded-[1.75rem] bg-white p-4 shadow-[0_20px_60px_rgba(13,31,53,0.10)] ring-1 ring-[#e7dfd0] sm:rounded-[2rem] sm:p-8">
+          <div className="min-w-0 rounded-[1.75rem] bg-surface p-4 shadow-[0_20px_60px_rgba(13,31,53,0.10)] ring-1 ring-line sm:rounded-[2rem] sm:p-8">
             {existingBooking ? (
               <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
                 <div className="mx-auto w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mb-3">
                   <FiCheck />
                 </div>
                 <h3 className="text-xl font-black mb-1">Request already sent</h3>
-                <p className="text-sm text-[#5a6a7e] mb-5">
+                <p className="text-sm text-muted mb-5">
                   Status: <b className="capitalize text-amber-700">{existingBooking.status}</b>
                   <br />
                   We'll contact you shortly.
                 </p>
-                <Link to="/my-bookings" className="inline-block px-7 py-3 bg-[#0d1f35] text-white rounded-full text-sm font-bold hover:bg-[#0b6b62] transition-all">
+                <Link to="/my-bookings" className="inline-block px-7 py-3 bg-btn text-white rounded-full text-sm font-bold hover:bg-lagoon transition-all">
                   View My Bookings
                 </Link>
               </div>
@@ -633,40 +633,40 @@ const Booking = () => {
                       <div className="space-y-7">
                         <div>
                           <Heading title="Your package" text="You can change travelers and date in the next steps." />
-                          <TiltCard max={3} className="flex gap-4 overflow-hidden rounded-3xl bg-[#f5f0e8] p-3 ring-1 ring-[#e7dfd0]">
+                          <TiltCard max={3} className="flex gap-4 overflow-hidden rounded-3xl bg-sandy p-3 ring-1 ring-line">
                             <img src={service.picture} alt={service.name} className="h-24 w-28 shrink-0 rounded-2xl object-cover sm:h-28 sm:w-36" />
                             <div className="min-w-0 py-1">
-                              <p className="line-clamp-2 font-bold leading-snug text-[#0d1f35]">{service.name}</p>
-                              <p className="mt-1 flex items-center gap-1.5 text-xs text-[#5a6a7e]">
+                              <p className="line-clamp-2 font-bold leading-snug text-ink">{service.name}</p>
+                              <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
                                 <FiMapPin size={12} /> {service.location || "Bangladesh"} · {service.duration || "Flexible"}
                               </p>
-                              <p className="mt-2 text-xl font-bold text-[#e85d45]">
-                                {service.balance} <span className="text-xs font-normal text-[#5a6a7e]">/ person</span>
+                              <p className="mt-2 text-xl font-bold text-coral">
+                                {service.balance} <span className="text-xs font-normal text-muted">/ person</span>
                               </p>
                             </div>
                           </TiltCard>
                         </div>
 
-                        <div className="relative overflow-hidden rounded-[1.75rem] bg-white p-4 ring-1 ring-[#e7dfd0] sm:p-7">
-                          <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[#0b6b62]/10 blur-3xl" />
+                        <div className="relative overflow-hidden rounded-[1.75rem] bg-surface p-4 ring-1 ring-line sm:p-7">
+                          <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-lagoon/10 blur-3xl" />
                           <div className="relative flex items-center gap-3.5">
-                            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#0b6b62]/10 text-[#0b6b62] ring-1 ring-[#0b6b62]/15 sm:h-12 sm:w-12">
+                            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-lagoon/10 text-lagoon-ink ring-1 ring-lagoon/15 sm:h-12 sm:w-12">
                               <FiUsers size={22} />
                             </span>
                             <div className="min-w-0">
                               <h3 className="text-base font-bold sm:text-lg">Travelers</h3>
-                              <p className="text-xs text-[#5a6a7e] sm:text-sm">Up to {MAX_TRAVELERS} per request</p>
+                              <p className="text-xs text-muted sm:text-sm">Up to {MAX_TRAVELERS} per request</p>
                             </div>
                           </div>
 
                           <div className="relative mt-6 flex flex-col items-center">
-                            <div className="flex w-full max-w-md items-center justify-between rounded-full bg-[#f5f0e8] px-2.5 pb-5 pt-2.5 ring-1 ring-[#e7dfd0] sm:px-3.5 sm:pb-6 sm:pt-3.5">
+                            <div className="flex w-full max-w-md items-center justify-between rounded-full bg-sandy px-2.5 pb-5 pt-2.5 ring-1 ring-line sm:px-3.5 sm:pb-6 sm:pt-3.5">
                               <button
                                 type="button"
                                 aria-label="Fewer travelers"
                                 disabled={travelers <= 1}
                                 onClick={() => setTravelers((n) => Math.max(1, n - 1))}
-                                className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white text-[#5a6a7e] ring-1 ring-[#e7dfd0] transition hover:text-[#0d1f35] active:scale-90 disabled:opacity-40 sm:h-14 sm:w-14"
+                                className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-surface text-muted ring-1 ring-line transition hover:text-ink active:scale-90 disabled:opacity-40 sm:h-14 sm:w-14"
                               >
                                 <FiMinus size={20} />
                               </button>
@@ -678,12 +678,12 @@ const Booking = () => {
                                 aria-label="More travelers"
                                 disabled={travelers >= MAX_TRAVELERS}
                                 onClick={() => setTravelers((n) => Math.min(MAX_TRAVELERS, n + 1))}
-                                className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#0d1f35] text-white transition hover:bg-[#0b6b62] active:scale-90 disabled:opacity-40 sm:h-14 sm:w-14"
+                                className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-btn text-white transition hover:bg-lagoon active:scale-90 disabled:opacity-40 sm:h-14 sm:w-14"
                               >
                                 <FiPlus size={22} />
                               </button>
                             </div>
-                            <span className="relative z-10 -mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-[#0b6b62]/10 px-4 py-1.5 text-xs font-semibold text-[#0b6b62] ring-4 ring-white sm:text-sm">
+                            <span className="relative z-10 -mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-lagoon/10 px-4 py-1.5 text-xs font-semibold text-lagoon-ink ring-4 ring-surface sm:text-sm">
                               <FiUsers size={15} />
                               <span className="tabular-nums">{travelers}</span> {travelers === 1 ? "traveler" : "travelers"}
                             </span>
@@ -698,10 +698,10 @@ const Booking = () => {
                               step={1}
                               value={travelers}
                               onChange={(ev) => setTravelers(+ev.target.value)}
-                              className="w-full accent-[#0b6b62]"
-                              style={{ background: `linear-gradient(90deg,#0b6b62 ${pct}%,#e7dfd0 ${pct}%)`, height: 6, borderRadius: 99, appearance: "auto" }}
+                              className="w-full accent-lagoon"
+                              style={{ background: `linear-gradient(90deg,rgb(var(--lagoon)) ${pct}%,rgb(var(--line)) ${pct}%)`, height: 6, borderRadius: 99, appearance: "auto" }}
                             />
-                            <div className="mt-1 flex justify-between px-0.5 text-xs font-medium tabular-nums text-[#5a6a7e]">
+                            <div className="mt-1 flex justify-between px-0.5 text-xs font-medium tabular-nums text-muted">
                               <span>1</span>
                               <span>{MAX_TRAVELERS}</span>
                             </div>
@@ -716,8 +716,8 @@ const Booking = () => {
                                 aria-pressed={travelers === n}
                                 className={`h-9 min-w-[3rem] rounded-full px-4 text-xs font-semibold tabular-nums ring-1 transition active:scale-95 ${
                                   travelers === n
-                                    ? "bg-[#0b6b62]/10 text-[#0b6b62] ring-2 ring-[#0b6b62]"
-                                    : "bg-white text-[#5a6a7e] ring-[#e7dfd0] hover:ring-[#0b6b62]/60"
+                                    ? "bg-lagoon/10 text-lagoon-ink ring-2 ring-lagoon"
+                                    : "bg-surface text-muted ring-line hover:ring-lagoon/60"
                                 }`}
                               >
                                 {n}
@@ -748,21 +748,21 @@ const Booking = () => {
                         <div>
                           <Heading title={date ? fmtLong(date) : "Then review your day"} text={date ? "Your preferred start date." : "Select a date on the calendar."} />
                           <div className="space-y-3">
-                            <div className="flex items-center gap-3.5 rounded-2xl bg-[#f5f0e8] p-4 ring-1 ring-[#e7dfd0]">
-                              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-[#0b6b62]">
+                            <div className="flex items-center gap-3.5 rounded-2xl bg-sandy p-4 ring-1 ring-line">
+                              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-surface text-lagoon-ink">
                                 <FiCalendar size={20} />
                               </span>
                               <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5a6a7e]">Trip date</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Trip date</p>
                                 <p className="font-semibold">{date ? fmtLong(date) : "Not selected yet"}</p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3.5 rounded-2xl bg-[#f5f0e8] p-4 ring-1 ring-[#e7dfd0]">
-                              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-[#0b6b62]">
+                            <div className="flex items-center gap-3.5 rounded-2xl bg-sandy p-4 ring-1 ring-line">
+                              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-surface text-lagoon-ink">
                                 <FiClock size={20} />
                               </span>
                               <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5a6a7e]">Duration</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Duration</p>
                                 <p className="font-semibold">{service.duration || "Flexible"}</p>
                               </div>
                             </div>
@@ -778,9 +778,9 @@ const Booking = () => {
                     {step === 2 && (
                       <div className="space-y-7">
                         {!user && (
-                          <div className="flex gap-3 items-start bg-[#0b6b62]/8 border border-[#0b6b62]/20 rounded-2xl p-4">
-                            <FiLock className="text-[#0b6b62] mt-0.5 shrink-0" />
-                            <p className="text-xs text-[#0d1f35]/80 leading-relaxed">
+                          <div className="flex gap-3 items-start bg-lagoon/8 border border-lagoon/20 rounded-2xl p-4">
+                            <FiLock className="text-lagoon-ink mt-0.5 shrink-0" />
+                            <p className="text-xs text-ink/80 leading-relaxed">
                               Fill in your details freely. You'll be asked to <b>log in only when you confirm</b> — your answers stay saved.
                             </p>
                           </div>
@@ -819,7 +819,7 @@ const Booking = () => {
                               />
                               <div className="flex justify-between">
                                 <FieldError msg={e.address} />
-                                <p className="text-xs text-[#5a6a7e] mt-2 ml-auto">{wordCount}/{MAX_ADDRESS_WORDS} words</p>
+                                <p className="text-xs text-muted mt-2 ml-auto">{wordCount}/{MAX_ADDRESS_WORDS} words</p>
                               </div>
                             </div>
                             <div>
@@ -847,24 +847,24 @@ const Booking = () => {
                           [1, "Trip date", fmtLong(date), service.duration || ""],
                           [2, "Contact", phoneNumber, address],
                         ].map(([to, k, a, b]) => (
-                          <div key={k} className="flex items-start justify-between gap-3 rounded-2xl bg-[#f5f0e8] p-4 ring-1 ring-[#e7dfd0]">
+                          <div key={k} className="flex items-start justify-between gap-3 rounded-2xl bg-sandy p-4 ring-1 ring-line">
                             <div className="min-w-0">
-                              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5a6a7e]">{k}</p>
+                              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">{k}</p>
                               <p className="mt-0.5 break-words font-semibold">{a}</p>
-                              {b && <p className="mt-0.5 break-words text-sm text-[#5a6a7e]">{b}</p>}
+                              {b && <p className="mt-0.5 break-words text-sm text-muted">{b}</p>}
                             </div>
                             <button
                               type="button"
                               onClick={() => jump(to)}
-                              className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-[#0b6b62] ring-1 ring-[#0b6b62]/30 transition hover:ring-[#0b6b62]"
+                              className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-lagoon-ink ring-1 ring-lagoon/30 transition hover:ring-lagoon"
                             >
                               <FiEdit2 size={14} /> Edit
                             </button>
                           </div>
                         ))}
                         {notes && (
-                          <div className="rounded-2xl bg-[#f5f0e8] p-4 ring-1 ring-[#e7dfd0]">
-                            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5a6a7e]">Special requests</p>
+                          <div className="rounded-2xl bg-sandy p-4 ring-1 ring-line">
+                            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Special requests</p>
                             <p className="mt-0.5 break-words text-sm">{notes}</p>
                           </div>
                         )}
@@ -881,26 +881,26 @@ const Booking = () => {
                         </div>
                         <label
                           className={`flex cursor-pointer items-start gap-3 rounded-2xl p-4 ring-1 transition ${
-                            agree ? "bg-[#0b6b62]/8 ring-[#0b6b62]" : tried && !agree ? "ring-red-400" : "ring-[#e7dfd0]"
+                            agree ? "bg-lagoon/8 ring-lagoon" : tried && !agree ? "ring-red-400" : "ring-line"
                           }`}
                         >
                           <input type="checkbox" checked={agree} onChange={(ev) => setAgree(ev.target.checked)} className="peer sr-only" />
                           <span
                             aria-hidden
-                            className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md ring-1 transition peer-focus-visible:ring-2 peer-focus-visible:ring-[#0b6b62] ${
-                              agree ? "bg-[#0b6b62] text-white ring-[#0b6b62]" : "bg-white text-transparent ring-[#e7dfd0]"
+                            className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md ring-1 transition peer-focus-visible:ring-2 peer-focus-visible:ring-lagoon ${
+                              agree ? "bg-lagoon text-white ring-lagoon" : "bg-surface text-transparent ring-line"
                             }`}
                           >
                             <FiCheck size={14} strokeWidth={3} />
                           </span>
-                          <span className="text-sm leading-relaxed text-[#5a6a7e]">
-                            I understand the total estimate is <b className="text-[#0d1f35]">BDT {total.toLocaleString()}</b>, that the final amount is confirmed by the travel desk, and that I can cancel while the request is pending.
+                          <span className="text-sm leading-relaxed text-muted">
+                            I understand the total estimate is <b className="text-ink">BDT {total.toLocaleString()}</b>, that the final amount is confirmed by the travel desk, and that I can cancel while the request is pending.
                           </span>
                         </label>
                         {!user && (
-                          <div className="rounded-2xl bg-[#0b6b62]/8 p-4 text-center ring-1 ring-[#0b6b62]/20">
-                            <p className="text-sm font-semibold text-[#0b6b62]">Log in to send your request</p>
-                            <p className="mt-1 text-xs text-[#5a6a7e]">Your details are saved, you will come right back here.</p>
+                          <div className="rounded-2xl bg-lagoon/8 p-4 text-center ring-1 ring-lagoon/20">
+                            <p className="text-sm font-semibold text-lagoon-ink">Log in to send your request</p>
+                            <p className="mt-1 text-xs text-muted">Your details are saved, you will come right back here.</p>
                           </div>
                         )}
                       </div>
@@ -909,13 +909,13 @@ const Booking = () => {
                 </AnimatePresence>
 
                 {/* nav bar: pinned on phones, a row in the card on larger screens */}
-                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e7dfd0] bg-white/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:static sm:z-auto sm:mt-8 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-6 sm:backdrop-blur-none">
+                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:static sm:z-auto sm:mt-8 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-6 sm:backdrop-blur-none">
                   <div className="mx-auto flex max-w-6xl items-center justify-between gap-2.5 sm:gap-4">
                     <button
                       type="button"
                       onClick={() => go(-1)}
                       aria-label="Back"
-                      className={`inline-flex h-12 items-center gap-2 rounded-full border border-[#e7dfd0] bg-white px-4 text-sm font-bold text-[#0d1f35] transition hover:bg-[#f5f0e8] active:scale-95 sm:px-7 ${step === 0 ? "hidden" : ""}`}
+                      className={`inline-flex h-12 items-center gap-2 rounded-full border border-line bg-surface px-4 text-sm font-bold text-ink transition hover:bg-sandy active:scale-95 sm:px-7 ${step === 0 ? "hidden" : ""}`}
                     >
                       <FiArrowLeft /> <span className="hidden sm:inline">Back</span>
                     </button>
@@ -923,11 +923,11 @@ const Booking = () => {
                       type="button"
                       onClick={() => setSheet(true)}
                       aria-label="Show request summary"
-                      className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl bg-[#0b6b62]/8 px-3 py-2 text-left ring-1 ring-[#0b6b62]/15 sm:mr-auto sm:max-w-[17rem] sm:flex-none lg:pointer-events-none lg:cursor-default"
+                      className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl bg-lagoon/8 px-3 py-2 text-left ring-1 ring-lagoon/15 sm:mr-auto sm:max-w-[17rem] sm:flex-none lg:pointer-events-none lg:cursor-default"
                     >
                       <span className="min-w-0">
-                        <span className="block truncate text-[11px] text-[#5a6a7e] sm:text-xs">Total estimate</span>
-                        <RollingNumber value={total} prefix="BDT " className="text-base font-bold text-[#0d1f35] sm:text-xl" />
+                        <span className="block truncate text-[11px] text-muted sm:text-xs">Total estimate</span>
+                        <RollingNumber value={total} prefix="BDT " className="text-base font-bold text-ink sm:text-xl" />
                       </span>
                     </button>
                     {step < 3 ? (
@@ -935,7 +935,7 @@ const Booking = () => {
                         type="button"
                         onClick={() => go(1)}
                         aria-disabled={!stepOk[step]()}
-                        className={`group inline-flex h-12 items-center gap-2 rounded-full bg-[#0d1f35] px-6 text-sm font-bold text-white transition hover:bg-[#0b6b62] active:scale-95 sm:px-8 ${stepOk[step]() ? "" : "opacity-80"}`}
+                        className={`group inline-flex h-12 items-center gap-2 rounded-full bg-btn px-6 text-sm font-bold text-white transition hover:bg-lagoon active:scale-95 sm:px-8 ${stepOk[step]() ? "" : "opacity-80"}`}
                       >
                         Continue <FiArrowRight className="transition-transform group-hover:translate-x-1" />
                       </button>
@@ -944,9 +944,9 @@ const Booking = () => {
                         type="button"
                         onClick={submit}
                         disabled={submitting}
-                        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] px-5 text-sm font-black text-[#0d1f35] transition hover:shadow-lg hover:shadow-[#c9a84c]/30 active:scale-95 disabled:opacity-60 sm:px-8"
+                        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] px-5 text-sm font-black text-navy transition hover:shadow-lg hover:shadow-[#c9a84c]/30 active:scale-95 disabled:opacity-60 sm:px-8"
                       >
-                        {submitting && <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#0d1f35]/30 border-t-[#0d1f35]" />}
+                        {submitting && <span className="h-4 w-4 animate-spin rounded-full border-2 border-navy/30 border-t-navy" />}
                         {submitting ? "Submitting…" : user ? "Confirm request" : "Log in to confirm"}
                       </button>
                     )}
@@ -959,10 +959,10 @@ const Booking = () => {
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-3">
               <Receipt service={service} travelers={travelers} date={date} total={total} />
-              <ul className="grid grid-cols-2 gap-2 px-2 text-[11px] font-semibold text-[#5a6a7e]">
+              <ul className="grid grid-cols-2 gap-2 px-2 text-[11px] font-semibold text-muted">
                 {["No payment now", "Reply within 24h", "Cancel while pending", "Secure login"].map((t) => (
                   <li key={t} className="flex items-center gap-1.5">
-                    <FiCheck className="text-[#0b6b62]" /> {t}
+                    <FiCheck className="text-lagoon-ink" /> {t}
                   </li>
                 ))}
               </ul>
@@ -973,17 +973,17 @@ const Booking = () => {
         {/* ───────── Overview ───────── */}
         <div className="mt-12 grid gap-8 lg:grid-cols-2">
           <Reveal>
-            <div className="h-full bg-white border border-[#e7dfd0] rounded-[28px] p-7 md:p-9 shadow-sm">
+            <div className="h-full bg-surface border border-line rounded-[28px] p-7 md:p-9 shadow-sm">
               <h2 className="text-3xl font-black mb-4" style={serif}>Trip Overview</h2>
-              <p className="text-[#5a6a7e] leading-relaxed whitespace-pre-line">{service.about}</p>
-              <h3 className="font-black uppercase tracking-widest text-[10px] text-[#0b6b62] mt-9 mb-4">What's included</h3>
+              <p className="text-muted leading-relaxed whitespace-pre-line">{service.about}</p>
+              <h3 className="font-black uppercase tracking-widest text-[10px] text-lagoon-ink mt-9 mb-4">What's included</h3>
               <div className="grid sm:grid-cols-2 gap-3">
                 {inclusions.map((item) => (
-                  <div key={item} className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#f5f0e8]">
-                    <span className="w-7 h-7 rounded-xl bg-[#0b6b62]/10 flex items-center justify-center text-[#0b6b62] shrink-0">
+                  <div key={item} className="flex items-center gap-3 p-3.5 rounded-2xl bg-sandy">
+                    <span className="w-7 h-7 rounded-xl bg-lagoon/10 flex items-center justify-center text-lagoon-ink shrink-0">
                       <FiCheck size={14} />
                     </span>
-                    <span className="text-sm text-[#5a6a7e] font-medium">{item}</span>
+                    <span className="text-sm text-muted font-medium">{item}</span>
                   </div>
                 ))}
               </div>
@@ -991,15 +991,15 @@ const Booking = () => {
           </Reveal>
           <div className="space-y-8">
             <Reveal delay={0.08}>
-              <div className="bg-white border border-[#e7dfd0] rounded-[28px] p-7 md:p-9 shadow-sm">
+              <div className="bg-surface border border-line rounded-[28px] p-7 md:p-9 shadow-sm">
                 <h2 className="text-2xl font-black mb-5" style={serif}>How it works</h2>
                 <ol className="space-y-4">
                   {howItWorks.map((s, i) => (
                     <li key={s.title} className="flex gap-4">
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0d1f35] text-sm font-bold text-white">{i + 1}</span>
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-btn text-sm font-bold text-white">{i + 1}</span>
                       <div>
                         <p className="font-bold">{s.title}</p>
-                        <p className="text-sm text-[#5a6a7e]">{s.text}</p>
+                        <p className="text-sm text-muted">{s.text}</p>
                       </div>
                     </li>
                   ))}
@@ -1021,14 +1021,14 @@ const Booking = () => {
                 <TiltCard key={s._id} max={4} className="rounded-3xl">
                   <Link
                     to={`/booking/${s._id}`}
-                    className="group block bg-white border border-[#e7dfd0] rounded-3xl overflow-hidden hover:shadow-xl transition-shadow"
+                    className="group block bg-surface border border-line rounded-3xl overflow-hidden hover:shadow-xl transition-shadow"
                   >
                     <div className="aspect-[16/10] overflow-hidden">
                       <img src={s.picture} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div className="p-5 flex items-center justify-between gap-3">
                       <p className="font-bold leading-tight line-clamp-2">{s.name}</p>
-                      <p className="font-bold text-[#e85d45] shrink-0">{s.balance}</p>
+                      <p className="font-bold text-coral shrink-0">{s.balance}</p>
                     </div>
                   </Link>
                 </TiltCard>
@@ -1041,7 +1041,7 @@ const Booking = () => {
       <AnimatePresence>
         {sheet && (
           <div className="fixed inset-0 z-[70] flex items-end justify-center p-4 sm:items-center lg:hidden">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSheet(false)} className="absolute inset-0 bg-[#0d1f35]/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSheet(false)} className="absolute inset-0 bg-navy/60 backdrop-blur-sm" />
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1050,7 +1050,7 @@ const Booking = () => {
               className="relative w-full max-w-sm"
             >
               <Receipt service={service} travelers={travelers} date={date} total={total} />
-              <button onClick={() => setSheet(false)} className="mt-3 w-full rounded-full bg-white py-3 text-sm font-bold text-[#0d1f35]">
+              <button onClick={() => setSheet(false)} className="mt-3 w-full rounded-full bg-surface py-3 text-sm font-bold text-ink">
                 Close
               </button>
             </motion.div>

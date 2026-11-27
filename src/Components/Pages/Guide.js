@@ -19,13 +19,13 @@ const Ring = ({ pct }) => {
   return (
     <div className="relative h-36 w-36">
       <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-        <circle cx="60" cy="60" r={r} fill="none" stroke="#e7dfd0" strokeWidth="10" />
+        <circle cx="60" cy="60" r={r} fill="none" className="stroke-line" strokeWidth="10" />
         <motion.circle
           cx="60"
           cy="60"
           r={r}
           fill="none"
-          stroke="#0b6b62"
+          className="stroke-lagoon"
           strokeWidth="10"
           strokeLinecap="round"
           strokeDasharray={c}
@@ -37,7 +37,7 @@ const Ring = ({ pct }) => {
       <div className="absolute inset-0 grid place-items-center text-center">
         <div>
           <p className="text-3xl font-bold tabular-nums">{Math.round(pct)}%</p>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#5a6a7e]">packed</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted">packed</p>
         </div>
       </div>
     </div>
@@ -63,10 +63,10 @@ const Guide = () => {
   );
 
   return (
-    <main className="min-h-screen bg-[#f5f0e8] pt-[76px] text-[#0d1f35]">
+    <main className="min-h-screen bg-sandy pt-[76px] text-ink">
       <ScrollProgress />
 
-      <section className="relative overflow-hidden bg-[#0d1f35] py-20 text-white md:py-28">
+      <section className="relative overflow-hidden bg-panel py-20 text-white md:py-28">
         <Aurora />
         <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
           <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#e8c96a]">Travel guide</p>
@@ -84,10 +84,10 @@ const Guide = () => {
 
         <div className="grid gap-8 md:grid-cols-[220px_1fr]">
           <div className="md:sticky md:top-28 md:self-start">
-            <div className="flex flex-col items-center rounded-[2rem] border border-[#e7dfd0] bg-white p-6 text-center shadow-sm">
+            <div className="flex flex-col items-center rounded-[2rem] border border-line bg-surface p-6 text-center shadow-sm">
               <Ring pct={pct} />
               <p className="mt-4 text-sm font-semibold">{msg}</p>
-              <button onClick={reset} className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#e7dfd0] px-4 py-2 text-xs font-bold text-[#5a6a7e] transition hover:bg-[#f5f0e8]">
+              <button onClick={reset} className="mt-4 inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-xs font-bold text-muted transition hover:bg-sandy">
                 <FiRotateCcw /> Reset
               </button>
             </div>
@@ -102,12 +102,12 @@ const Guide = () => {
                     type="button"
                     onClick={() => toggle(it)}
                     aria-pressed={on}
-                    className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition ${on ? "border-[#0b6b62]/40 bg-[#0b6b62]/8" : "border-[#e7dfd0] bg-white hover:border-[#0b6b62]/40"}`}
+                    className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition ${on ? "border-lagoon/40 bg-lagoon/8" : "border-line bg-surface hover:border-lagoon/40"}`}
                   >
-                    <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ring-1 transition ${on ? "bg-[#0b6b62] text-white ring-[#0b6b62]" : "bg-white text-transparent ring-[#e7dfd0]"}`}>
+                    <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ring-1 transition ${on ? "bg-lagoon text-white ring-lagoon" : "bg-surface text-transparent ring-line"}`}>
                       <FiCheck size={15} strokeWidth={3} />
                     </span>
-                    <span className={`font-medium transition ${on ? "text-[#5a6a7e] line-through" : ""}`}>{it}</span>
+                    <span className={`font-medium transition ${on ? "text-muted line-through" : ""}`}>{it}</span>
                   </button>
                 </motion.li>
               );
@@ -116,12 +116,12 @@ const Guide = () => {
         </div>
       </section>
 
-      <section className="bg-white py-20">
+      <section className="bg-surface py-20">
         <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-2 lg:px-10">
           <Reveal>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-[#0b6b62]">Good habits</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">Good habits</p>
             <h2 className="text-3xl font-black md:text-4xl" style={serif}>Safe, smooth, respectful</h2>
-            <p className="mt-4 text-[#5a6a7e]">Short, practical notes from our travel desk. Ask us anything specific to your route.</p>
+            <p className="mt-4 text-muted">Short, practical notes from our travel desk. Ask us anything specific to your route.</p>
             <div className="mt-8 flex gap-4 rounded-3xl border border-amber-200 bg-amber-50 p-5 text-amber-900">
               <FiAlertTriangle className="mt-0.5 shrink-0 text-xl" />
               <p className="text-sm">
@@ -138,10 +138,10 @@ const Guide = () => {
       <section className="mx-auto max-w-4xl px-6 py-20 text-center">
         <h2 className="text-3xl font-black md:text-4xl" style={serif}>Ready to choose a trip?</h2>
         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-          <Link to="/services" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#0d1f35] px-8 py-4 text-sm font-bold text-white hover:bg-[#0b6b62]">
+          <Link to="/services" className="inline-flex items-center justify-center gap-2 rounded-full bg-btn px-8 py-4 text-sm font-bold text-white hover:bg-lagoon">
             Browse packages <FiArrowRight />
           </Link>
-          <Link to="/destinations" className="rounded-full border border-[#0d1f35]/20 px-8 py-4 text-sm font-bold hover:bg-white">Explore destinations</Link>
+          <Link to="/destinations" className="rounded-full border border-navy/20 px-8 py-4 text-sm font-bold hover:bg-surface">Explore destinations</Link>
         </div>
       </section>
     </main>

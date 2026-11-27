@@ -91,19 +91,19 @@ const Spinner = () => (
 
 const Empty = ({ icon, title, text }) => (
   <div className="text-center py-20 px-6">
-    <div className="text-4xl mb-3 text-[#5a6a7e] flex justify-center">{icon}</div>
-    <p className="font-black text-lg text-[#0d1f35]">{title}</p>
-    <p className="text-sm text-[#5a6a7e] mt-1">{text}</p>
+    <div className="text-4xl mb-3 text-muted flex justify-center">{icon}</div>
+    <p className="font-black text-lg text-ink">{title}</p>
+    <p className="text-sm text-muted mt-1">{text}</p>
   </div>
 );
 
 const StatCard = ({ icon, label, value, prefix = "", sub, tone = "navy", i = 0 }) => {
   const tones = {
-    navy: "bg-[#0d1f35]/8 text-[#0d1f35]",
+    navy: "bg-ink/8 text-ink",
     amber: "bg-amber-100 text-amber-600",
     green: "bg-emerald-100 text-emerald-600",
-    coral: "bg-[#e85d45]/12 text-[#e85d45]",
-    teal: "bg-[#0b6b62]/10 text-[#0b6b62]",
+    coral: "bg-coral/12 text-coral",
+    teal: "bg-lagoon/10 text-lagoon-ink",
   };
   return (
     <motion.div
@@ -111,19 +111,19 @@ const StatCard = ({ icon, label, value, prefix = "", sub, tone = "navy", i = 0 }
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: i * 0.07, type: "spring", stiffness: 260, damping: 24 }}
       whileHover={{ y: -4 }}
-      className="bg-white rounded-3xl border border-[#e7dfd0] p-5 flex items-start gap-4 shadow-[0_8px_30px_rgba(13,31,53,0.05)] hover:shadow-[0_20px_50px_rgba(13,31,53,0.12)] transition-shadow"
+      className="bg-surface rounded-3xl border border-line p-5 flex items-start gap-4 shadow-[0_8px_30px_rgba(13,31,53,0.05)] hover:shadow-[0_20px_50px_rgba(13,31,53,0.12)] transition-shadow"
     >
       <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shrink-0 ${tones[tone]}`}>
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-black uppercase tracking-widest text-[#5a6a7e]">
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted">
           {label}
         </p>
-        <p className="text-2xl font-black text-[#0d1f35] leading-tight truncate" style={serif}>
+        <p className="text-2xl font-black text-ink leading-tight truncate" style={serif}>
           <AnimatedNumber value={value} prefix={prefix} />
         </p>
-        {sub && <p className="text-xs text-[#5a6a7e] mt-0.5">{sub}</p>}
+        {sub && <p className="text-xs text-muted mt-0.5">{sub}</p>}
       </div>
     </motion.div>
   );
@@ -135,20 +135,20 @@ const ConfirmDialog = ({ open, title, text, confirmLabel, danger, busy, onConfir
       {open && (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
       <Backdrop onClick={onCancel} />
-      <ModalShell className="relative bg-white rounded-3xl p-7 w-full max-w-sm shadow-2xl text-center">
+      <ModalShell className="relative bg-surface rounded-3xl p-7 w-full max-w-sm shadow-2xl text-center">
         <div className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-4 ${danger ? "bg-red-100 text-red-500" : "bg-amber-100 text-amber-600"}`}>
           <FiAlertTriangle />
         </div>
-        <h3 className="text-lg font-black text-[#0d1f35]">{title}</h3>
-        <p className="text-sm text-[#5a6a7e] mt-2">{text}</p>
+        <h3 className="text-lg font-black text-ink">{title}</h3>
+        <p className="text-sm text-muted mt-2">{text}</p>
         <div className="mt-6 flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-3 rounded-2xl border border-[#e7dfd0] text-sm font-bold text-[#5a6a7e] hover:bg-[#f5f0e8]">
+          <button onClick={onCancel} className="flex-1 py-3 rounded-2xl border border-line text-sm font-bold text-muted hover:bg-sandy">
             Keep
           </button>
           <button
             onClick={onConfirm}
             disabled={busy}
-            className={`flex-1 py-3 rounded-2xl text-sm font-bold text-white disabled:opacity-60 ${danger ? "bg-red-500 hover:bg-red-600" : "bg-[#0d1f35] hover:bg-[#0b6b62]"}`}
+            className={`flex-1 py-3 rounded-2xl text-sm font-bold text-white disabled:opacity-60 ${danger ? "bg-red-500 hover:bg-red-600" : "bg-btn hover:bg-lagoon"}`}
           >
             {busy ? "Please wait…" : confirmLabel}
           </button>
@@ -162,13 +162,13 @@ const ConfirmDialog = ({ open, title, text, confirmLabel, danger, busy, onConfir
 
 /* ───────────── Booking drawer ───────────── */
 const Row = ({ icon, label, children }) => (
-  <div className="flex gap-3 py-3.5 border-b border-[#e7dfd0] last:border-0">
-    <div className="w-8 h-8 rounded-lg bg-[#f5f0e8] text-[#0b6b62] flex items-center justify-center shrink-0">
+  <div className="flex gap-3 py-3.5 border-b border-line last:border-0">
+    <div className="w-8 h-8 rounded-lg bg-sandy text-lagoon-ink flex items-center justify-center shrink-0">
       {icon}
     </div>
     <div className="min-w-0">
-      <p className="text-[10px] font-black uppercase tracking-widest text-[#5a6a7e]">{label}</p>
-      <div className="text-sm text-[#0d1f35] break-words mt-0.5">{children || "—"}</div>
+      <p className="text-[10px] font-black uppercase tracking-widest text-muted">{label}</p>
+      <div className="text-sm text-ink break-words mt-0.5">{children || "—"}</div>
     </div>
   </div>
 );
@@ -189,9 +189,9 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
         transition={{ type: "spring", stiffness: 320, damping: 34 }}
-        className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col"
+        className="fixed right-0 top-0 h-full w-full max-w-md bg-surface z-50 shadow-2xl flex flex-col"
       >
-        <div className="relative overflow-hidden p-6 bg-[#0d1f35] text-white">
+        <div className="relative overflow-hidden p-6 bg-panel text-white">
           <Aurora />
           <div className="relative">
           <div className="flex items-start justify-between gap-3">
@@ -220,11 +220,11 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
             <b>{b.userName}</b>
           </Row>
           <Row icon={<FiMail size={14} />} label="Email">
-            <a className="text-[#0b6b62] hover:underline" href={`mailto:${b.userEmail}`}>{b.userEmail}</a>
+            <a className="text-lagoon-ink hover:underline" href={`mailto:${b.userEmail}`}>{b.userEmail}</a>
           </Row>
           <Row icon={<FiPhone size={14} />} label="Phone">
             <div className="flex flex-wrap items-center gap-3">
-              <a className="text-[#0b6b62] hover:underline" href={`tel:${b.phoneNumber}`}>{b.phoneNumber}</a>
+              <a className="text-lagoon-ink hover:underline" href={`tel:${b.phoneNumber}`}>{b.phoneNumber}</a>
               <a className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700" href={wa} target="_blank" rel="noreferrer">
                 WhatsApp
               </a>
@@ -237,7 +237,7 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
           <Row icon={<FiClock size={14} />} label="Requested on">{fmtDate(b.createdAt)}</Row>
         </div>
 
-        <div className="p-5 border-t border-[#e7dfd0] space-y-3 bg-[#faf7f2]">
+        <div className="p-5 border-t border-line space-y-3 bg-page-alt">
           <div className="grid grid-cols-2 gap-3">
             <button
               disabled={busy || b.status === "confirmed"}
@@ -249,7 +249,7 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
             <button
               disabled={busy || b.status === "cancelled"}
               onClick={() => onStatus(b._id, "cancelled")}
-              className="py-3 rounded-2xl bg-white border border-red-200 text-red-600 text-sm font-bold hover:bg-red-50 disabled:opacity-40 flex items-center justify-center gap-2"
+              className="py-3 rounded-2xl bg-surface border border-red-200 text-red-600 text-sm font-bold hover:bg-red-50 disabled:opacity-40 flex items-center justify-center gap-2"
             >
               <FiXCircle /> Cancel
             </button>
@@ -258,7 +258,7 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
             <button
               disabled={busy}
               onClick={() => onStatus(b._id, "pending")}
-              className="w-full py-2.5 rounded-2xl text-xs font-bold text-[#5a6a7e] hover:bg-white border border-[#e7dfd0]"
+              className="w-full py-2.5 rounded-2xl text-xs font-bold text-muted hover:bg-surface border border-line"
             >
               Move back to pending
             </button>
@@ -283,7 +283,7 @@ const EMPTY_SERVICE = {
 
 const FormField = ({ label, required, error, children }) => (
   <div>
-    <label className="block text-[10px] font-black uppercase tracking-widest text-[#5a6a7e] mb-1.5">
+    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-1.5">
       {label}{required && <span className="text-red-500 ml-0.5">*</span>}
     </label>
     {children}
@@ -291,7 +291,7 @@ const FormField = ({ label, required, error, children }) => (
   </div>
 );
 const inp = (err) =>
-  `w-full border rounded-xl px-3.5 py-2.5 text-sm outline-none bg-[#faf7f2] focus:bg-white ${err ? "border-red-400" : "border-[#e7dfd0] focus:border-[#0b6b62]"}`;
+  `w-full border rounded-xl px-3.5 py-2.5 text-sm outline-none bg-page-alt focus:bg-surface ${err ? "border-red-400" : "border-line focus:border-lagoon"}`;
 
 const ServiceModal = ({ initial, onClose, onSave }) => {
   const [form, setForm] = useState(initial || EMPTY_SERVICE);
@@ -327,24 +327,24 @@ const ServiceModal = ({ initial, onClose, onSave }) => {
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       <Backdrop onClick={onClose} />
-      <ModalShell className="relative bg-white rounded-3xl w-full max-w-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-[#e7dfd0] sticky top-0 bg-white z-10 rounded-t-3xl">
-          <h2 className="text-lg font-black text-[#0d1f35]">{isEdit ? "Edit package" : "New package"}</h2>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-[#f5f0e8]"><FiX size={18} /></button>
+      <ModalShell className="relative bg-surface rounded-3xl w-full max-w-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-line sticky top-0 bg-surface z-10 rounded-t-3xl">
+          <h2 className="text-lg font-black text-ink">{isEdit ? "Edit package" : "New package"}</h2>
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-sandy"><FiX size={18} /></button>
         </div>
         <div className="p-6 grid md:grid-cols-[220px_1fr] gap-6">
           <div>
-            <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-[#f5f0e8] flex items-center justify-center border border-[#e7dfd0]">
+            <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-sandy flex items-center justify-center border border-line">
               {form.picture && imgOk ? (
                 <img src={form.picture} alt="Preview" className="w-full h-full object-cover" onError={() => setImgOk(false)} />
               ) : (
-                <div className="text-center text-[#5a6a7e] text-xs p-4">
+                <div className="text-center text-muted text-xs p-4">
                   <FiImage size={30} className="mx-auto mb-2" />
                   {form.picture ? "Image failed to load" : "Image preview"}
                 </div>
               )}
             </div>
-            <div className="mt-3 rounded-2xl bg-[#0d1f35] text-white p-4">
+            <div className="mt-3 rounded-2xl bg-panel text-white p-4">
               <p className="font-black leading-tight line-clamp-2" style={serif}>{form.name || "Package name"}</p>
               <p className="text-[#e8c96a] font-black mt-1">{form.balance || "BDT —"}</p>
             </div>
@@ -376,8 +376,8 @@ const ServiceModal = ({ initial, onClose, onSave }) => {
           </div>
         </div>
         <div className="px-6 pb-6 flex gap-3">
-          <button onClick={onClose} className="flex-1 py-3 rounded-2xl border border-[#e7dfd0] text-sm font-bold text-[#5a6a7e] hover:bg-[#f5f0e8]">Cancel</button>
-          <button onClick={submit} disabled={saving} className="flex-1 py-3 rounded-2xl bg-[#0d1f35] text-white text-sm font-bold hover:bg-[#0b6b62] disabled:opacity-60">
+          <button onClick={onClose} className="flex-1 py-3 rounded-2xl border border-line text-sm font-bold text-muted hover:bg-sandy">Cancel</button>
+          <button onClick={submit} disabled={saving} className="flex-1 py-3 rounded-2xl bg-btn text-white text-sm font-bold hover:bg-lagoon disabled:opacity-60">
             {saving ? "Saving…" : isEdit ? "Save changes" : "Create package"}
           </button>
         </div>
@@ -433,20 +433,20 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-[#e7dfd0] p-6">
+        <div className="lg:col-span-2 bg-surface rounded-3xl border border-line p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-black text-[#0d1f35]">Recent requests</h3>
-            <button onClick={() => goTab("bookings")} className="text-xs font-bold text-[#0b6b62] hover:underline">View all</button>
+            <h3 className="font-black text-ink">Recent requests</h3>
+            <button onClick={() => goTab("bookings")} className="text-xs font-bold text-lagoon-ink hover:underline">View all</button>
           </div>
           {bookings.length === 0 ? (
             <Empty icon={<FiList />} title="No bookings yet" text="New requests will appear here." />
           ) : (
-            <div className="divide-y divide-[#e7dfd0]">
+            <div className="divide-y divide-line">
               {bookings.slice(0, 6).map((b) => (
-                <button key={b._id} onClick={() => onOpen(b)} className="w-full text-left py-3.5 flex items-center justify-between gap-4 hover:bg-[#faf7f2] -mx-2 px-2 rounded-xl transition">
+                <button key={b._id} onClick={() => onOpen(b)} className="w-full text-left py-3.5 flex items-center justify-between gap-4 hover:bg-page-alt -mx-2 px-2 rounded-xl transition">
                   <div className="min-w-0">
-                    <p className="font-bold text-sm text-[#0d1f35] truncate">{b.serviceName}</p>
-                    <p className="text-xs text-[#5a6a7e] truncate">{b.userName} · {fmtDate(b.createdAt)}</p>
+                    <p className="font-bold text-sm text-ink truncate">{b.serviceName}</p>
+                    <p className="text-xs text-muted truncate">{b.userName} · {fmtDate(b.createdAt)}</p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     <span className="text-sm font-black hidden sm:block">{fmtAmt(b.totalAmount)}</span>
@@ -459,9 +459,9 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-[#e7dfd0] p-6">
-            <h3 className="font-black text-[#0d1f35] mb-4">Status split</h3>
-            <div className="flex h-3 rounded-full overflow-hidden bg-[#f5f0e8]">
+          <div className="bg-surface rounded-3xl border border-line p-6">
+            <h3 className="font-black text-ink mb-4">Status split</h3>
+            <div className="flex h-3 rounded-full overflow-hidden bg-sandy">
               {bar(stats.confirmed, "bg-emerald-500")}
               {bar(stats.pending, "bg-amber-400")}
               {bar(stats.cancelled, "bg-red-400")}
@@ -469,17 +469,17 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
             <div className="mt-4 space-y-2 text-sm">
               {[["Confirmed", stats.confirmed, "bg-emerald-500"], ["Pending", stats.pending, "bg-amber-400"], ["Cancelled", stats.cancelled, "bg-red-400"]].map(([l, n, c]) => (
                 <div key={l} className="flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-[#5a6a7e]"><span className={`w-2.5 h-2.5 rounded-full ${c}`} />{l}</span>
+                  <span className="flex items-center gap-2 text-muted"><span className={`w-2.5 h-2.5 rounded-full ${c}`} />{l}</span>
                   <b>{n}</b>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white rounded-3xl border border-[#e7dfd0] p-6">
-            <h3 className="font-black text-[#0d1f35] mb-4">Popular packages</h3>
+          <div className="bg-surface rounded-3xl border border-line p-6">
+            <h3 className="font-black text-ink mb-4">Popular packages</h3>
             {stats.top.length === 0 ? (
-              <p className="text-sm text-[#5a6a7e]">No data yet.</p>
+              <p className="text-sm text-muted">No data yet.</p>
             ) : (
               <div className="space-y-3">
                 {stats.top.map(([name, n]) => (
@@ -487,9 +487,9 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
                     <div className="flex justify-between text-xs mb-1">
                       <span className="font-semibold truncate pr-2">{name}</span><b>{n}</b>
                     </div>
-                    <div className="h-2 rounded-full bg-[#f5f0e8]">
+                    <div className="h-2 rounded-full bg-sandy">
                       <motion.div
-                        className="h-2 rounded-full bg-gradient-to-r from-[#0b6b62] to-[#c9a84c]"
+                        className="h-2 rounded-full bg-gradient-to-r from-lagoon to-[#c9a84c]"
                         initial={{ width: 0 }}
                         animate={{ width: `${(n / stats.top[0][1]) * 100}%` }}
                         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -503,17 +503,17 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-[#e7dfd0] p-6">
-        <h3 className="font-black text-[#0d1f35] mb-4">Upcoming confirmed trips</h3>
+      <div className="bg-surface rounded-3xl border border-line p-6">
+        <h3 className="font-black text-ink mb-4">Upcoming confirmed trips</h3>
         {stats.upcoming.length === 0 ? (
-          <p className="text-sm text-[#5a6a7e]">No upcoming confirmed trips.</p>
+          <p className="text-sm text-muted">No upcoming confirmed trips.</p>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stats.upcoming.map((b) => (
-              <button key={b._id} onClick={() => onOpen(b)} className="text-left rounded-2xl border border-[#e7dfd0] p-4 hover:shadow-lg hover:-translate-y-0.5 transition">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#0b6b62]">{fmtDate(b.preferredDate)}</p>
+              <button key={b._id} onClick={() => onOpen(b)} className="text-left rounded-2xl border border-line p-4 hover:shadow-lg hover:-translate-y-0.5 transition">
+                <p className="text-[10px] font-black uppercase tracking-widest text-lagoon-ink">{fmtDate(b.preferredDate)}</p>
                 <p className="font-black mt-1 line-clamp-1">{b.serviceName}</p>
-                <p className="text-xs text-[#5a6a7e] mt-1">{b.userName} · {b.travelers} traveler{b.travelers > 1 ? "s" : ""}</p>
+                <p className="text-xs text-muted mt-1">{b.userName} · {b.travelers} traveler{b.travelers > 1 ? "s" : ""}</p>
               </button>
             ))}
           </div>
@@ -566,20 +566,20 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete }
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-[#e7dfd0] overflow-hidden">
-      <div className="p-5 border-b border-[#e7dfd0] space-y-4">
+    <div className="bg-surface rounded-3xl border border-line overflow-hidden">
+      <div className="p-5 border-b border-line space-y-4">
         <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
-            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a6a7e]" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, phone, package, ID…" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#faf7f2] border border-[#e7dfd0] text-sm outline-none focus:border-[#0b6b62] focus:bg-white" />
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, phone, package, ID…" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-page-alt border border-line text-sm outline-none focus:border-lagoon focus:bg-surface" />
           </div>
-          <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-4 py-3 rounded-2xl bg-[#faf7f2] border border-[#e7dfd0] text-sm font-semibold outline-none">
+          <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-4 py-3 rounded-2xl bg-page-alt border border-line text-sm font-semibold outline-none">
             <option value="date-desc">Newest requests</option>
             <option value="date-asc">Oldest requests</option>
             <option value="trip">Trip date (soonest)</option>
             <option value="amount">Highest amount</option>
           </select>
-          <button onClick={exportCsv} disabled={!filtered.length} className="px-5 py-3 rounded-2xl bg-[#0d1f35] text-white text-sm font-bold hover:bg-[#0b6b62] disabled:opacity-40 flex items-center justify-center gap-2">
+          <button onClick={exportCsv} disabled={!filtered.length} className="px-5 py-3 rounded-2xl bg-btn text-white text-sm font-bold hover:bg-lagoon disabled:opacity-40 flex items-center justify-center gap-2">
             <FiDownload /> CSV
           </button>
         </div>
@@ -601,18 +601,18 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete }
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-[10px] uppercase tracking-widest text-[#5a6a7e] bg-[#faf7f2]">
+                <tr className="text-left text-[10px] uppercase tracking-widest text-muted bg-page-alt">
                   {["Customer", "Package", "Trip date", "Guests", "Total", "Status", "Actions"].map((h) => (
                     <th key={h} className="px-5 py-3 font-black">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e7dfd0]">
+              <tbody className="divide-y divide-line">
                 {view.map((b) => (
-                  <tr key={b._id} className="hover:bg-[#faf7f2] cursor-pointer" onClick={() => onOpen(b)}>
+                  <tr key={b._id} className="hover:bg-page-alt cursor-pointer" onClick={() => onOpen(b)}>
                     <td className="px-5 py-4">
                       <p className="font-bold">{b.userName}</p>
-                      <p className="text-xs text-[#5a6a7e]">{b.phoneNumber}</p>
+                      <p className="text-xs text-muted">{b.phoneNumber}</p>
                     </td>
                     <td className="px-5 py-4 max-w-[220px]"><p className="font-semibold truncate">{b.serviceName}</p></td>
                     <td className="px-5 py-4 whitespace-nowrap">{fmtDate(b.preferredDate)}</td>
@@ -633,16 +633,16 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete }
           </div>
 
           {/* Mobile cards */}
-          <div className="md:hidden divide-y divide-[#e7dfd0]">
+          <div className="md:hidden divide-y divide-line">
             {view.map((b) => (
               <div key={b._id} className="p-5" onClick={() => onOpen(b)}>
                 <div className="flex justify-between gap-3">
                   <p className="font-black leading-tight">{b.serviceName}</p>
                   <StatusBadge status={b.status} />
                 </div>
-                <p className="text-xs text-[#5a6a7e] mt-1">{b.userName} · {b.phoneNumber}</p>
+                <p className="text-xs text-muted mt-1">{b.userName} · {b.phoneNumber}</p>
                 <div className="flex justify-between items-center mt-3">
-                  <span className="text-xs text-[#5a6a7e]">{fmtDate(b.preferredDate)} · {b.travelers} guests</span>
+                  <span className="text-xs text-muted">{fmtDate(b.preferredDate)} · {b.travelers} guests</span>
                   <b>{fmtAmt(b.totalAmount)}</b>
                 </div>
                 <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
@@ -653,12 +653,12 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete }
             ))}
           </div>
 
-          <div className="flex items-center justify-between px-5 py-4 border-t border-[#e7dfd0] text-xs text-[#5a6a7e]">
+          <div className="flex items-center justify-between px-5 py-4 border-t border-line text-xs text-muted">
             <span>{(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}</span>
             <div className="flex items-center gap-2">
-              <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="p-2 rounded-lg border border-[#e7dfd0] disabled:opacity-30 hover:bg-[#f5f0e8]"><FiChevronLeft /></button>
-              <span className="font-bold text-[#0d1f35]">{page} / {pages}</span>
-              <button disabled={page >= pages} onClick={() => setPage((p) => p + 1)} className="p-2 rounded-lg border border-[#e7dfd0] disabled:opacity-30 hover:bg-[#f5f0e8]"><FiChevronRight /></button>
+              <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="p-2 rounded-lg border border-line disabled:opacity-30 hover:bg-sandy"><FiChevronLeft /></button>
+              <span className="font-bold text-ink">{page} / {pages}</span>
+              <button disabled={page >= pages} onClick={() => setPage((p) => p + 1)} className="p-2 rounded-lg border border-line disabled:opacity-30 hover:bg-sandy"><FiChevronRight /></button>
             </div>
           </div>
         </>
@@ -688,14 +688,14 @@ const ServicesPanel = ({ services, bookings, loading, onSave, onDelete }) => {
     <div>
       <div className="flex flex-col md:flex-row gap-3 mb-6">
         <div className="relative flex-1">
-          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a6a7e]" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search packages…" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-[#e7dfd0] text-sm outline-none focus:border-[#0b6b62]" />
+          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search packages…" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-surface border border-line text-sm outline-none focus:border-lagoon" />
         </div>
-        <select value={cat} onChange={(e) => setCat(e.target.value)} className="px-4 py-3 rounded-2xl bg-white border border-[#e7dfd0] text-sm font-semibold outline-none">
+        <select value={cat} onChange={(e) => setCat(e.target.value)} className="px-4 py-3 rounded-2xl bg-surface border border-line text-sm font-semibold outline-none">
           <option value="all">All categories</option>
           {categories.map((c) => <option key={c}>{c}</option>)}
         </select>
-        <button onClick={() => setModal({})} className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-[#0d1f35] text-sm font-black flex items-center justify-center gap-2 hover:shadow-lg">
+        <button onClick={() => setModal({})} className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-navy text-sm font-black flex items-center justify-center gap-2 hover:shadow-lg">
           <FiPlus /> New package
         </button>
       </div>
@@ -703,26 +703,26 @@ const ServicesPanel = ({ services, bookings, loading, onSave, onDelete }) => {
       {loading ? (
         <Spinner />
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-[#e7dfd0]">
+        <div className="bg-surface rounded-3xl border border-line">
           <Empty icon={<FiMap />} title="No packages" text="Create your first tour package." />
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {filtered.map((s) => (
-            <TiltCard key={s._id} max={4} className="bg-white rounded-3xl border border-[#e7dfd0] overflow-hidden group hover:shadow-xl transition">
-              <div className="relative aspect-[16/10] overflow-hidden bg-[#f5f0e8]">
+            <TiltCard key={s._id} max={4} className="bg-surface rounded-3xl border border-line overflow-hidden group hover:shadow-xl transition">
+              <div className="relative aspect-[16/10] overflow-hidden bg-sandy">
                 <img src={s.picture} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" onError={(e) => (e.target.style.opacity = 0.2)} />
                 <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">{s.category}</span>
-                <span className="absolute top-3 right-3 bg-[#0d1f35]/85 text-white text-[10px] font-bold px-3 py-1 rounded-full">{bookedCount[s._id] || 0} active</span>
+                <span className="absolute top-3 right-3 bg-navy/85 text-white text-[10px] font-bold px-3 py-1 rounded-full">{bookedCount[s._id] || 0} active</span>
               </div>
               <div className="p-5">
                 <h3 className="font-black leading-tight line-clamp-1">{s.name}</h3>
-                <p className="text-xs text-[#5a6a7e] mt-1 flex items-center gap-1"><FiMapPin size={11} />{s.location} · {s.duration}</p>
-                <p className="text-sm text-[#5a6a7e] mt-3 line-clamp-2">{s.about}</p>
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#e7dfd0]">
-                  <p className="font-black text-[#e85d45] text-lg" style={serif}>{s.balance}</p>
+                <p className="text-xs text-muted mt-1 flex items-center gap-1"><FiMapPin size={11} />{s.location} · {s.duration}</p>
+                <p className="text-sm text-muted mt-3 line-clamp-2">{s.about}</p>
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-line">
+                  <p className="font-black text-coral text-lg" style={serif}>{s.balance}</p>
                   <div className="flex gap-1">
-                    <button onClick={() => setModal(s)} className="p-2.5 rounded-xl text-[#0b6b62] hover:bg-[#0b6b62]/10" title="Edit"><FiEdit2 size={16} /></button>
+                    <button onClick={() => setModal(s)} className="p-2.5 rounded-xl text-lagoon-ink hover:bg-lagoon/10" title="Edit"><FiEdit2 size={16} /></button>
                     <button onClick={() => onDelete(s, bookedCount[s._id] || 0)} className="p-2.5 rounded-xl text-red-500 hover:bg-red-50" title="Delete"><FiTrash2 size={16} /></button>
                   </div>
                 </div>
@@ -881,19 +881,19 @@ const AdminDashboard = () => {
 
   if (authLoading) {
     return (
-      <main className="min-h-screen bg-[#f5f0e8] pt-[76px] flex items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#e7dfd0] border-t-[#0b6b62]" />
+      <main className="min-h-screen bg-sandy pt-[76px] flex items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-line border-t-lagoon" />
       </main>
     );
   }
 
   if (!user || !isAdmin) {
     return (
-      <main className="min-h-screen bg-[#f5f0e8] pt-[76px] flex items-center justify-center px-6">
+      <main className="min-h-screen bg-sandy pt-[76px] flex items-center justify-center px-6">
         <div className="text-center">
           <div className="text-5xl mb-4">🔒</div>
           <h2 className="text-4xl font-black mb-3" style={serif}>Access Denied</h2>
-          <p className="text-[#5a6a7e]">Only the admin can access this page.</p>
+          <p className="text-muted">Only the admin can access this page.</p>
         </div>
       </main>
     );
@@ -902,8 +902,8 @@ const AdminDashboard = () => {
   const pendingCount = bookings.filter((b) => b.status === "pending").length;
 
   return (
-    <main className="min-h-screen bg-[#f5f0e8] pt-[76px] pb-16">
-      <section className="relative overflow-hidden bg-[#0d1f35] text-white">
+    <main className="min-h-screen bg-sandy pt-[76px] pb-16">
+      <section className="relative overflow-hidden bg-panel text-white">
         <Aurora />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12 flex flex-wrap items-end justify-between gap-5">
           <div>
@@ -915,7 +915,7 @@ const AdminDashboard = () => {
             <button onClick={loadAll} className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm font-bold flex items-center gap-2">
               <FiRefreshCw className={loading ? "animate-spin" : ""} /> Refresh
             </button>
-            <button onClick={() => setTab("services")} className="px-5 py-3 rounded-2xl bg-[#e8c96a] text-[#0d1f35] text-sm font-black flex items-center gap-2 hover:shadow-lg">
+            <button onClick={() => setTab("services")} className="px-5 py-3 rounded-2xl bg-[#e8c96a] text-navy text-sm font-black flex items-center gap-2 hover:shadow-lg">
               <FiPlus /> Packages
             </button>
           </div>

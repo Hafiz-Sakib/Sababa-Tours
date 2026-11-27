@@ -78,20 +78,20 @@ const Rail = ({ status }) => {
               transition={{ delay: 0.15 * i, type: "spring", stiffness: 400 }}
               className={`grid h-6 w-6 place-items-center rounded-full text-[10px] font-black ${
                 i < filled
-                  ? "bg-[#0b6b62] text-white"
-                  : "bg-[#e7dfd0] text-[#5a6a7e]"
+                  ? "bg-lagoon text-white"
+                  : "bg-line text-muted"
               }`}
             >
               {i < filled ? <FiCheckCircle size={12} /> : i + 1}
             </motion.span>
             <span
-              className={`hidden text-[11px] font-bold sm:block ${i < filled ? "text-[#0d1f35]" : "text-[#5a6a7e]"}`}
+              className={`hidden text-[11px] font-bold sm:block ${i < filled ? "text-ink" : "text-muted"}`}
             >
               {l}
             </span>
           </div>
           {i < labels.length - 1 && (
-            <div className="h-0.5 flex-1 overflow-hidden rounded-full bg-[#e7dfd0]">
+            <div className="h-0.5 flex-1 overflow-hidden rounded-full bg-line">
               <motion.div
                 className={`h-full bg-gradient-to-r ${st.bar}`}
                 initial={{ width: 0 }}
@@ -179,10 +179,10 @@ const MyBookings = () => {
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-[#f5f0e8] pt-[76px] flex items-center justify-center">
+      <main className="min-h-screen bg-sandy pt-[76px] flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-3xl font-black mb-4">Please Login First</h2>
-          <p className="text-[#5a6a7e]">
+          <p className="text-muted">
             You need to be logged in to view your bookings.
           </p>
         </div>
@@ -198,9 +198,9 @@ const MyBookings = () => {
   }));
 
   return (
-    <main className="min-h-screen bg-[#f5f0e8] pt-[76px] pb-24">
+    <main className="min-h-screen bg-sandy pt-[76px] pb-24">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#0d1f35] text-white">
+      <section className="relative overflow-hidden bg-panel text-white">
         <Aurora />
         <div className="relative mx-auto flex max-w-5xl flex-wrap items-end justify-between gap-6 px-6 py-14 lg:px-10">
           <div>
@@ -224,7 +224,7 @@ const MyBookings = () => {
             <Magnetic>
               <Link
                 to="/services"
-                className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] px-6 py-3 text-sm font-black text-[#0d1f35] hover:shadow-lg hover:shadow-[#c9a84c]/30"
+                className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] px-6 py-3 text-sm font-black text-navy hover:shadow-lg hover:shadow-[#c9a84c]/30"
               >
                 Explore packages <FiArrowRight />
               </Link>
@@ -273,7 +273,7 @@ const MyBookings = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-3xl border border-[#e7dfd0] bg-white py-20 text-center"
+            className="rounded-3xl border border-line bg-surface py-20 text-center"
           >
             <motion.p
               animate={{ y: [0, -8, 0] }}
@@ -285,7 +285,7 @@ const MyBookings = () => {
             <h3 className="mb-3 text-2xl font-bold">
               {bookings.length ? "Nothing here" : "No bookings yet"}
             </h3>
-            <p className="mb-6 text-[#5a6a7e]">
+            <p className="mb-6 text-muted">
               {bookings.length
                 ? "No bookings match this filter."
                 : "When you book a trip, it will appear here."}
@@ -293,7 +293,7 @@ const MyBookings = () => {
             {!bookings.length && (
               <Link
                 to="/services"
-                className="inline-block rounded-full bg-[#0d1f35] px-7 py-3 text-sm font-bold text-white hover:bg-[#0b6b62]"
+                className="inline-block rounded-full bg-btn px-7 py-3 text-sm font-bold text-white hover:bg-lagoon"
               >
                 Browse packages
               </Link>
@@ -315,7 +315,7 @@ const MyBookings = () => {
                   >
                     <TiltCard
                       max={2.5}
-                      className={`overflow-hidden rounded-3xl border border-[#e7dfd0] bg-white shadow-[0_10px_40px_rgba(13,31,53,0.06)] transition-shadow hover:shadow-[0_24px_60px_rgba(13,31,53,0.12)] ${b.status === "cancelled" ? "opacity-75" : ""}`}
+                      className={`overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_10px_40px_rgba(13,31,53,0.06)] transition-shadow hover:shadow-[0_24px_60px_rgba(13,31,53,0.12)] ${b.status === "cancelled" ? "opacity-75" : ""}`}
                     >
                       <div className={`h-1.5 bg-gradient-to-r ${st.bar}`} />
                       <div className="flex flex-col justify-between gap-5 p-7 md:flex-row md:items-start">
@@ -327,27 +327,27 @@ const MyBookings = () => {
                             {b.status}
                           </span>
                           <h3
-                            className="mt-3 text-2xl font-black leading-tight text-[#0d1f35] md:text-3xl"
+                            className="mt-3 text-2xl font-black leading-tight text-ink md:text-3xl"
                             style={serif}
                           >
                             {b.serviceId ? (
-                              <Link to={`/booking/${b.serviceId}`} className="hover:text-[#0b6b62]">
+                              <Link to={`/booking/${b.serviceId}`} className="hover:text-lagoon-ink">
                                 {b.serviceName}
                               </Link>
                             ) : (
                               b.serviceName
                             )}
                           </h3>
-                          <p className="mt-1 text-xs text-[#5a6a7e]">
+                          <p className="mt-1 text-xs text-muted">
                             ID: <span className="font-mono">{b._id}</span>
                           </p>
-                          <p className="mt-3 text-sm text-[#5a6a7e]">{st.note}</p>
+                          <p className="mt-3 text-sm text-muted">{st.note}</p>
                         </div>
                         <div className="shrink-0 md:text-right">
-                          <p className="text-3xl font-black text-[#e85d45]" style={serif}>
+                          <p className="text-3xl font-black text-coral" style={serif}>
                             <AnimatedNumber value={Number(b.totalAmount || 0)} prefix="BDT " />
                           </p>
-                          <p className="text-[11px] font-bold uppercase tracking-widest text-[#5a6a7e]">
+                          <p className="text-[11px] font-bold uppercase tracking-widest text-muted">
                             Total estimate
                           </p>
                         </div>
@@ -357,7 +357,7 @@ const MyBookings = () => {
                         <Rail status={b.status} />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-5 border-t border-[#e7dfd0] bg-[#faf7f2] px-7 py-5 text-sm md:grid-cols-4">
+                      <div className="grid grid-cols-2 gap-5 border-t border-line bg-page-alt px-7 py-5 text-sm md:grid-cols-4">
                         <Info icon={<FiCalendar />} label="Trip date">
                           {fmt(b.preferredDate, { day: "numeric", month: "long", year: "numeric" })}
                         </Info>
@@ -368,7 +368,7 @@ const MyBookings = () => {
                           <Info icon={<FiMapPin />} label="Address">{b.address}</Info>
                         </div>
                         {b.notes && (
-                          <div className="col-span-2 text-[#5a6a7e] md:col-span-4">
+                          <div className="col-span-2 text-muted md:col-span-4">
                             <span className="text-[10px] font-black uppercase tracking-widest">
                               Your note:{" "}
                             </span>
@@ -378,7 +378,7 @@ const MyBookings = () => {
                       </div>
 
                       {b.status === "pending" && (
-                        <div className="flex items-center justify-end gap-3 border-t border-[#e7dfd0] px-7 py-4">
+                        <div className="flex items-center justify-end gap-3 border-t border-line px-7 py-4">
                           <AnimatePresence mode="wait" initial={false}>
                             {confirmId === b._id ? (
                               <motion.div
@@ -388,12 +388,12 @@ const MyBookings = () => {
                                 exit={{ opacity: 0, x: -12 }}
                                 className="flex w-full items-center gap-3"
                               >
-                                <span className="mr-auto text-sm text-[#5a6a7e]">
+                                <span className="mr-auto text-sm text-muted">
                                   Cancel this request?
                                 </span>
                                 <button
                                   onClick={() => setConfirmId(null)}
-                                  className="rounded-full border border-[#e7dfd0] px-4 py-2 text-xs font-bold text-[#5a6a7e] hover:bg-[#f5f0e8]"
+                                  className="rounded-full border border-line px-4 py-2 text-xs font-bold text-muted hover:bg-sandy"
                                 >
                                   Keep it
                                 </button>
@@ -434,10 +434,10 @@ const MyBookings = () => {
 
 const Info = ({ icon, label, children }) => (
   <div className="flex items-start gap-3">
-    <span className="mt-0.5 text-[#0b6b62]">{icon}</span>
+    <span className="mt-0.5 text-lagoon-ink">{icon}</span>
     <div className="min-w-0">
-      <p className="text-[10px] font-black uppercase tracking-widest text-[#5a6a7e]">{label}</p>
-      <p className="break-words font-semibold text-[#0d1f35]">{children || "—"}</p>
+      <p className="text-[10px] font-black uppercase tracking-widest text-muted">{label}</p>
+      <p className="break-words font-semibold text-ink">{children || "—"}</p>
     </div>
   </div>
 );

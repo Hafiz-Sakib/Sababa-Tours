@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FiArrowLeft, FiMapPin } from "react-icons/fi";
 
 const NotFound = () => (
-  <main className="min-h-screen bg-[#132236] flex items-center justify-center px-6 pt-[76px] text-white text-center">
+  <main className="min-h-screen bg-panel2 flex items-center justify-center px-6 pt-[76px] text-white text-center">
     <div className="max-w-lg">
       <FiMapPin className="mx-auto text-7xl text-[#f4c76b] mb-8" />
 
@@ -21,7 +21,7 @@ const NotFound = () => (
 
       <Link
         to="/"
-        className="inline-flex items-center gap-3 bg-[#f25f4c] hover:bg-white hover:text-[#132236] px-10 py-5 rounded-full font-black uppercase tracking-widest transition-all"
+        className="inline-flex items-center gap-3 bg-coral hover:bg-surface hover:text-ink px-10 py-5 rounded-full font-black uppercase tracking-widest transition-all"
       >
         <FiArrowLeft /> Back to Home
       </Link>

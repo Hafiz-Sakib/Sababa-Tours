@@ -69,8 +69,8 @@ const parsePrice = (b) => parseFloat(String(b ?? "").replace(/[^0-9.]/g, "")) ||
 
 /* ─────────────────────────── boarding-pass planner ─────────────────────────── */
 const Stepper = ({ label, value, min, max, onChange, icon }) => (
-  <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#f5f0e8] px-4 py-3">
-    <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#5a6a7e]">
+  <div className="flex items-center justify-between gap-3 rounded-2xl bg-sandy px-4 py-3">
+    <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted">
       {icon}
       {label}
     </span>
@@ -80,17 +80,17 @@ const Stepper = ({ label, value, min, max, onChange, icon }) => (
         aria-label={`Fewer ${label}`}
         disabled={value <= min}
         onClick={() => onChange(value - 1)}
-        className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#0d1f35] ring-1 ring-[#e7dfd0] transition active:scale-90 disabled:opacity-35"
+        className="grid h-9 w-9 place-items-center rounded-full bg-surface text-ink ring-1 ring-line transition active:scale-90 disabled:opacity-35"
       >
         <FiMinus />
       </button>
-      <RollingNumber value={value} className="min-w-[1.6em] justify-center text-2xl font-bold text-[#0d1f35]" />
+      <RollingNumber value={value} className="min-w-[1.6em] justify-center text-2xl font-bold text-ink" />
       <button
         type="button"
         aria-label={`More ${label}`}
         disabled={value >= max}
         onClick={() => onChange(value + 1)}
-        className="grid h-9 w-9 place-items-center rounded-full bg-[#0d1f35] text-white transition active:scale-90 disabled:opacity-35"
+        className="grid h-9 w-9 place-items-center rounded-full bg-btn text-white transition active:scale-90 disabled:opacity-35"
       >
         <FiPlus />
       </button>
@@ -108,7 +108,7 @@ const BoardingPass = () => {
   const estimate = travelers * days * s.multiplier * 10;
 
   return (
-    <TiltCard max={3} className="w-full max-w-md rounded-[2rem] bg-white text-[#0d1f35] shadow-[0_40px_90px_rgba(0,0,0,0.35)]">
+    <TiltCard max={3} className="w-full max-w-md rounded-[2rem] bg-surface text-ink shadow-[0_40px_90px_rgba(0,0,0,0.35)]">
       {/* top: destination */}
       <div className="relative overflow-hidden rounded-t-[2rem]">
         <AnimatePresence mode="wait" initial={false}>
@@ -123,7 +123,7 @@ const BoardingPass = () => {
             className="h-44 w-full object-cover"
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d1f35]/85 via-[#0d1f35]/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy/85 via-navy/20 to-transparent" />
         <div className="absolute inset-x-6 bottom-4 flex items-end justify-between text-white">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#e8c96a]">Your trip</p>
@@ -141,8 +141,8 @@ const BoardingPass = () => {
           onChange={setDest}
           className="w-full justify-between"
         />
-        <p className="text-xs text-[#5a6a7e]">
-          <b className="text-[#0d1f35]">Best for {d.bestFor}.</b> {d.highlight}
+        <p className="text-xs text-muted">
+          <b className="text-ink">Best for {d.bestFor}.</b> {d.highlight}
         </p>
 
         <div className="grid grid-cols-3 gap-2">
@@ -153,14 +153,14 @@ const BoardingPass = () => {
               onClick={() => setStyle(i)}
               aria-pressed={style === i}
               className={`rounded-2xl px-2 py-2.5 text-xs font-bold ring-1 transition ${
-                style === i ? "bg-[#0b6b62] text-white ring-[#0b6b62]" : "bg-white text-[#5a6a7e] ring-[#e7dfd0] hover:ring-[#0b6b62]/50"
+                style === i ? "bg-lagoon text-white ring-lagoon" : "bg-surface text-muted ring-line hover:ring-lagoon/50"
               }`}
             >
               {t.name}
             </button>
           ))}
         </div>
-        <p className="-mt-2 text-[11px] text-[#5a6a7e]">{s.pace}</p>
+        <p className="-mt-2 text-[11px] text-muted">{s.pace}</p>
 
         <Stepper label="Travelers" value={travelers} min={1} max={20} onChange={setTravelers} icon={<FiUsers />} />
         <Stepper label="Days" value={days} min={1} max={14} onChange={setDays} icon={<FiClock />} />
@@ -168,20 +168,20 @@ const BoardingPass = () => {
 
       {/* tear line */}
       <div className="relative">
-        <span aria-hidden className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-[#0d1f35]" />
-        <span aria-hidden className="absolute -right-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-[#0d1f35]" />
-        <div className="mx-6 border-t-2 border-dashed border-[#e7dfd0]" />
+        <span aria-hidden className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-panel" />
+        <span aria-hidden className="absolute -right-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-panel" />
+        <div className="mx-6 border-t-2 border-dashed border-line" />
       </div>
 
       <div className="flex items-end justify-between gap-4 p-6">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#5a6a7e]">Rough estimate</p>
-          <RollingNumber value={estimate} prefix="BDT " className="text-3xl font-bold text-[#e85d45]" />
-          <p className="mt-1 text-[11px] text-[#5a6a7e]">Indicative only. Packages show exact prices.</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted">Rough estimate</p>
+          <RollingNumber value={estimate} prefix="BDT " className="text-3xl font-bold text-coral" />
+          <p className="mt-1 text-[11px] text-muted">Indicative only. Packages show exact prices.</p>
         </div>
         <Link
           to="/services"
-          className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-[#0d1f35] px-5 py-3 text-xs font-bold text-white transition hover:bg-[#0b6b62]"
+          className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-btn px-5 py-3 text-xs font-bold text-white transition hover:bg-lagoon"
         >
           See packages <FiArrowRight className="transition-transform group-hover:translate-x-1" />
         </Link>
@@ -211,7 +211,7 @@ const DestinationStrip = () => {
             aria-expanded={on}
           >
             <img src={d.image} alt={d.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div className={`absolute inset-0 transition-colors duration-500 ${on ? "bg-gradient-to-t from-[#0d1f35]/90 via-[#0d1f35]/25 to-transparent" : "bg-[#0d1f35]/55"}`} />
+            <div className={`absolute inset-0 transition-colors duration-500 ${on ? "bg-gradient-to-t from-navy/90 via-navy/25 to-transparent" : "bg-navy/55"}`} />
             <div className="absolute inset-x-6 bottom-6 text-white">
               <p className={`font-black leading-tight ${on ? "text-3xl md:text-4xl" : "text-xl md:[writing-mode:vertical-rl] md:rotate-180"}`}>{d.name}</p>
               <AnimatePresence initial={false}>
@@ -248,10 +248,10 @@ const Journey = () => {
   const grow = useTransform(scrollYProgress, [0, 1], [0, 1]);
   return (
     <div ref={ref} className="relative mx-auto max-w-3xl">
-      <div aria-hidden className="absolute bottom-6 left-[22px] top-6 w-0.5 rounded-full bg-[#e7dfd0]" />
+      <div aria-hidden className="absolute bottom-6 left-[22px] top-6 w-0.5 rounded-full bg-line" />
       <motion.div
         aria-hidden
-        className="absolute bottom-6 left-[22px] top-6 w-0.5 origin-top rounded-full bg-gradient-to-b from-[#c9a84c] to-[#0b6b62]"
+        className="absolute bottom-6 left-[22px] top-6 w-0.5 origin-top rounded-full bg-gradient-to-b from-[#c9a84c] to-lagoon"
         style={{ scaleY: reduce ? 1 : grow }}
       />
       <ol className="space-y-12">
@@ -262,7 +262,7 @@ const Journey = () => {
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true, margin: "-20% 0px" }}
               transition={{ type: "spring", stiffness: 380, damping: 20 }}
-              className="absolute left-0 top-0 grid h-11 w-11 place-items-center rounded-full bg-[#0d1f35] text-sm font-bold text-white ring-4 ring-white"
+              className="absolute left-0 top-0 grid h-11 w-11 place-items-center rounded-full bg-btn text-sm font-bold text-white ring-4 ring-surface"
             >
               {i + 1}
             </motion.span>
@@ -270,7 +270,7 @@ const Journey = () => {
               <h3 className="text-2xl font-black" style={{ fontFamily: "var(--font-display)" }}>
                 {j.title}
               </h3>
-              <p className="mt-2 text-[#5a6a7e] leading-relaxed">{j.text}</p>
+              <p className="mt-2 text-muted leading-relaxed">{j.text}</p>
             </Reveal>
           </li>
         ))}
@@ -322,15 +322,15 @@ const Home = () => {
   ];
 
   return (
-    <main className="bg-[#f5f0e8] text-[#0d1f35] overflow-x-hidden">
+    <main className="bg-sandy text-ink overflow-x-hidden">
       {/* ══════════════════ HERO ══════════════════ */}
-      <section className="relative flex min-h-screen items-center overflow-hidden bg-[#0d1f35] pt-24 pb-16">
+      <section className="relative flex min-h-screen items-center overflow-hidden bg-panel pt-24 pb-16">
         <img
           src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=2000&q=90"
           alt="Bangladesh landscape"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0d1f35]/95 via-[#0b6b62]/70 to-[#0d1f35]/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-navy/95 via-lagoon/70 to-navy/90" />
         <Aurora className="opacity-70" />
 
         <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
@@ -356,7 +356,7 @@ const Home = () => {
               <Magnetic>
                 <Link
                   to="/services"
-                  className="group flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] px-9 py-4 text-sm font-black uppercase tracking-widest text-[#0d1f35] transition-shadow hover:shadow-xl hover:shadow-[#c9a84c]/30"
+                  className="group flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] px-9 py-4 text-sm font-black uppercase tracking-widest text-navy transition-shadow hover:shadow-xl hover:shadow-[#c9a84c]/30"
                 >
                   Explore packages <FiArrowRight className="transition-transform group-hover:translate-x-1.5" />
                 </Link>
@@ -381,14 +381,14 @@ const Home = () => {
         <Reveal>
           <div className="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-[#0b6b62]">Where we take you</p>
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">Where we take you</p>
               <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
                 Three landscapes, one desk
               </h2>
             </div>
             <div className="max-w-sm">
-              <p className="text-[#5a6a7e]">Hover or tap a panel to open it. Each region has its own pace, season and best-fit traveler.</p>
-              <Link to="/destinations" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#0b6b62] transition-all hover:gap-4">
+              <p className="text-muted">Hover or tap a panel to open it. Each region has its own pace, season and best-fit traveler.</p>
+              <Link to="/destinations" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-lagoon-ink transition-all hover:gap-4">
                 Full destination guide <FiArrowRight />
               </Link>
             </div>
@@ -401,14 +401,14 @@ const Home = () => {
       <section className="mx-auto max-w-5xl px-6 pb-24 lg:px-10">
         <div className="grid items-start gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <Reveal>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-[#0b6b62]">When should I go?</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">When should I go?</p>
             <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
               Pick the month, see the best place
             </h2>
-            <p className="mt-5 text-[#5a6a7e] leading-relaxed">
+            <p className="mt-5 text-muted leading-relaxed">
               Hills, lakes and beaches each have a season when they shine. Choose a month and compare all three at a glance.
             </p>
-            <Link to="/guide" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#0b6b62] transition-all hover:gap-4">
+            <Link to="/guide" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-lagoon-ink transition-all hover:gap-4">
               Read the travel guide <FiArrowRight />
             </Link>
           </Reveal>
@@ -419,16 +419,16 @@ const Home = () => {
       </section>
 
       {/* ══════════════════ LIVE PACKAGES ══════════════════ */}
-      <section className="relative overflow-hidden bg-white py-24">
+      <section className="relative overflow-hidden bg-surface py-24">
         <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
           <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-[#0b6b62]">Featured this season</p>
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">Featured this season</p>
               <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
                 Handpicked journeys
               </h2>
             </div>
-            <Link to="/services" className="inline-flex items-center gap-2 text-sm font-bold tracking-widest text-[#0b6b62] transition-all hover:gap-4">
+            <Link to="/services" className="inline-flex items-center gap-2 text-sm font-bold tracking-widest text-lagoon-ink transition-all hover:gap-4">
               Browse all <FiArrowRight />
             </Link>
           </div>
@@ -446,7 +446,7 @@ const Home = () => {
               ))}
             </div>
           ) : shown.length === 0 ? (
-            <p className="rounded-3xl bg-[#f5f0e8] py-16 text-center text-[#5a6a7e]">Packages are being prepared. Check back soon, or talk to our desk.</p>
+            <p className="rounded-3xl bg-sandy py-16 text-center text-muted">Packages are being prepared. Check back soon, or talk to our desk.</p>
           ) : (
             <motion.div layout className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence mode="popLayout">
@@ -464,7 +464,7 @@ const Home = () => {
       {/* ══════════════════ WHY SABABA (bento) ══════════════════ */}
       <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
         <Reveal>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-[#0b6b62]">Why Sababa</p>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">Why Sababa</p>
           <h2 className="mb-12 max-w-2xl text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
             Planned by people, not templates
           </h2>
@@ -472,15 +472,15 @@ const Home = () => {
         <div className="grid gap-5 md:grid-cols-3">
           {pillars.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.08}>
-              <div className="h-full rounded-[2rem] border border-[#e7dfd0] bg-white p-8 transition-shadow hover:shadow-xl">
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0b6b62]/10 text-xl text-[#0b6b62]">{p.icon}</span>
+              <div className="h-full rounded-[2rem] border border-line bg-surface p-8 transition-shadow hover:shadow-xl">
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-lagoon/10 text-xl text-lagoon-ink">{p.icon}</span>
                 <h3 className="mt-6 text-xl font-bold">{p.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#5a6a7e]">{p.text}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{p.text}</p>
               </div>
             </Reveal>
           ))}
           <Reveal className="md:col-span-3" delay={0.1}>
-            <div className="relative overflow-hidden rounded-[2rem] bg-[#0d1f35] p-8 text-white md:p-10">
+            <div className="relative overflow-hidden rounded-[2rem] bg-panel p-8 text-white md:p-10">
               <Aurora className="opacity-60" />
               <div className="relative grid gap-8 sm:grid-cols-3">
                 {liveStats.map((st) => (
@@ -498,11 +498,11 @@ const Home = () => {
       </section>
 
       {/* ══════════════════ JOURNEY ══════════════════ */}
-      <section className="bg-white py-24">
+      <section className="bg-surface py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <Reveal>
             <div className="mb-14 text-center">
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-[#0b6b62]">How it works</p>
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">How it works</p>
               <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
                 From idea to itinerary
               </h2>
@@ -516,12 +516,12 @@ const Home = () => {
       <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
         <div className="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <Reveal>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-[#0b6b62]">From the journal</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">From the journal</p>
             <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
               Notes from the field
             </h2>
           </Reveal>
-          <Link to="/blogs" className="inline-flex items-center gap-2 text-sm font-bold text-[#0b6b62] transition-all hover:gap-4">
+          <Link to="/blogs" className="inline-flex items-center gap-2 text-sm font-bold text-lagoon-ink transition-all hover:gap-4">
             All articles <FiArrowRight />
           </Link>
         </div>
@@ -529,17 +529,17 @@ const Home = () => {
           {articles.map((a, i) => (
             <Reveal key={a.title} delay={i * 0.08}>
               <TiltCard max={4} className="h-full rounded-3xl">
-                <Link to="/blogs" className="group block h-full overflow-hidden rounded-3xl border border-[#e7dfd0] bg-white transition-shadow hover:shadow-xl">
+                <Link to="/blogs" className="group block h-full overflow-hidden rounded-3xl border border-line bg-surface transition-shadow hover:shadow-xl">
                   <div className="aspect-[16/10] overflow-hidden">
                     <img src={a.image} alt={a.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   </div>
                   <div className="p-6">
-                    <p className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest text-[#5a6a7e]">
-                      <span className="text-[#0b6b62]">{a.category}</span>
+                    <p className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest text-muted">
+                      <span className="text-lagoon-ink">{a.category}</span>
                       <span className="flex items-center gap-1"><FiCalendar /> {a.date}</span>
                     </p>
                     <h3 className="mt-3 text-lg font-bold leading-snug">{a.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm text-[#5a6a7e]">{a.excerpt}</p>
+                    <p className="mt-2 line-clamp-2 text-sm text-muted">{a.excerpt}</p>
                   </div>
                 </Link>
               </TiltCard>
@@ -552,7 +552,7 @@ const Home = () => {
       <section className="py-24">
         <div className="mx-auto max-w-3xl px-6">
           <div className="mb-12 text-center">
-            <p className="mb-4 text-xs font-bold tracking-[0.28em] text-[#0b6b62]">GOOD TO KNOW</p>
+            <p className="mb-4 text-xs font-bold tracking-[0.28em] text-lagoon-ink">GOOD TO KNOW</p>
             <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
               <BlurText text="Questions, answered" />
             </h2>
@@ -564,7 +564,7 @@ const Home = () => {
       </section>
 
       {/* ══════════════════ CTA ══════════════════ */}
-      <section className="relative overflow-hidden bg-[#0b6b62] py-28 text-white">
+      <section className="relative overflow-hidden bg-lagoon py-28 text-white">
         <Aurora className="opacity-60" />
         <div className="relative mx-auto max-w-4xl px-6 text-center">
           <span className="mx-auto mb-8 grid h-16 w-16 place-items-center rounded-full border border-white/20 bg-white/10 text-2xl">
@@ -575,10 +575,10 @@ const Home = () => {
           </h2>
           <p className="mx-auto mb-12 max-w-xl text-lg text-white/75">Tell us your dream destination. Our team will shape the rest.</p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Link to="/contact" className="rounded-full bg-white px-10 py-4 font-black uppercase tracking-widest text-[#0b6b62] transition hover:bg-[#c9a84c] hover:text-[#0d1f35]">
+            <Link to="/contact" className="rounded-full bg-surface px-10 py-4 font-black uppercase tracking-widest text-lagoon-ink transition hover:bg-[#c9a84c] hover:text-navy">
               Start planning
             </Link>
-            <Link to="/register" className="rounded-full border-2 border-white/40 px-10 py-4 font-bold uppercase tracking-widest transition hover:border-white hover:bg-white/10">
+            <Link to="/register" className="rounded-full border-2 border-white/40 px-10 py-4 font-bold uppercase tracking-widest transition hover:border-surface hover:bg-white/10">
               Create account
             </Link>
           </div>

@@ -7,12 +7,11 @@ import {
   FiLogOut,
   FiCompass,
   FiMenu,
-  FiMoon,
-  FiSun,
   FiX,
 } from "react-icons/fi";
 import { auth } from "../../Firebase.init";
 import { AnimatePresence, LayoutGroup, Magnetic, motion } from "../ui/Motion";
+import ThemeToggle from "../ui/ThemeToggle";
 import toast from "react-hot-toast";
 
 const links = [
@@ -46,7 +45,7 @@ const NavPills = ({ items, solid }) => {
                   isActive
                     ? "text-[#c9a84c]"
                     : solid
-                      ? "text-[#0d1f35]/75 hover:text-[#0d1f35]"
+                      ? "text-ink/75 hover:text-ink"
                       : "text-white/80 hover:text-white"
                 }`
               }
@@ -54,7 +53,7 @@ const NavPills = ({ items, solid }) => {
               {hover === l.path && (
                 <motion.span
                   layoutId="nav-hover"
-                  className={`absolute inset-0 -z-10 rounded-full ${solid ? "bg-[#0d1f35]/6" : "bg-white/12"}`}
+                  className={`absolute inset-0 -z-10 rounded-full ${solid ? "bg-ink/6" : "bg-white/12"}`}
                   transition={{ type: "spring", stiffness: 420, damping: 34 }}
                 />
               )}
@@ -72,9 +71,6 @@ const NavBar = () => {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [darkMode, setDarkMode] = useState(
-    () => localStorage.getItem("sababa-theme") === "dark",
-  );
   const menuRef = useRef(null);
 
   const navigate = useNavigate();
@@ -98,12 +94,6 @@ const NavBar = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  /* ─── Dark mode ─── */
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", darkMode);
-    localStorage.setItem("sababa-theme", darkMode ? "dark" : "light");
-  }, [darkMode]);
 
   /* ─── Close menus on route change ─── */
   useEffect(() => {
@@ -148,7 +138,7 @@ const NavBar = () => {
       <nav
         className={`fixed inset-x-0 top-0 z-50 nav-blur ${
           solid
-            ? "bg-white/96 backdrop-blur-2xl border-b border-[#e7dfd0] shadow-[0_2px_24px_rgba(13,31,53,0.07)] text-[#0d1f35]"
+            ? "bg-surface/96 backdrop-blur-2xl border-b border-line shadow-[0_2px_24px_rgba(13,31,53,0.07)] text-ink"
             : "bg-transparent border-b border-white/10 text-white"
         }`}
       >
@@ -158,12 +148,12 @@ const NavBar = () => {
             <div
               className={`relative w-10 h-10 flex items-center justify-center rounded-[14px] transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${
                 solid
-                  ? "bg-[#0d1f35] text-white shadow-lg"
+                  ? "bg-btn text-white shadow-lg"
                   : "bg-white/12 text-white backdrop-blur border border-white/20"
               }`}
             >
               <FiCompass className="text-xl" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#c9a84c] rounded-full border-2 border-white" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#c9a84c] rounded-full border-2 border-surface" />
             </div>
             <div>
               <span
@@ -195,22 +185,8 @@ const NavBar = () => {
 
           {/* Right Side */}
           <div className="flex items-center gap-3">
-            {/* Dark Mode Toggle - Visible everywhere */}
-            <button
-              onClick={() => setDarkMode((p) => !p)}
-              className={`w-10 h-10 flex items-center justify-center rounded-[14px] transition-all duration-300 hover:scale-110 ${
-                solid
-                  ? "border border-[#e7dfd0] hover:bg-[#f5f0e8] text-[#5a6a7e]"
-                  : "border border-white/25 hover:bg-white/10 text-white/80"
-              }`}
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? (
-                <FiSun size={17} className="text-[#c9a84c]" />
-              ) : (
-                <FiMoon size={17} />
-              )}
-            </button>
+            {/* Day / night: the new theme grows out of this button (see src/theme.js) */}
+            <ThemeToggle solid={solid} />
 
             {/* Desktop User Section */}
             <div className="hidden md:block">
@@ -220,7 +196,7 @@ const NavBar = () => {
                     onClick={() => setUserMenuOpen((p) => !p)}
                     className={`flex items-center gap-2.5 pl-1.5 pr-4 py-1.5 rounded-full border transition-all duration-300 hover:shadow-lg ${
                       solid
-                        ? "border-[#e7dfd0] bg-white hover:border-[#c9a84c]/40"
+                        ? "border-line bg-surface hover:border-[#c9a84c]/40"
                         : "border-white/25 bg-white/10 hover:bg-white/15 backdrop-blur"
                     }`}
                   >
@@ -232,7 +208,7 @@ const NavBar = () => {
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <div className="w-8 h-8 bg-gradient-to-br from-[#0b6b62] to-[#0d1f35] text-white flex items-center justify-center rounded-full font-bold text-sm">
+                      <div className="w-8 h-8 bg-gradient-to-br from-lagoon to-navy text-white flex items-center justify-center rounded-full font-bold text-sm">
                         {(user.displayName ||
                           user.email ||
                           "U")[0].toUpperCase()}
@@ -255,12 +231,12 @@ const NavBar = () => {
                       exit={{ opacity: 0, y: -6, scale: 0.97 }}
                       transition={{ type: "spring", stiffness: 420, damping: 30 }}
                       style={{ transformOrigin: "top right" }}
-                      className="absolute right-0 mt-2.5 w-60 bg-white rounded-2xl border border-[#e7dfd0] shadow-[0_16px_48px_rgba(13,31,53,0.14)] py-2 z-50 overflow-hidden">
-                      <div className="px-5 py-4 border-b border-[#e7dfd0]">
-                        <p className="text-[10px] uppercase tracking-widest text-[#5a6a7e] font-bold">
+                      className="absolute right-0 mt-2.5 w-60 bg-surface rounded-2xl border border-line shadow-[0_16px_48px_rgba(13,31,53,0.14)] py-2 z-50 overflow-hidden">
+                      <div className="px-5 py-4 border-b border-line">
+                        <p className="text-[10px] uppercase tracking-widest text-muted font-bold">
                           Signed in as
                         </p>
-                        <p className="font-semibold mt-1 text-sm break-all text-[#0d1f35]">
+                        <p className="font-semibold mt-1 text-sm break-all text-ink">
                           {user.email}
                         </p>
                       </div>
@@ -280,7 +256,7 @@ const NavBar = () => {
                     to="/login"
                     className={`px-5 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 hover:scale-105 ${
                       solid
-                        ? "text-[#0d1f35] hover:bg-[#f5f0e8]"
+                        ? "text-ink hover:bg-sandy"
                         : "text-white/90 hover:bg-white/10"
                     }`}
                   >
@@ -289,7 +265,7 @@ const NavBar = () => {
                   <Magnetic strength={0.2}>
                     <Link
                       to="/register"
-                      className="block px-6 py-2.5 bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-[#0d1f35] text-sm font-black rounded-full hover:shadow-lg hover:shadow-[#c9a84c]/30 transition-shadow duration-300 btn-glow"
+                      className="block px-6 py-2.5 bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-navy text-sm font-black rounded-full hover:shadow-lg hover:shadow-[#c9a84c]/30 transition-shadow duration-300 btn-glow"
                     >
                       Start Trip
                     </Link>
@@ -303,7 +279,7 @@ const NavBar = () => {
               onClick={() => setOpen((p) => !p)}
               className={`md:hidden w-10 h-10 flex items-center justify-center rounded-[14px] transition-all duration-300 text-xl ${
                 solid
-                  ? "border border-[#e7dfd0] text-[#0d1f35]"
+                  ? "border border-line text-ink"
                   : "border border-white/25 text-white"
               }`}
               aria-label="Toggle menu"
@@ -323,7 +299,7 @@ const NavBar = () => {
         }`}
       >
         <div
-          className="absolute inset-0 bg-[#0d1f35]/95 backdrop-blur-xl"
+          className="absolute inset-0 bg-navy/95 backdrop-blur-xl"
           onClick={() => setOpen(false)}
         />
 
@@ -390,7 +366,7 @@ const NavBar = () => {
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <div className="w-14 h-14 bg-gradient-to-br from-[#0b6b62] to-[#0d1f35] text-white flex items-center justify-center rounded-2xl font-bold text-2xl">
+                    <div className="w-14 h-14 bg-gradient-to-br from-lagoon to-navy text-white flex items-center justify-center rounded-2xl font-bold text-2xl">
                       {(user.displayName || user.email || "U")[0].toUpperCase()}
                     </div>
                   )}
@@ -423,7 +399,7 @@ const NavBar = () => {
                 <Link
                   to="/register"
                   onClick={() => setOpen(false)}
-                  className="flex-1 py-4 text-center bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-[#0d1f35] rounded-3xl font-black transition hover:scale-105"
+                  className="flex-1 py-4 text-center bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-navy rounded-3xl font-black transition hover:scale-105"
                 >
                   Start Trip
                 </Link>

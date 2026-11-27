@@ -94,9 +94,9 @@ const Services = () => {
   }, [query, services, sortBy]);
 
   return (
-    <main className="min-h-screen bg-[#f5f0e8] pt-[76px] text-[#0d1f35]">
+    <main className="min-h-screen bg-sandy pt-[76px] text-ink">
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden bg-[#0d1f35] py-24 md:py-32 text-white noise">
+      <section className="relative overflow-hidden bg-panel py-24 md:py-32 text-white noise">
         <div className="absolute inset-0 img-zoom">
           <img
             src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1600&q=85"
@@ -104,7 +104,7 @@ const Services = () => {
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0d1f35]/97 via-[#0d1f35]/82 to-[#0d1f35]/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-navy/97 via-navy/82 to-navy/60" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,rgba(11,107,98,0.15)_0%,transparent_60%)]" />
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
@@ -127,22 +127,22 @@ const Services = () => {
       </section>
 
       {/* ── Sticky Search Bar ── */}
-      <section className="sticky top-[76px] z-40 bg-white/96 backdrop-blur-2xl border-b border-[#e7dfd0] py-5 shadow-sm">
+      <section className="sticky top-[76px] z-40 bg-surface/96 backdrop-blur-2xl border-b border-line py-5 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
             {/* Search */}
             <div className="relative flex-1">
-              <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-[#5a6a7e] text-sm" />
+              <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-muted text-sm" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search destinations, hills, beaches, culture..."
-                className="w-full border border-[#e7dfd0] bg-[#faf7f2] pl-12 pr-11 py-4 rounded-2xl focus:border-[#0b6b62]/50 focus:bg-white outline-none text-sm placeholder:text-[#5a6a7e]/50 transition-all duration-300"
+                className="w-full border border-line bg-page-alt pl-12 pr-11 py-4 rounded-2xl focus:border-lagoon/50 focus:bg-surface outline-none text-sm placeholder:text-muted/50 transition-all duration-300"
               />
               {query && (
                 <button
                   onClick={() => setQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5a6a7e] hover:text-[#0d1f35] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors"
                 >
                   <FiX size={18} />
                 </button>
@@ -151,7 +151,7 @@ const Services = () => {
 
             {/* Sort */}
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#5a6a7e] whitespace-nowrap">
+              <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted whitespace-nowrap">
                 <FiFilter size={13} /> Sort by
               </span>
               {sortOptions.map((opt) => (
@@ -160,8 +160,8 @@ const Services = () => {
                   onClick={() => setSortBy(opt.value)}
                   className={`px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-xl border transition-all duration-300 active:scale-95 ${
                     sortBy === opt.value
-                      ? "bg-[#0d1f35] text-white border-[#0d1f35] shadow-md"
-                      : "border-[#e7dfd0] text-[#5a6a7e] hover:border-[#0b6b62]/40 hover:text-[#0b6b62]"
+                      ? "bg-btn text-white border-btn shadow-md"
+                      : "border-line text-muted hover:border-lagoon/40 hover:text-lagoon-ink"
                   }`}
                 >
                   {opt.label}
@@ -170,8 +170,8 @@ const Services = () => {
             </div>
           </div>
 
-          <p className="mt-3 text-xs font-bold text-[#5a6a7e]">
-            <span className="text-[#0b6b62]">{filtered.length}</span>{" "}
+          <p className="mt-3 text-xs font-bold text-muted">
+            <span className="text-lagoon-ink">{filtered.length}</span>{" "}
             {filtered.length === 1 ? "package" : "packages"} available
           </p>
         </div>
@@ -181,8 +181,8 @@ const Services = () => {
       <section className="max-w-7xl mx-auto px-6 py-14 lg:px-10 pb-28">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-36 gap-4">
-            <div className="h-14 w-14 animate-spin rounded-full border-4 border-[#e7dfd0] border-t-[#0b6b62]" />
-            <p className="text-[#5a6a7e] text-sm">Loading packages…</p>
+            <div className="h-14 w-14 animate-spin rounded-full border-4 border-line border-t-lagoon" />
+            <p className="text-muted text-sm">Loading packages…</p>
           </div>
         ) : filtered.length > 0 ? (
           <div
@@ -196,20 +196,20 @@ const Services = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-36 bg-white border border-[#e7dfd0] rounded-[32px] shadow-sm">
+          <div className="text-center py-36 bg-surface border border-line rounded-[32px] shadow-sm">
             <div className="text-5xl mb-6">🗺️</div>
             <p
-              className="text-3xl font-black text-[#0d1f35] mb-4"
+              className="text-3xl font-black text-ink mb-4"
               style={{ fontFamily: "var(--font-display)" }}
             >
               No matching packages found
             </p>
-            <p className="text-[#5a6a7e] mb-8">
+            <p className="text-muted mb-8">
               Try adjusting your search or filters
             </p>
             <button
               onClick={() => setQuery("")}
-              className="px-8 py-4 bg-[#0d1f35] text-white font-black uppercase tracking-widest rounded-2xl hover:bg-[#0b6b62] transition-all duration-300"
+              className="px-8 py-4 bg-btn text-white font-black uppercase tracking-widest rounded-2xl hover:bg-lagoon transition-all duration-300"
             >
               Clear Search
             </button>

@@ -90,22 +90,22 @@ const Login = () => {
   };
 
   const inputClass = (field) =>
-    `w-full border bg-[#fbf8f2] py-4 pl-11 pr-4 text-sm text-[#132236] placeholder:text-[#65758a]/60 focus:outline-none ${
+    `w-full border bg-page-alt py-4 pl-11 pr-4 text-sm text-ink placeholder:text-muted/60 focus:outline-none ${
       errors[field]
-        ? "border-[#d94f3d]"
-        : "border-[#e7dfd0] focus:border-[#0f766e]"
+        ? "border-coral"
+        : "border-line focus:border-lagoon"
     }`;
 
   return (
-    <main className="min-h-screen bg-[#f6f2ea] pt-[76px] text-[#132236]">
+    <main className="min-h-screen bg-page pt-[76px] text-ink">
       <section className="mx-auto grid min-h-[calc(100vh-76px)] max-w-6xl items-center gap-10 px-6 py-16 md:grid-cols-2 lg:px-10">
-        <div className="relative hidden min-h-[620px] overflow-hidden bg-[#132236] md:block">
+        <div className="relative hidden min-h-[620px] overflow-hidden bg-panel2 md:block">
           <img
             src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&q=85"
             alt="Traveler sign in"
             className="absolute inset-0 h-full w-full object-cover opacity-46"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#132236] via-[#132236]/55 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/55 to-transparent" />
           <div className="absolute bottom-0 p-10 text-white">
             <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f4c76b]">
               Client Portal
@@ -120,17 +120,17 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="border border-[#e7dfd0] bg-white p-7 shadow-sm md:p-10">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#0f766e]">
+        <div className="border border-line bg-surface p-7 shadow-sm md:p-10">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-lagoon-ink">
             Welcome Back
           </p>
           <h2 className="mt-3 text-4xl font-black tracking-tight">Sign in</h2>
-          <p className="mt-2 text-sm text-[#65758a]">
+          <p className="mt-2 text-sm text-muted">
             New here?{" "}
             <Link
               to="/register"
               state={{ from: location.state?.from }}
-              className="font-black text-[#f25f4c]"
+              className="font-black text-coral"
             >
               Create an account
             </Link>
@@ -138,11 +138,11 @@ const Login = () => {
 
           <form onSubmit={handleLogin} className="mt-8 space-y-5" noValidate>
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-[0.14em] text-[#65758a]">
+              <label className="mb-2 block text-xs font-black uppercase tracking-[0.14em] text-muted">
                 Email
               </label>
               <div className="relative">
-                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#65758a]" />
+                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
                 <input
                   type="email"
                   value={email}
@@ -153,18 +153,18 @@ const Login = () => {
                 />
               </div>
               {errors.email && (
-                <p className="mt-2 text-xs font-bold text-[#d94f3d]">
+                <p className="mt-2 text-xs font-bold text-coral">
                   {errors.email}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-[0.14em] text-[#65758a]">
+              <label className="mb-2 block text-xs font-black uppercase tracking-[0.14em] text-muted">
                 Password
               </label>
               <div className="relative">
-                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#65758a]" />
+                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -176,14 +176,14 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((value) => !value)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#65758a]"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted"
                   aria-label="Toggle password"
                 >
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-2 text-xs font-bold text-[#d94f3d]">
+                <p className="mt-2 text-xs font-bold text-coral">
                   {errors.password}
                 </p>
               )}
@@ -200,29 +200,29 @@ const Login = () => {
 
             <button
               disabled={loading}
-              className="inline-flex w-full items-center justify-center gap-2 bg-[#132236] px-7 py-4 text-xs font-black uppercase tracking-[0.16em] text-white transition hover:bg-[#0f766e] disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 bg-btn px-7 py-4 text-xs font-black uppercase tracking-[0.16em] text-white transition hover:bg-lagoon disabled:opacity-60"
             >
               {loading ? "Signing in..." : "Sign in"} <FiArrowRight />
             </button>
           </form>
 
           <div className="my-7 flex items-center gap-3">
-            <span className="h-px flex-1 bg-[#e7dfd0]" />
-            <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#65758a]">
+            <span className="h-px flex-1 bg-line" />
+            <span className="text-xs font-bold uppercase tracking-[0.16em] text-muted">
               or
             </span>
-            <span className="h-px flex-1 bg-[#e7dfd0]" />
+            <span className="h-px flex-1 bg-line" />
           </div>
 
           <div className="grid gap-3">
             <button
               onClick={handleGoogleSignIn}
               disabled={googleLoading}
-              className="flex items-center justify-center gap-3 border border-[#e7dfd0] px-5 py-4 text-sm font-bold transition hover:border-[#0f766e] disabled:opacity-60"
+              className="flex items-center justify-center gap-3 border border-line px-5 py-4 text-sm font-bold transition hover:border-lagoon disabled:opacity-60"
             >
               {googleLoading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-[#65758a]/30 border-t-[#0f766e] rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-muted/30 border-t-lagoon rounded-full animate-spin" />
                   Connecting…
                 </>
               ) : (

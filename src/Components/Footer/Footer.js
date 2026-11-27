@@ -189,7 +189,7 @@ const Footer = () => {
                 type="submit"
                 className="
                   px-7 bg-gradient-to-r from-[#c9a84c] to-[#e8c96a]
-                  text-[#0d1f35] font-black uppercase tracking-widest text-xs
+                  text-ink font-black uppercase tracking-widest text-xs
                   rounded-2xl hover:scale-105 hover:shadow-lg hover:shadow-[#c9a84c]/20
                   transition-all duration-300 whitespace-nowrap btn-glow
                 "
