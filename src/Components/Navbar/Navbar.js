@@ -1,6 +1,6 @@
 // src/Components/Navbar/Navbar.js
 import { useEffect, useState, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import {
   FiChevronDown,
@@ -12,7 +12,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { auth } from "../../Firebase.init";
-import CustomLink from "../Utilities/CustomLink";
+import { AnimatePresence, LayoutGroup, Magnetic, motion } from "../ui/Motion";
 import toast from "react-hot-toast";
 
 const links = [
@@ -24,6 +24,46 @@ const links = [
 ];
 
 const ADMIN_EMAIL = "hafizsakib5@gmail.com";
+
+/* Desktop links: a soft pill glides to the hovered / active link */
+const NavPills = ({ items, solid }) => {
+  const [hover, setHover] = useState(null);
+  return (
+    <LayoutGroup id="nav-pill">
+      <ul
+        className="hidden md:flex items-center gap-0.5"
+        onMouseLeave={() => setHover(null)}
+      >
+        {items.map((l) => (
+          <li key={l.path} onMouseEnter={() => setHover(l.path)}>
+            <NavLink
+              to={l.path}
+              end={l.path === "/"}
+              className={({ isActive }) =>
+                `relative block px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
+                  isActive
+                    ? "text-[#c9a84c]"
+                    : solid
+                      ? "text-[#0d1f35]/75 hover:text-[#0d1f35]"
+                      : "text-white/80 hover:text-white"
+                }`
+              }
+            >
+              {hover === l.path && (
+                <motion.span
+                  layoutId="nav-hover"
+                  className={`absolute inset-0 -z-10 rounded-full ${solid ? "bg-[#0d1f35]/6" : "bg-white/12"}`}
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                />
+              )}
+              {l.name}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </LayoutGroup>
+  );
+};
 
 const NavBar = () => {
   const [user, setUser] = useState(null);
@@ -44,8 +84,7 @@ const NavBar = () => {
   /* ─── Auth listener ─── */
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
-      console.log("🔥 Auth State Changed:", u ? u.email : "No user"); // ← Add this
-      setUser(u || null);
+            setUser(u || null);
     });
     return unsub;
   }, []);
@@ -142,26 +181,15 @@ const NavBar = () => {
           </Link>
 
           {/* Desktop Nav */}
-          <ul className="hidden md:flex items-center gap-1">
-            {links.map((link) => (
-              <li key={link.path}>
-                <CustomLink to={link.path} solid={solid}>
-                  {link.name}
-                </CustomLink>
-              </li>
-            ))}
-
-            {user && (
-              <li>
-                <CustomLink
-                  to={isAdmin ? "/admin" : "/my-bookings"}
-                  solid={solid}
-                >
-                  {isAdmin ? "Admin Dashboard" : "My Bookings"}
-                </CustomLink>
-              </li>
-            )}
-          </ul>
+          <NavPills
+            solid={solid}
+            items={[
+              ...links,
+              ...(user
+                ? [{ name: isAdmin ? "Admin Dashboard" : "My Bookings", path: isAdmin ? "/admin" : "/my-bookings" }]
+                : []),
+            ]}
+          />
 
           {/* Right Side */}
           <div className="flex items-center gap-3">
@@ -217,8 +245,15 @@ const NavBar = () => {
                     />
                   </button>
 
+                  <AnimatePresence>
                   {userMenuOpen && (
-                    <div className="absolute right-0 mt-2.5 w-60 bg-white rounded-2xl border border-[#e7dfd0] shadow-[0_16px_48px_rgba(13,31,53,0.14)] py-2 z-50 overflow-hidden animate-scale-in">
+                    <motion.div
+                      initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                      transition={{ type: "spring", stiffness: 420, damping: 30 }}
+                      style={{ transformOrigin: "top right" }}
+                      className="absolute right-0 mt-2.5 w-60 bg-white rounded-2xl border border-[#e7dfd0] shadow-[0_16px_48px_rgba(13,31,53,0.14)] py-2 z-50 overflow-hidden">
                       <div className="px-5 py-4 border-b border-[#e7dfd0]">
                         <p className="text-[10px] uppercase tracking-widest text-[#5a6a7e] font-bold">
                           Signed in as
@@ -233,8 +268,9 @@ const NavBar = () => {
                       >
                         <FiLogOut size={16} /> Sign Out
                       </button>
-                    </div>
+                    </motion.div>
                   )}
+                  </AnimatePresence>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
@@ -248,12 +284,14 @@ const NavBar = () => {
                   >
                     Sign In
                   </Link>
-                  <Link
-                    to="/register"
-                    className="px-6 py-2.5 bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-[#0d1f35] text-sm font-black rounded-full hover:shadow-lg hover:shadow-[#c9a84c]/30 hover:scale-105 transition-all duration-300 btn-glow"
-                  >
-                    Start Trip
-                  </Link>
+                  <Magnetic strength={0.2}>
+                    <Link
+                      to="/register"
+                      className="block px-6 py-2.5 bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-[#0d1f35] text-sm font-black rounded-full hover:shadow-lg hover:shadow-[#c9a84c]/30 transition-shadow duration-300 btn-glow"
+                    >
+                      Start Trip
+                    </Link>
+                  </Magnetic>
                 </div>
               )}
             </div>

@@ -30,6 +30,18 @@ import {
 import { auth } from "../../Firebase.init";
 import { API_BASE_URL } from "../../config";
 import { authFetch } from "../Utilities/authFetch";
+import {
+  AnimatePresence,
+  AnimatedNumber,
+  Aurora,
+  Backdrop,
+  BlurText,
+  ModalShell,
+  PillTabs,
+  Shimmer,
+  TiltCard,
+  motion,
+} from "../ui/Motion";
 
 const ADMIN_EMAIL = "hafizsakib5@gmail.com";
 const API_BOOKINGS = `${API_BASE_URL}/api/admin/bookings`;
@@ -49,7 +61,7 @@ const fmtDate = (d) =>
     : "—";
 const fmtAmt = (n) => "BDT " + Number(n || 0).toLocaleString();
 const priceOf = (b) => parseFloat(String(b ?? "").replace(/[^0-9.]/g, ""));
-const serif = { fontFamily: "'Cormorant Garamond', Georgia, serif" };
+const serif = { fontFamily: "var(--font-display)" };
 
 const STATUS_STYLE = {
   pending: "bg-amber-100 text-amber-700 ring-amber-200",
@@ -67,9 +79,13 @@ const StatusBadge = ({ status }) => (
 );
 
 const Spinner = () => (
-  <div className="flex flex-col items-center justify-center py-24 gap-4">
-    <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#e7dfd0] border-t-[#0b6b62]" />
-    <p className="text-[#5a6a7e] text-sm">Loading…</p>
+  <div className="grid gap-4 py-6">
+    <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      {[0, 1, 2, 3].map((i) => (
+        <Shimmer key={i} className="h-24" />
+      ))}
+    </div>
+    <Shimmer className="h-64" />
   </div>
 );
 
@@ -81,7 +97,7 @@ const Empty = ({ icon, title, text }) => (
   </div>
 );
 
-const StatCard = ({ icon, label, value, sub, tone = "navy" }) => {
+const StatCard = ({ icon, label, value, prefix = "", sub, tone = "navy", i = 0 }) => {
   const tones = {
     navy: "bg-[#0d1f35]/8 text-[#0d1f35]",
     amber: "bg-amber-100 text-amber-600",
@@ -90,7 +106,13 @@ const StatCard = ({ icon, label, value, sub, tone = "navy" }) => {
     teal: "bg-[#0b6b62]/10 text-[#0b6b62]",
   };
   return (
-    <div className="bg-white rounded-2xl border border-[#e7dfd0] p-5 flex items-start gap-4 hover:shadow-lg transition-shadow">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: i * 0.07, type: "spring", stiffness: 260, damping: 24 }}
+      whileHover={{ y: -4 }}
+      className="bg-white rounded-3xl border border-[#e7dfd0] p-5 flex items-start gap-4 shadow-[0_8px_30px_rgba(13,31,53,0.05)] hover:shadow-[0_20px_50px_rgba(13,31,53,0.12)] transition-shadow"
+    >
       <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shrink-0 ${tones[tone]}`}>
         {icon}
       </div>
@@ -99,20 +121,21 @@ const StatCard = ({ icon, label, value, sub, tone = "navy" }) => {
           {label}
         </p>
         <p className="text-2xl font-black text-[#0d1f35] leading-tight truncate" style={serif}>
-          {value}
+          <AnimatedNumber value={value} prefix={prefix} />
         </p>
         {sub && <p className="text-xs text-[#5a6a7e] mt-0.5">{sub}</p>}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 const ConfirmDialog = ({ open, title, text, confirmLabel, danger, busy, onConfirm, onCancel }) => {
-  if (!open) return null;
   return (
+    <AnimatePresence>
+      {open && (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[#0d1f35]/60 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative bg-white rounded-3xl p-7 w-full max-w-sm shadow-2xl text-center">
+      <Backdrop onClick={onCancel} />
+      <ModalShell className="relative bg-white rounded-3xl p-7 w-full max-w-sm shadow-2xl text-center">
         <div className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-4 ${danger ? "bg-red-100 text-red-500" : "bg-amber-100 text-amber-600"}`}>
           <FiAlertTriangle />
         </div>
@@ -130,8 +153,10 @@ const ConfirmDialog = ({ open, title, text, confirmLabel, danger, busy, onConfir
             {busy ? "Please wait…" : confirmLabel}
           </button>
         </div>
-      </div>
+      </ModalShell>
     </div>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -158,10 +183,17 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
   const wa = `https://wa.me/88${String(b.phoneNumber || "").replace(/\D/g, "")}`;
   return (
     <>
-      <div className="fixed inset-0 bg-[#0d1f35]/50 backdrop-blur-sm z-40" onClick={onClose} />
-      <aside className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col animate-[slideIn_.25s_ease-out]">
-        <style>{`@keyframes slideIn{from{transform:translateX(100%)}to{transform:none}}`}</style>
-        <div className="p-6 bg-[#0d1f35] text-white">
+      <Backdrop onClick={onClose} className="fixed z-40" />
+      <motion.aside
+        initial={{ x: "100%" }}
+        animate={{ x: 0 }}
+        exit={{ x: "100%" }}
+        transition={{ type: "spring", stiffness: 320, damping: 34 }}
+        className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col"
+      >
+        <div className="relative overflow-hidden p-6 bg-[#0d1f35] text-white">
+          <Aurora />
+          <div className="relative">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[10px] uppercase tracking-widest text-[#c9a84c] font-black">Booking</p>
@@ -179,6 +211,7 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
             <p className="text-2xl font-black text-[#e8c96a]" style={serif}>
               {fmtAmt(b.totalAmount)}
             </p>
+          </div>
           </div>
         </div>
 
@@ -237,7 +270,7 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
             <FiTrash2 /> Delete permanently
           </button>
         </div>
-      </aside>
+      </motion.aside>
     </>
   );
 };
@@ -293,8 +326,8 @@ const ServiceModal = ({ initial, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[#0d1f35]/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-3xl w-full max-w-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
+      <Backdrop onClick={onClose} />
+      <ModalShell className="relative bg-white rounded-3xl w-full max-w-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#e7dfd0] sticky top-0 bg-white z-10 rounded-t-3xl">
           <h2 className="text-lg font-black text-[#0d1f35]">{isEdit ? "Edit package" : "New package"}</h2>
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-[#f5f0e8]"><FiX size={18} /></button>
@@ -348,7 +381,7 @@ const ServiceModal = ({ initial, onClose, onSave }) => {
             {saving ? "Saving…" : isEdit ? "Save changes" : "Create package"}
           </button>
         </div>
-      </div>
+      </ModalShell>
     </div>
   );
 };
@@ -381,16 +414,22 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
 
   const total = bookings.length || 1;
   const bar = (n, c) => (
-    <div className={c} style={{ width: `${(n / total) * 100}%` }} title={String(n)} />
+    <motion.div
+      className={c}
+      initial={{ width: 0 }}
+      animate={{ width: `${(n / total) * 100}%` }}
+      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      title={String(n)}
+    />
   );
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard icon={<FiList />} label="Total bookings" value={bookings.length} sub={`${stats.pending} awaiting review`} />
-        <StatCard icon={<FiClock />} tone="amber" label="Pending" value={stats.pending} sub={`${fmtAmt(stats.pipeline)} in pipeline`} />
-        <StatCard icon={<FiCheckCircle />} tone="green" label="Confirmed" value={stats.confirmed} sub={`${stats.travelers} travelers`} />
-        <StatCard icon={<FiDollarSign />} tone="coral" label="Confirmed revenue" value={fmtAmt(stats.revenue)} sub={`${services.length} packages live`} />
+        <StatCard i={0} icon={<FiList />} label="Total bookings" value={bookings.length} sub={`${stats.pending} awaiting review`} />
+        <StatCard i={1} icon={<FiClock />} tone="amber" label="Pending" value={stats.pending} sub={`${fmtAmt(stats.pipeline)} in pipeline`} />
+        <StatCard i={2} icon={<FiCheckCircle />} tone="green" label="Confirmed" value={stats.confirmed} sub={`${stats.travelers} travelers`} />
+        <StatCard i={3} icon={<FiDollarSign />} tone="coral" label="Confirmed revenue" prefix="BDT " value={stats.revenue} sub={`${services.length} packages live`} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -449,7 +488,12 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
                       <span className="font-semibold truncate pr-2">{name}</span><b>{n}</b>
                     </div>
                     <div className="h-2 rounded-full bg-[#f5f0e8]">
-                      <div className="h-2 rounded-full bg-gradient-to-r from-[#0b6b62] to-[#c9a84c]" style={{ width: `${(n / stats.top[0][1]) * 100}%` }} />
+                      <motion.div
+                        className="h-2 rounded-full bg-gradient-to-r from-[#0b6b62] to-[#c9a84c]"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(n / stats.top[0][1]) * 100}%` }}
+                        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -539,13 +583,12 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete }
             <FiDownload /> CSV
           </button>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {STATUSES.map((s) => (
-            <button key={s} onClick={() => setStatus(s)} className={`px-4 py-2 rounded-full text-xs font-bold capitalize transition ${status === s ? "bg-[#0d1f35] text-white" : "bg-[#f5f0e8] text-[#5a6a7e] hover:bg-[#e7dfd0]"}`}>
-              {s} <span className="opacity-60 ml-1">{counts[s]}</span>
-            </button>
-          ))}
-        </div>
+        <PillTabs
+          id="admin-status"
+          items={STATUSES.map((st) => ({ id: st, label: st, badge: counts[st] }))}
+          value={status}
+          onChange={setStatus}
+        />
       </div>
 
       {loading ? (
@@ -666,7 +709,7 @@ const ServicesPanel = ({ services, bookings, loading, onSave, onDelete }) => {
       ) : (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {filtered.map((s) => (
-            <article key={s._id} className="bg-white rounded-3xl border border-[#e7dfd0] overflow-hidden group hover:shadow-xl transition">
+            <TiltCard key={s._id} max={4} className="bg-white rounded-3xl border border-[#e7dfd0] overflow-hidden group hover:shadow-xl transition">
               <div className="relative aspect-[16/10] overflow-hidden bg-[#f5f0e8]">
                 <img src={s.picture} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" onError={(e) => (e.target.style.opacity = 0.2)} />
                 <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">{s.category}</span>
@@ -684,11 +727,12 @@ const ServicesPanel = ({ services, bookings, loading, onSave, onDelete }) => {
                   </div>
                 </div>
               </div>
-            </article>
+            </TiltCard>
           ))}
         </div>
       )}
 
+      <AnimatePresence>
       {modal && (
         <ServiceModal
           initial={modal._id ? modal : null}
@@ -700,6 +744,7 @@ const ServicesPanel = ({ services, bookings, loading, onSave, onDelete }) => {
           }}
         />
       )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -858,11 +903,12 @@ const AdminDashboard = () => {
 
   return (
     <main className="min-h-screen bg-[#f5f0e8] pt-[76px] pb-16">
-      <section className="bg-gradient-to-br from-[#0d1f35] to-[#0b6b62] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10 flex flex-wrap items-end justify-between gap-5">
+      <section className="relative overflow-hidden bg-[#0d1f35] text-white">
+        <Aurora />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12 flex flex-wrap items-end justify-between gap-5">
           <div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-[#e8c96a] font-black">Sababa Tours</p>
-            <h1 className="text-4xl md:text-5xl font-black mt-2" style={serif}>Admin Dashboard</h1>
+            <h1 className="text-4xl md:text-6xl font-black mt-2" style={serif}><BlurText text="Admin Dashboard" /></h1>
             <p className="text-white/60 text-sm mt-2">Signed in as {user.email}</p>
           </div>
           <div className="flex gap-3">
@@ -877,15 +923,17 @@ const AdminDashboard = () => {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
-        <div className="-mt-6 mb-6 flex gap-1 bg-white border border-[#e7dfd0] rounded-2xl p-1.5 w-fit shadow-md max-w-full overflow-x-auto">
-          {TABS.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)} className={`px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 whitespace-nowrap transition ${tab === t.id ? "bg-[#0d1f35] text-white shadow" : "text-[#5a6a7e] hover:bg-[#f5f0e8]"}`}>
-              {t.icon} {t.label}
-              {t.id === "bookings" && pendingCount > 0 && (
-                <span className="bg-[#e85d45] text-white text-[10px] font-black rounded-full px-2 py-0.5">{pendingCount}</span>
-              )}
-            </button>
-          ))}
+        <div className="-mt-6 mb-6 relative z-10">
+          <PillTabs
+            id="admin-tabs"
+            items={TABS.map((t) => ({
+              ...t,
+              badge: t.id === "bookings" && pendingCount > 0 ? pendingCount : undefined,
+              badgeTone: "alert",
+            }))}
+            value={tab}
+            onChange={setTab}
+          />
         </div>
 
         {tab === "overview" &&
@@ -898,9 +946,11 @@ const AdminDashboard = () => {
         )}
       </div>
 
-      {selected && (
-        <BookingDrawer booking={selected} busy={busyId === selected._id} onClose={() => setSelectedId(null)} onStatus={updateStatus} onDelete={deleteBooking} />
-      )}
+      <AnimatePresence>
+        {selected && (
+          <BookingDrawer key={selected._id} booking={selected} busy={busyId === selected._id} onClose={() => setSelectedId(null)} onStatus={updateStatus} onDelete={deleteBooking} />
+        )}
+      </AnimatePresence>
       <ConfirmDialog open={!!confirm} title={confirm?.title} text={confirm?.text} confirmLabel={confirm?.label} danger busy={confirmBusy} onConfirm={runConfirm} onCancel={() => setConfirm(null)} />
     </main>
   );

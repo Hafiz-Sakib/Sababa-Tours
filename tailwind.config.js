@@ -15,8 +15,9 @@ module.exports = {
         mist: "#E8ECE9",
       },
       fontFamily: {
-        cormorant: ["Cormorant Garamond", "serif"],
-        dm: ["DM Sans", "sans-serif"],
+        sans: ["Poppins", "Hind Siliguri", "system-ui", "sans-serif"],
+        cormorant: ["Poppins", "Hind Siliguri", "sans-serif"],
+        dm: ["Poppins", "Hind Siliguri", "sans-serif"],
       },
     },
   },

@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800;900&display=swap");
 
 /* ─── CSS Variables ─── */
 :root {
@@ -32,8 +31,8 @@
   --radius-2xl: 2.5rem;
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --font-display: "Poppins", sans-serif;
-  --font-body: "Inter", sans-serif;
+  --font-display: "Poppins", "Hind Siliguri", system-ui, sans-serif;
+  --font-body: "Poppins", "Hind Siliguri", system-ui, sans-serif;
 }
 
 /* ─── Base Reset ─── */
@@ -519,3 +518,49 @@ html.dark .planner-choice:not(.active) {
 html.dark .gradient-card {
   background: linear-gradient(145deg, #0d1828, #132236);
 }
+
+/* ─── Motion kit (Components/ui/Motion.js) ─── */
+@keyframes mbBlob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(40px, 30px) scale(1.12);
+  }
+  66% {
+    transform: translate(-30px, 50px) scale(0.94);
+  }
+}
+.mb-blob {
+  animation: mbBlob 22s ease-in-out infinite;
+}
+@keyframes mbShimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.mb-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  animation: mbShimmer 1.4s infinite;
+}
+.mb-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mb-blob,
+  .mb-shimmer {
+    animation: none;
+  }
+}
+

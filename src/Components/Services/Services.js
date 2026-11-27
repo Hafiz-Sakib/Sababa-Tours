@@ -113,7 +113,7 @@ const Services = () => {
           </p>
           <h1
             className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight mb-6 animate-fade-up"
-            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+            style={{ fontFamily: "var(--font-display)" }}
           >
             Curated trips for every
             <br />

@@ -202,7 +202,7 @@ const About = () => {
                   <p
                     className={`text-4xl font-black ${activeMetric === i ? "text-[#0d1f35]" : "text-white"}`}
                     style={{
-                      fontFamily: "'Cormorant Garamond', Georgia, serif",
+                      fontFamily: "var(--font-display)",
                     }}
                   >
                     {m.value}

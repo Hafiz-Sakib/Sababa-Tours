@@ -98,7 +98,7 @@ const Review = () => {
             </p>
             <h2
               className="text-4xl md:text-5xl lg:text-6xl font-black text-[#0d1f35] leading-tight"
-              style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+              style={{ fontFamily: "var(--font-display)" }}
             >
               Trusted by guests who
               <br />
@@ -136,7 +136,7 @@ const Review = () => {
               {/* Quote mark */}
               <div
                 className="text-8xl leading-none text-[#c9a84c]/12 font-black absolute top-4 right-6 select-none"
-                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                style={{ fontFamily: "var(--font-display)" }}
               >
                 "
               </div>

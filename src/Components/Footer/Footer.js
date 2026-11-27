@@ -29,7 +29,7 @@ const Footer = () => {
               <div>
                 <span
                   className="block text-3xl font-black tracking-tight leading-none"
-                  style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                  style={{ fontFamily: "var(--font-display)" }}
                 >
                   Sababa Tours
                 </span>
@@ -169,7 +169,7 @@ const Footer = () => {
             </p>
             <h4
               className="text-2xl font-black leading-tight mb-7"
-              style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+              style={{ fontFamily: "var(--font-display)" }}
             >
               Weekly stories from the trails of Bangladesh
             </h4>

@@ -1,12 +1,13 @@
 // src/Components/Services/ServiceCard.js
 import { Link } from "react-router-dom";
+import { TiltCard } from "../ui/Motion";
 import { FiArrowRight, FiClock, FiMapPin, FiStar } from "react-icons/fi";
 
 const ServiceCard = ({ service, dark = false }) => {
   const { name, balance, picture, about, id } = service;
 
   return (
-    <article
+    <TiltCard max={5}
       className={`
       group relative rounded-[28px] overflow-hidden
       border transition-all duration-500 card-premium
@@ -54,7 +55,7 @@ const ServiceCard = ({ service, dark = false }) => {
           </h3>
           <p
             className="text-2xl font-black text-[#e85d45] shrink-0"
-            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+            style={{ fontFamily: "var(--font-display)" }}
           >
             {balance}
           </p>
@@ -96,7 +97,7 @@ const ServiceCard = ({ service, dark = false }) => {
 
       {/* Hover corner accent */}
       <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-[#c9a84c]/6 to-transparent rounded-tl-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-    </article>
+    </TiltCard>
   );
 };
 
