@@ -3,8 +3,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FiFilter, FiSearch, FiX } from "react-icons/fi";
 import toast from "react-hot-toast";
 import ServiceCard from "./ServiceCard";
+import { API_BASE_URL } from "../../config";
 
-const API = "https://sababa-tours-backend.onrender.com/api/services";
+const API = `${API_BASE_URL}/api/services`;
 
 const sortOptions = [
   { value: "default", label: "Recommended" },
@@ -36,7 +37,7 @@ const Services = () => {
 
         const result = await res.json();
 
-        const servicesData = Array.isArray(result) ? result : result.data;
+        const servicesData = Array.isArray(result) ? result : result.data || [];
 
         setServices(
           servicesData.map((s) => ({

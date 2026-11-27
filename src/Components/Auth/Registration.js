@@ -1,6 +1,6 @@
 // src/Components/Auth/Registration.js
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   createUserWithEmailAndPassword,
   getAuth,
@@ -35,6 +35,8 @@ const Rule = ({ met, label }) => (
 
 const Registration = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -80,7 +82,7 @@ const Registration = () => {
       );
       await updateProfile(user, { displayName: name });
       toast.success("Account created. Welcome to Sababa Tours.");
-      navigate("/");
+      navigate(from, { replace: true });
     } catch (error) {
       toast.error(
         error.code === "auth/email-already-in-use"
@@ -100,14 +102,14 @@ const Registration = () => {
       const result = await signInWithPopup(auth, provider);
       console.log("✅ Google Sign-Up Success:", result.user.email);
       toast.success("Account ready. Welcome!");
-      navigate("/");
+      navigate(from, { replace: true });
     } catch (popupError) {
       if (
         popupError.code === "auth/popup-blocked" ||
         popupError.code === "auth/cancelled-popup-request"
       ) {
         try {
-          sessionStorage.setItem("redirectFrom", "/");
+          sessionStorage.setItem("redirectFrom", from);
           await signInWithRedirect(auth, provider);
         } catch (redirectError) {
           console.error("Redirect failed:", redirectError);
@@ -162,7 +164,11 @@ const Registration = () => {
           </h2>
           <p className="mt-2 text-sm text-[#65758a]">
             Already registered?{" "}
-            <Link to="/login" className="font-black text-[#f25f4c]">
+            <Link
+              to="/login"
+              state={{ from: location.state?.from }}
+              className="font-black text-[#f25f4c]"
+            >
               Sign in
             </Link>
           </p>

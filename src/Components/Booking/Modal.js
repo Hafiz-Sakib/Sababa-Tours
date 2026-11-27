@@ -8,7 +8,7 @@ import {
   FiX,
 } from "react-icons/fi";
 
-const Modal = ({ closeModal, service, travelers, date }) => {
+const Modal = ({ closeModal, service, travelers, date, bookingId, total }) => {
   const formattedDate = date
     ? new Date(date).toLocaleDateString("en-GB", {
         day: "numeric",
@@ -72,6 +72,15 @@ const Modal = ({ closeModal, service, travelers, date }) => {
                   label: "Travelers",
                   value: `${travelers} Traveler${travelers > 1 ? "s" : ""}`,
                 },
+                ...(total
+                  ? [
+                      {
+                        icon: <FiCheckCircle />,
+                        label: "Estimated Total",
+                        value: `BDT ${Number(total).toLocaleString()}`,
+                      },
+                    ]
+                  : []),
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-[#0b6b62]/10 flex items-center justify-center text-[#0b6b62]">
@@ -90,6 +99,13 @@ const Modal = ({ closeModal, service, travelers, date }) => {
             </div>
           </div>
 
+          {bookingId && (
+            <p className="mt-4 text-[11px] text-[#5a6a7e]">
+              Booking ID:{" "}
+              <span className="font-mono text-[#0d1f35]">{bookingId}</span>
+            </p>
+          )}
+
           {/* Actions */}
           <div className="mt-7 grid grid-cols-2 gap-3">
             <button
@@ -99,10 +115,10 @@ const Modal = ({ closeModal, service, travelers, date }) => {
               Close
             </button>
             <Link
-              to="/"
+              to="/my-bookings"
               className="py-4 bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-[#0d1f35] rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-[#c9a84c]/25 hover:scale-[1.02] transition-all duration-300 btn-glow"
             >
-              Back to Home <FiArrowRight size={14} />
+              My Bookings <FiArrowRight size={14} />
             </Link>
           </div>
         </div>

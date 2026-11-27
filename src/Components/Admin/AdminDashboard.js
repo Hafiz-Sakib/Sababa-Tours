@@ -1,950 +1,907 @@
-// src/Components/AdminDashboard.js
-import { useCallback, useEffect, useState } from "react";
+// src/Components/Admin/AdminDashboard.js
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../Firebase.init";
 import toast from "react-hot-toast";
 import {
+  FiAlertTriangle,
+  FiCalendar,
   FiCheckCircle,
-  FiXCircle,
-  FiTrash2,
+  FiChevronLeft,
+  FiChevronRight,
+  FiDollarSign,
+  FiDownload,
+  FiEdit2,
+  FiGrid,
+  FiImage,
+  FiList,
+  FiMail,
+  FiMapPin,
+  FiPhone,
+  FiPlus,
   FiRefreshCw,
   FiSearch,
+  FiTrash2,
+  FiUsers,
   FiX,
-  FiEdit2,
-  FiPlus,
-  FiImage,
+  FiXCircle,
+  FiClock,
+  FiMap,
 } from "react-icons/fi";
+import { auth } from "../../Firebase.init";
+import { API_BASE_URL } from "../../config";
+import { authFetch } from "../Utilities/authFetch";
 
 const ADMIN_EMAIL = "hafizsakib5@gmail.com";
-const API_BASE = "https://sababa-tours-backend.onrender.com";
-const API_BOOKINGS = `${API_BASE}/api/admin/bookings`;
-const API_SERVICES = `${API_BASE}/api/admin/services`;
-const API_SERVICES_PUBLIC = `${API_BASE}/api/services`;
+const API_BOOKINGS = `${API_BASE_URL}/api/admin/bookings`;
+const API_SERVICES = `${API_BASE_URL}/api/admin/services`;
+const API_SERVICES_PUBLIC = `${API_BASE_URL}/api/services`;
 const PER_PAGE = 10;
 const STATUSES = ["all", "pending", "confirmed", "cancelled"];
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
-const fmtDate = (d) => {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-};
-const fmtAmt = (n) => "BDT " + Number(n).toLocaleString();
+/* ───────────── helpers ───────────── */
+const fmtDate = (d) =>
+  d
+    ? new Date(d).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "—";
+const fmtAmt = (n) => "BDT " + Number(n || 0).toLocaleString();
+const priceOf = (b) => parseFloat(String(b ?? "").replace(/[^0-9.]/g, ""));
+const serif = { fontFamily: "'Cormorant Garamond', Georgia, serif" };
 
-// ─── Shared UI atoms ──────────────────────────────────────────────────────────
-const StatCard = ({ label, value, color = "text-[#0d1f35]" }) => (
-  <div className="bg-white rounded-2xl border border-[#e7dfd0] p-4 flex flex-col gap-1">
-    <span className="text-xs font-medium text-[#5a6a7e] uppercase tracking-wide">
-      {label}
-    </span>
-    <span className={`text-2xl font-bold ${color}`}>{value ?? "—"}</span>
-  </div>
+const STATUS_STYLE = {
+  pending: "bg-amber-100 text-amber-700 ring-amber-200",
+  confirmed: "bg-emerald-100 text-emerald-700 ring-emerald-200",
+  cancelled: "bg-red-100 text-red-600 ring-red-200",
+};
+
+const StatusBadge = ({ status }) => (
+  <span
+    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold capitalize ring-1 ${STATUS_STYLE[status] || STATUS_STYLE.pending}`}
+  >
+    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+    {status}
+  </span>
 );
 
-const StatusBadge = ({ status }) => {
-  const map = {
-    confirmed: "bg-green-100 text-green-700",
-    cancelled: "bg-red-100 text-red-700",
-    pending: "bg-yellow-100 text-yellow-700",
-  };
-  return (
-    <span
-      className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${map[status] ?? map.pending}`}
-    >
-      {status}
-    </span>
-  );
-};
-
 const Spinner = () => (
-  <div className="flex flex-col items-center justify-center py-20 gap-4">
+  <div className="flex flex-col items-center justify-center py-24 gap-4">
     <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#e7dfd0] border-t-[#0b6b62]" />
     <p className="text-[#5a6a7e] text-sm">Loading…</p>
   </div>
 );
 
-// ─── Reusable Field Component (Fixed) ───────────────────────────────────────
-const Field = ({
-  label,
-  k,
-  value,
-  onChange,
-  placeholder,
-  textarea = false,
-  required = false,
-}) => (
-  <div className="flex flex-col gap-1">
-    <label className="text-xs font-semibold text-[#5a6a7e] uppercase tracking-wide">
-      {label}
-      {required && <span className="text-red-500 ml-0.5">*</span>}
-    </label>
-    {textarea ? (
-      <textarea
-        key={k}
-        rows={3}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="border border-[#e7dfd0] rounded-xl px-3 py-2 text-sm outline-none focus:border-[#0b6b62] resize-none"
-      />
-    ) : (
-      <input
-        key={k}
-        type="text"
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="border border-[#e7dfd0] rounded-xl px-3 py-2 text-sm outline-none focus:border-[#0b6b62]"
-      />
-    )}
+const Empty = ({ icon, title, text }) => (
+  <div className="text-center py-20 px-6">
+    <div className="text-4xl mb-3 text-[#5a6a7e] flex justify-center">{icon}</div>
+    <p className="font-black text-lg text-[#0d1f35]">{title}</p>
+    <p className="text-sm text-[#5a6a7e] mt-1">{text}</p>
   </div>
 );
 
-// ─── Booking Detail Drawer ────────────────────────────────────────────────────
-const BookingDrawer = ({ booking: b, onClose, onUpdate, onDelete }) => {
-  if (!b) return null;
-  const Field = ({ label, value }) => (
-    <div className="flex flex-col gap-0.5 py-3 border-b border-[#e7dfd0] last:border-0">
-      <span className="text-[10px] font-semibold uppercase tracking-widest text-[#5a6a7e]">
-        {label}
-      </span>
-      <span className="text-sm text-[#0d1f35]">{value || "—"}</span>
+const StatCard = ({ icon, label, value, sub, tone = "navy" }) => {
+  const tones = {
+    navy: "bg-[#0d1f35]/8 text-[#0d1f35]",
+    amber: "bg-amber-100 text-amber-600",
+    green: "bg-emerald-100 text-emerald-600",
+    coral: "bg-[#e85d45]/12 text-[#e85d45]",
+    teal: "bg-[#0b6b62]/10 text-[#0b6b62]",
+  };
+  return (
+    <div className="bg-white rounded-2xl border border-[#e7dfd0] p-5 flex items-start gap-4 hover:shadow-lg transition-shadow">
+      <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shrink-0 ${tones[tone]}`}>
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] font-black uppercase tracking-widest text-[#5a6a7e]">
+          {label}
+        </p>
+        <p className="text-2xl font-black text-[#0d1f35] leading-tight truncate" style={serif}>
+          {value}
+        </p>
+        {sub && <p className="text-xs text-[#5a6a7e] mt-0.5">{sub}</p>}
+      </div>
     </div>
   );
+};
+
+const ConfirmDialog = ({ open, title, text, confirmLabel, danger, busy, onConfirm, onCancel }) => {
+  if (!open) return null;
   return (
-    <>
-      <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} />
-      <div className="fixed right-0 top-0 h-full w-full max-w-sm bg-white z-50 shadow-2xl flex flex-col overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#e7dfd0] sticky top-0 bg-white">
-          <div>
-            <h2 className="text-base font-bold text-[#0d1f35]">
-              Booking Details
-            </h2>
-            <div className="mt-1">
-              <StatusBadge status={b.status} />
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl hover:bg-[#f5f0e8] text-[#5a6a7e]"
-          >
-            <FiX size={18} />
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-[#0d1f35]/60 backdrop-blur-sm" onClick={onCancel} />
+      <div className="relative bg-white rounded-3xl p-7 w-full max-w-sm shadow-2xl text-center">
+        <div className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-4 ${danger ? "bg-red-100 text-red-500" : "bg-amber-100 text-amber-600"}`}>
+          <FiAlertTriangle />
+        </div>
+        <h3 className="text-lg font-black text-[#0d1f35]">{title}</h3>
+        <p className="text-sm text-[#5a6a7e] mt-2">{text}</p>
+        <div className="mt-6 flex gap-3">
+          <button onClick={onCancel} className="flex-1 py-3 rounded-2xl border border-[#e7dfd0] text-sm font-bold text-[#5a6a7e] hover:bg-[#f5f0e8]">
+            Keep
           </button>
-        </div>
-        <div className="px-6 flex-1">
-          <Field label="Service" value={b.serviceName} />
-          <Field label="Customer" value={b.userName} />
-          <Field label="Email" value={b.userEmail} />
-          <Field label="Phone" value={b.phoneNumber} />
-          <Field label="Address" value={b.address} />
-          <Field label="Preferred Date" value={fmtDate(b.preferredDate)} />
-          <Field label="Travelers" value={b.travelers} />
-          <div className="py-3">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-[#5a6a7e]">
-              Amount
-            </span>
-            <div className="text-xl font-bold text-[#e85d45] mt-0.5">
-              {fmtAmt(b.totalAmount)}
-            </div>
-          </div>
-        </div>
-        <div className="px-6 py-4 border-t border-[#e7dfd0] flex flex-col gap-2 sticky bottom-0 bg-white">
-          {b.status !== "confirmed" && (
-            <button
-              onClick={() => onUpdate(b._id, "confirmed")}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border text-sm font-semibold bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
-            >
-              <FiCheckCircle size={16} /> Mark Confirmed
-            </button>
-          )}
-          {b.status !== "cancelled" && (
-            <button
-              onClick={() => onUpdate(b._id, "cancelled")}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border text-sm font-semibold bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-200"
-            >
-              <FiXCircle size={16} /> Mark Cancelled
-            </button>
-          )}
           <button
-            onClick={() => onDelete(b._id)}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border text-sm font-semibold bg-red-50 text-red-700 hover:bg-red-100 border-red-200"
+            onClick={onConfirm}
+            disabled={busy}
+            className={`flex-1 py-3 rounded-2xl text-sm font-bold text-white disabled:opacity-60 ${danger ? "bg-red-500 hover:bg-red-600" : "bg-[#0d1f35] hover:bg-[#0b6b62]"}`}
           >
-            <FiTrash2 size={16} /> Delete Booking
+            {busy ? "Please wait…" : confirmLabel}
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
-// ─── Service Form Modal ───────────────────────────────────────────────────────
-const EMPTY_SERVICE = {
-  name: "",
-  about: "",
-  balance: "",
-  picture: "",
-  category: "General",
-  duration: "Flexible",
-  location: "Bangladesh",
-};
+/* ───────────── Booking drawer ───────────── */
+const Row = ({ icon, label, children }) => (
+  <div className="flex gap-3 py-3.5 border-b border-[#e7dfd0] last:border-0">
+    <div className="w-8 h-8 rounded-lg bg-[#f5f0e8] text-[#0b6b62] flex items-center justify-center shrink-0">
+      {icon}
+    </div>
+    <div className="min-w-0">
+      <p className="text-[10px] font-black uppercase tracking-widest text-[#5a6a7e]">{label}</p>
+      <div className="text-sm text-[#0d1f35] break-words mt-0.5">{children || "—"}</div>
+    </div>
+  </div>
+);
 
-const ServiceModal = ({ initial, onClose, onSave }) => {
-  const [form, setForm] = useState(EMPTY_SERVICE);
-  const [saving, setSaving] = useState(false);
-  const isEdit = !!initial?._id;
-
-  // Sync when editing existing service
+const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
   useEffect(() => {
-    setForm(initial ?? EMPTY_SERVICE);
-  }, [initial]);
-
-  const handleChange = (k) => (e) => {
-    setForm((prev) => ({ ...prev, [k]: e.target.value }));
-  };
-
-  const handleSave = async () => {
-    if (!form.name || !form.about || !form.balance || !form.picture) {
-      toast.error(
-        "Please fill in all required fields (name, description, price, image URL)",
-      );
-      return;
-    }
-    setSaving(true);
-    await onSave(form);
-    setSaving(false);
-  };
-
+    const h = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+  if (!b) return null;
+  const wa = `https://wa.me/88${String(b.phoneNumber || "").replace(/\D/g, "")}`;
   return (
     <>
-      <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-y-auto max-h-[90vh]">
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-[#e7dfd0] sticky top-0 bg-white rounded-t-3xl">
-            <h2 className="text-base font-bold text-[#0d1f35]">
-              {isEdit ? "Edit Service" : "Add New Service"}
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl hover:bg-[#f5f0e8] text-[#5a6a7e]"
-            >
+      <div className="fixed inset-0 bg-[#0d1f35]/50 backdrop-blur-sm z-40" onClick={onClose} />
+      <aside className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col animate-[slideIn_.25s_ease-out]">
+        <style>{`@keyframes slideIn{from{transform:translateX(100%)}to{transform:none}}`}</style>
+        <div className="p-6 bg-[#0d1f35] text-white">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-[#c9a84c] font-black">Booking</p>
+              <h2 className="text-2xl font-black leading-tight mt-1" style={serif}>
+                {b.serviceName}
+              </h2>
+              <p className="text-[11px] text-white/50 font-mono mt-1">#{b._id}</p>
+            </div>
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10" aria-label="Close">
               <FiX size={18} />
             </button>
           </div>
-
-          {/* Image preview */}
-          <div className="mx-6 mt-5 rounded-2xl overflow-hidden aspect-video bg-[#f5f0e8] flex items-center justify-center">
-            {form.picture ? (
-              <img
-                src={form.picture}
-                alt="Preview"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.style.display = "none";
-                }}
-              />
-            ) : (
-              <div className="flex flex-col items-center gap-2 text-[#5a6a7e]">
-                <FiImage size={32} />
-                <span className="text-xs">Image preview</span>
-              </div>
-            )}
-          </div>
-
-          {/* Fields */}
-          <div className="px-6 py-5 flex flex-col gap-4">
-            <Field
-              label="Service Name"
-              k="name"
-              value={form.name}
-              onChange={handleChange("name")}
-              placeholder="e.g. Cox's Bazar Beach Tour"
-              required
-            />
-            <Field
-              label="Description"
-              k="about"
-              value={form.about}
-              onChange={handleChange("about")}
-              placeholder="A short description of the tour…"
-              textarea
-              required
-            />
-            <div className="grid grid-cols-2 gap-3">
-              <Field
-                label="Price"
-                k="balance"
-                value={form.balance}
-                onChange={handleChange("balance")}
-                placeholder="e.g. BDT 4,500"
-                required
-              />
-              <Field
-                label="Duration"
-                k="duration"
-                value={form.duration}
-                onChange={handleChange("duration")}
-                placeholder="e.g. 3 Days"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field
-                label="Category"
-                k="category"
-                value={form.category}
-                onChange={handleChange("category")}
-                placeholder="e.g. Beach"
-              />
-              <Field
-                label="Location"
-                k="location"
-                value={form.location}
-                onChange={handleChange("location")}
-                placeholder="e.g. Cox's Bazar"
-              />
-            </div>
-            <Field
-              label="Image URL"
-              k="picture"
-              value={form.picture}
-              onChange={handleChange("picture")}
-              placeholder="https://images.unsplash.com/…"
-              required
-            />
-          </div>
-
-          {/* Footer */}
-          <div className="px-6 pb-6 flex gap-3">
-            <button
-              onClick={onClose}
-              className="flex-1 py-3 rounded-2xl border border-[#e7dfd0] text-sm font-semibold text-[#5a6a7e] hover:bg-[#f5f0e8]"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 py-3 rounded-2xl bg-[#0d1f35] text-white text-sm font-semibold hover:bg-[#0b6b62] disabled:opacity-60 flex items-center justify-center gap-2"
-            >
-              {saving && (
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              )}
-              {isEdit ? "Save Changes" : "Create Service"}
-            </button>
+          <div className="mt-4 flex items-center justify-between">
+            <StatusBadge status={b.status} />
+            <p className="text-2xl font-black text-[#e8c96a]" style={serif}>
+              {fmtAmt(b.totalAmount)}
+            </p>
           </div>
         </div>
-      </div>
+
+        <div className="flex-1 overflow-y-auto px-6 py-2">
+          <Row icon={<FiUsers size={14} />} label="Customer">
+            <b>{b.userName}</b>
+          </Row>
+          <Row icon={<FiMail size={14} />} label="Email">
+            <a className="text-[#0b6b62] hover:underline" href={`mailto:${b.userEmail}`}>{b.userEmail}</a>
+          </Row>
+          <Row icon={<FiPhone size={14} />} label="Phone">
+            <div className="flex flex-wrap items-center gap-3">
+              <a className="text-[#0b6b62] hover:underline" href={`tel:${b.phoneNumber}`}>{b.phoneNumber}</a>
+              <a className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700" href={wa} target="_blank" rel="noreferrer">
+                WhatsApp
+              </a>
+            </div>
+          </Row>
+          <Row icon={<FiMapPin size={14} />} label="Address">{b.address}</Row>
+          <Row icon={<FiCalendar size={14} />} label="Preferred date">{fmtDate(b.preferredDate)}</Row>
+          <Row icon={<FiUsers size={14} />} label="Travelers">{b.travelers}</Row>
+          {b.notes && <Row icon={<FiList size={14} />} label="Special requests">{b.notes}</Row>}
+          <Row icon={<FiClock size={14} />} label="Requested on">{fmtDate(b.createdAt)}</Row>
+        </div>
+
+        <div className="p-5 border-t border-[#e7dfd0] space-y-3 bg-[#faf7f2]">
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              disabled={busy || b.status === "confirmed"}
+              onClick={() => onStatus(b._id, "confirmed")}
+              className="py-3 rounded-2xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              <FiCheckCircle /> Confirm
+            </button>
+            <button
+              disabled={busy || b.status === "cancelled"}
+              onClick={() => onStatus(b._id, "cancelled")}
+              className="py-3 rounded-2xl bg-white border border-red-200 text-red-600 text-sm font-bold hover:bg-red-50 disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              <FiXCircle /> Cancel
+            </button>
+          </div>
+          {b.status !== "pending" && (
+            <button
+              disabled={busy}
+              onClick={() => onStatus(b._id, "pending")}
+              className="w-full py-2.5 rounded-2xl text-xs font-bold text-[#5a6a7e] hover:bg-white border border-[#e7dfd0]"
+            >
+              Move back to pending
+            </button>
+          )}
+          <button
+            onClick={() => onDelete(b)}
+            className="w-full py-2.5 rounded-2xl text-xs font-bold text-red-500 hover:bg-red-50 flex items-center justify-center gap-2"
+          >
+            <FiTrash2 /> Delete permanently
+          </button>
+        </div>
+      </aside>
     </>
   );
 };
 
-// ─── Services Panel ───────────────────────────────────────────────────────────
-const ServicesPanel = () => {
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState(null);
-  const [search, setSearch] = useState("");
+/* ───────────── Service modal ───────────── */
+const EMPTY_SERVICE = {
+  name: "", about: "", balance: "", picture: "",
+  category: "General", duration: "Flexible", location: "Bangladesh",
+};
 
-  const fetchServices = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(API_SERVICES_PUBLIC);
-      const data = await res.json();
-      setServices(data);
-    } catch {
-      toast.error("Failed to load services");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+const FormField = ({ label, required, error, children }) => (
+  <div>
+    <label className="block text-[10px] font-black uppercase tracking-widest text-[#5a6a7e] mb-1.5">
+      {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+    </label>
+    {children}
+    {error && <p className="text-xs text-red-500 font-semibold mt-1">{error}</p>}
+  </div>
+);
+const inp = (err) =>
+  `w-full border rounded-xl px-3.5 py-2.5 text-sm outline-none bg-[#faf7f2] focus:bg-white ${err ? "border-red-400" : "border-[#e7dfd0] focus:border-[#0b6b62]"}`;
 
-  useEffect(() => {
-    fetchServices();
-  }, [fetchServices]);
-
-  const filtered = services.filter((s) =>
-    `${s.name} ${s.category} ${s.location}`
-      .toLowerCase()
-      .includes(search.toLowerCase()),
-  );
-
-  const handleSave = async (form) => {
-    const isEdit = !!form._id;
-    const url = isEdit ? `${API_SERVICES}/${form._id}` : API_SERVICES;
-    const method = isEdit ? "PATCH" : "POST";
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const result = await res.json();
-      if (result.success) {
-        toast.success(isEdit ? "Service updated!" : "Service created!");
-        setModal(null);
-        fetchServices();
-      } else {
-        toast.error(result.message || "Something went wrong");
-      }
-    } catch {
-      toast.error("Failed to save service");
-    }
+const ServiceModal = ({ initial, onClose, onSave }) => {
+  const [form, setForm] = useState(initial || EMPTY_SERVICE);
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [imgOk, setImgOk] = useState(true);
+  const isEdit = !!initial?._id;
+  const set = (k) => (e) => {
+    setForm((p) => ({ ...p, [k]: e.target.value }));
+    setErrors((p) => ({ ...p, [k]: "" }));
+    if (k === "picture") setImgOk(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this service permanently?")) return;
-    try {
-      const res = await fetch(`${API_SERVICES}/${id}`, { method: "DELETE" });
-      const result = await res.json();
-      if (result.success) {
-        toast.success("Service deleted");
-        setServices((prev) => prev.filter((s) => s._id !== id));
-      }
-    } catch {
-      toast.error("Failed to delete service");
-    }
+  const submit = async () => {
+    const e = {};
+    if (!form.name.trim()) e.name = "Name is required";
+    if (!form.about.trim()) e.about = "Description is required";
+    if (!form.balance.trim()) e.balance = "Price is required";
+    else if (!(priceOf(form.balance) > 0)) e.balance = "Include a number, e.g. BDT 4,500";
+    if (!form.picture.trim()) e.picture = "Image URL is required";
+    else if (!/^https?:\/\//i.test(form.picture.trim())) e.picture = "Must start with http(s)://";
+    setErrors(e);
+    if (Object.keys(e).length) return;
+    setSaving(true);
+    const ok = await onSave({
+      ...form,
+      name: form.name.trim(), about: form.about.trim(),
+      balance: form.balance.trim(), picture: form.picture.trim(),
+    });
+    if (!ok) setSaving(false);
   };
-
-  const categories = [
-    ...new Set(services.map((s) => s.category).filter(Boolean)),
-  ];
 
   return (
-    <div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
-        <StatCard label="Total Services" value={services.length} />
-        <StatCard
-          label="Search Results"
-          value={filtered.length}
-          color="text-[#0b6b62]"
-        />
-        <StatCard
-          label="Categories"
-          value={categories.length}
-          color="text-[#185FA5]"
-        />
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-[#0d1f35]/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-3xl w-full max-w-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-[#e7dfd0] sticky top-0 bg-white z-10 rounded-t-3xl">
+          <h2 className="text-lg font-black text-[#0d1f35]">{isEdit ? "Edit package" : "New package"}</h2>
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-[#f5f0e8]"><FiX size={18} /></button>
+        </div>
+        <div className="p-6 grid md:grid-cols-[220px_1fr] gap-6">
+          <div>
+            <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-[#f5f0e8] flex items-center justify-center border border-[#e7dfd0]">
+              {form.picture && imgOk ? (
+                <img src={form.picture} alt="Preview" className="w-full h-full object-cover" onError={() => setImgOk(false)} />
+              ) : (
+                <div className="text-center text-[#5a6a7e] text-xs p-4">
+                  <FiImage size={30} className="mx-auto mb-2" />
+                  {form.picture ? "Image failed to load" : "Image preview"}
+                </div>
+              )}
+            </div>
+            <div className="mt-3 rounded-2xl bg-[#0d1f35] text-white p-4">
+              <p className="font-black leading-tight line-clamp-2" style={serif}>{form.name || "Package name"}</p>
+              <p className="text-[#e8c96a] font-black mt-1">{form.balance || "BDT —"}</p>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <FormField label="Package name" required error={errors.name}>
+              <input className={inp(errors.name)} value={form.name} onChange={set("name")} placeholder="e.g. Cox's Bazar Beach Tour" />
+            </FormField>
+            <FormField label="Description" required error={errors.about}>
+              <textarea rows={4} className={`${inp(errors.about)} resize-none`} value={form.about} onChange={set("about")} placeholder="What makes this trip special…" />
+            </FormField>
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Price per person" required error={errors.balance}>
+                <input className={inp(errors.balance)} value={form.balance} onChange={set("balance")} placeholder="BDT 4,500" />
+              </FormField>
+              <FormField label="Duration">
+                <input className={inp()} value={form.duration} onChange={set("duration")} placeholder="3 Days" />
+              </FormField>
+              <FormField label="Category">
+                <input className={inp()} value={form.category} onChange={set("category")} placeholder="Beach" />
+              </FormField>
+              <FormField label="Location">
+                <input className={inp()} value={form.location} onChange={set("location")} placeholder="Cox's Bazar" />
+              </FormField>
+            </div>
+            <FormField label="Image URL" required error={errors.picture}>
+              <input className={inp(errors.picture)} value={form.picture} onChange={set("picture")} placeholder="https://images.unsplash.com/…" />
+            </FormField>
+          </div>
+        </div>
+        <div className="px-6 pb-6 flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 rounded-2xl border border-[#e7dfd0] text-sm font-bold text-[#5a6a7e] hover:bg-[#f5f0e8]">Cancel</button>
+          <button onClick={submit} disabled={saving} className="flex-1 py-3 rounded-2xl bg-[#0d1f35] text-white text-sm font-bold hover:bg-[#0b6b62] disabled:opacity-60">
+            {saving ? "Saving…" : isEdit ? "Save changes" : "Create package"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ───────────── Overview ───────────── */
+const Overview = ({ bookings, services, onOpen, goTab }) => {
+  const stats = useMemo(() => {
+    const by = (s) => bookings.filter((b) => b.status === s);
+    const confirmed = by("confirmed");
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const upcoming = confirmed
+      .filter((b) => new Date(b.preferredDate) >= today)
+      .sort((a, b) => new Date(a.preferredDate) - new Date(b.preferredDate))
+      .slice(0, 5);
+    const perService = {};
+    bookings.filter((b) => b.status !== "cancelled").forEach((b) => {
+      perService[b.serviceName] = (perService[b.serviceName] || 0) + 1;
+    });
+    const top = Object.entries(perService).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    return {
+      pending: by("pending").length,
+      confirmed: confirmed.length,
+      cancelled: by("cancelled").length,
+      revenue: confirmed.reduce((s, b) => s + Number(b.totalAmount || 0), 0),
+      pipeline: by("pending").reduce((s, b) => s + Number(b.totalAmount || 0), 0),
+      travelers: confirmed.reduce((s, b) => s + Number(b.travelers || 0), 0),
+      upcoming, top,
+    };
+  }, [bookings]);
+
+  const total = bookings.length || 1;
+  const bar = (n, c) => (
+    <div className={c} style={{ width: `${(n / total) * 100}%` }} title={String(n)} />
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatCard icon={<FiList />} label="Total bookings" value={bookings.length} sub={`${stats.pending} awaiting review`} />
+        <StatCard icon={<FiClock />} tone="amber" label="Pending" value={stats.pending} sub={`${fmtAmt(stats.pipeline)} in pipeline`} />
+        <StatCard icon={<FiCheckCircle />} tone="green" label="Confirmed" value={stats.confirmed} sub={`${stats.travelers} travelers`} />
+        <StatCard icon={<FiDollarSign />} tone="coral" label="Confirmed revenue" value={fmtAmt(stats.revenue)} sub={`${services.length} packages live`} />
       </div>
 
-      {/* Toolbar - Improved Mobile Experience */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
-        {/* Search Bar */}
-        <div className="flex items-center gap-2 bg-white border border-[#e7dfd0] rounded-xl px-3 py-2 flex-1 min-w-0">
-          <FiSearch size={15} className="text-[#5a6a7e] shrink-0" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, category, location…" // ← Shortened for mobile
-            className="bg-transparent outline-none text-sm flex-1 text-[#0d1f35] placeholder:text-[#a0aab4] min-w-0"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="text-[#5a6a7e] hover:text-[#0d1f35] shrink-0"
-            >
-              <FiX size={14} />
-            </button>
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white rounded-3xl border border-[#e7dfd0] p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-black text-[#0d1f35]">Recent requests</h3>
+            <button onClick={() => goTab("bookings")} className="text-xs font-bold text-[#0b6b62] hover:underline">View all</button>
+          </div>
+          {bookings.length === 0 ? (
+            <Empty icon={<FiList />} title="No bookings yet" text="New requests will appear here." />
+          ) : (
+            <div className="divide-y divide-[#e7dfd0]">
+              {bookings.slice(0, 6).map((b) => (
+                <button key={b._id} onClick={() => onOpen(b)} className="w-full text-left py-3.5 flex items-center justify-between gap-4 hover:bg-[#faf7f2] -mx-2 px-2 rounded-xl transition">
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm text-[#0d1f35] truncate">{b.serviceName}</p>
+                    <p className="text-xs text-[#5a6a7e] truncate">{b.userName} · {fmtDate(b.createdAt)}</p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-sm font-black hidden sm:block">{fmtAmt(b.totalAmount)}</span>
+                    <StatusBadge status={b.status} />
+                  </div>
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setModal("add")}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#0d1f35] text-white rounded-xl hover:bg-[#0b6b62] text-sm font-semibold whitespace-nowrap"
-          >
-            <FiPlus size={16} /> Add Service
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl border border-[#e7dfd0] p-6">
+            <h3 className="font-black text-[#0d1f35] mb-4">Status split</h3>
+            <div className="flex h-3 rounded-full overflow-hidden bg-[#f5f0e8]">
+              {bar(stats.confirmed, "bg-emerald-500")}
+              {bar(stats.pending, "bg-amber-400")}
+              {bar(stats.cancelled, "bg-red-400")}
+            </div>
+            <div className="mt-4 space-y-2 text-sm">
+              {[["Confirmed", stats.confirmed, "bg-emerald-500"], ["Pending", stats.pending, "bg-amber-400"], ["Cancelled", stats.cancelled, "bg-red-400"]].map(([l, n, c]) => (
+                <div key={l} className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-[#5a6a7e]"><span className={`w-2.5 h-2.5 rounded-full ${c}`} />{l}</span>
+                  <b>{n}</b>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-[#e7dfd0] p-6">
+            <h3 className="font-black text-[#0d1f35] mb-4">Popular packages</h3>
+            {stats.top.length === 0 ? (
+              <p className="text-sm text-[#5a6a7e]">No data yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {stats.top.map(([name, n]) => (
+                  <div key={name}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="font-semibold truncate pr-2">{name}</span><b>{n}</b>
+                    </div>
+                    <div className="h-2 rounded-full bg-[#f5f0e8]">
+                      <div className="h-2 rounded-full bg-gradient-to-r from-[#0b6b62] to-[#c9a84c]" style={{ width: `${(n / stats.top[0][1]) * 100}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-3xl border border-[#e7dfd0] p-6">
+        <h3 className="font-black text-[#0d1f35] mb-4">Upcoming confirmed trips</h3>
+        {stats.upcoming.length === 0 ? (
+          <p className="text-sm text-[#5a6a7e]">No upcoming confirmed trips.</p>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {stats.upcoming.map((b) => (
+              <button key={b._id} onClick={() => onOpen(b)} className="text-left rounded-2xl border border-[#e7dfd0] p-4 hover:shadow-lg hover:-translate-y-0.5 transition">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#0b6b62]">{fmtDate(b.preferredDate)}</p>
+                <p className="font-black mt-1 line-clamp-1">{b.serviceName}</p>
+                <p className="text-xs text-[#5a6a7e] mt-1">{b.userName} · {b.travelers} traveler{b.travelers > 1 ? "s" : ""}</p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ───────────── Bookings panel ───────────── */
+const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete }) => {
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
+  const [sort, setSort] = useState("date-desc");
+  const [page, setPage] = useState(1);
+
+  const counts = useMemo(() => {
+    const c = { all: bookings.length };
+    STATUSES.slice(1).forEach((s) => (c[s] = bookings.filter((b) => b.status === s).length));
+    return c;
+  }, [bookings]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return bookings
+      .filter((b) => status === "all" || b.status === status)
+      .filter((b) => !q || `${b.userName} ${b.userEmail} ${b.serviceName} ${b.phoneNumber} ${b._id}`.toLowerCase().includes(q))
+      .sort((a, b) => {
+        if (sort === "date-asc") return new Date(a.createdAt) - new Date(b.createdAt);
+        if (sort === "trip") return new Date(a.preferredDate) - new Date(b.preferredDate);
+        if (sort === "amount") return Number(b.totalAmount) - Number(a.totalAmount);
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+  }, [bookings, search, status, sort]);
+
+  useEffect(() => setPage(1), [search, status, sort]);
+  const pages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const view = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+  const exportCsv = () => {
+    const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const head = ["Booking ID", "Customer", "Email", "Phone", "Package", "Travelers", "Trip date", "Total (BDT)", "Status", "Address", "Notes", "Requested on"];
+    const rows = filtered.map((b) => [b._id, b.userName, b.userEmail, b.phoneNumber, b.serviceName, b.travelers, fmtDate(b.preferredDate), b.totalAmount, b.status, b.address, b.notes, fmtDate(b.createdAt)]);
+    const csv = "\uFEFF" + [head, ...rows].map((r) => r.map(esc).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = `bookings-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    toast.success(`Exported ${filtered.length} bookings`);
+  };
+
+  return (
+    <div className="bg-white rounded-3xl border border-[#e7dfd0] overflow-hidden">
+      <div className="p-5 border-b border-[#e7dfd0] space-y-4">
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a6a7e]" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, phone, package, ID…" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#faf7f2] border border-[#e7dfd0] text-sm outline-none focus:border-[#0b6b62] focus:bg-white" />
+          </div>
+          <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-4 py-3 rounded-2xl bg-[#faf7f2] border border-[#e7dfd0] text-sm font-semibold outline-none">
+            <option value="date-desc">Newest requests</option>
+            <option value="date-asc">Oldest requests</option>
+            <option value="trip">Trip date (soonest)</option>
+            <option value="amount">Highest amount</option>
+          </select>
+          <button onClick={exportCsv} disabled={!filtered.length} className="px-5 py-3 rounded-2xl bg-[#0d1f35] text-white text-sm font-bold hover:bg-[#0b6b62] disabled:opacity-40 flex items-center justify-center gap-2">
+            <FiDownload /> CSV
           </button>
-          <button
-            onClick={fetchServices}
-            className="flex items-center gap-2 px-4 py-2.5 border border-[#e7dfd0] bg-white rounded-xl hover:bg-[#f5f0e8] text-sm font-semibold text-[#5a6a7e]"
-            aria-label="Refresh"
-          >
-            <FiRefreshCw size={15} />
-          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {STATUSES.map((s) => (
+            <button key={s} onClick={() => setStatus(s)} className={`px-4 py-2 rounded-full text-xs font-bold capitalize transition ${status === s ? "bg-[#0d1f35] text-white" : "bg-[#f5f0e8] text-[#5a6a7e] hover:bg-[#e7dfd0]"}`}>
+              {s} <span className="opacity-60 ml-1">{counts[s]}</span>
+            </button>
+          ))}
         </div>
       </div>
 
       {loading ? (
         <Spinner />
+      ) : view.length === 0 ? (
+        <Empty icon={<FiList />} title="No bookings found" text="Try a different search or filter." />
+      ) : (
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[10px] uppercase tracking-widest text-[#5a6a7e] bg-[#faf7f2]">
+                  {["Customer", "Package", "Trip date", "Guests", "Total", "Status", "Actions"].map((h) => (
+                    <th key={h} className="px-5 py-3 font-black">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#e7dfd0]">
+                {view.map((b) => (
+                  <tr key={b._id} className="hover:bg-[#faf7f2] cursor-pointer" onClick={() => onOpen(b)}>
+                    <td className="px-5 py-4">
+                      <p className="font-bold">{b.userName}</p>
+                      <p className="text-xs text-[#5a6a7e]">{b.phoneNumber}</p>
+                    </td>
+                    <td className="px-5 py-4 max-w-[220px]"><p className="font-semibold truncate">{b.serviceName}</p></td>
+                    <td className="px-5 py-4 whitespace-nowrap">{fmtDate(b.preferredDate)}</td>
+                    <td className="px-5 py-4">{b.travelers}</td>
+                    <td className="px-5 py-4 font-black whitespace-nowrap">{fmtAmt(b.totalAmount)}</td>
+                    <td className="px-5 py-4"><StatusBadge status={b.status} /></td>
+                    <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-1">
+                        <button title="Confirm" disabled={busyId === b._id || b.status === "confirmed"} onClick={() => onStatus(b._id, "confirmed")} className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-30"><FiCheckCircle size={17} /></button>
+                        <button title="Cancel" disabled={busyId === b._id || b.status === "cancelled"} onClick={() => onStatus(b._id, "cancelled")} className="p-2 rounded-lg text-amber-600 hover:bg-amber-50 disabled:opacity-30"><FiXCircle size={17} /></button>
+                        <button title="Delete" onClick={() => onDelete(b)} className="p-2 rounded-lg text-red-500 hover:bg-red-50"><FiTrash2 size={17} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden divide-y divide-[#e7dfd0]">
+            {view.map((b) => (
+              <div key={b._id} className="p-5" onClick={() => onOpen(b)}>
+                <div className="flex justify-between gap-3">
+                  <p className="font-black leading-tight">{b.serviceName}</p>
+                  <StatusBadge status={b.status} />
+                </div>
+                <p className="text-xs text-[#5a6a7e] mt-1">{b.userName} · {b.phoneNumber}</p>
+                <div className="flex justify-between items-center mt-3">
+                  <span className="text-xs text-[#5a6a7e]">{fmtDate(b.preferredDate)} · {b.travelers} guests</span>
+                  <b>{fmtAmt(b.totalAmount)}</b>
+                </div>
+                <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+                  <button disabled={busyId === b._id || b.status === "confirmed"} onClick={() => onStatus(b._id, "confirmed")} className="flex-1 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold disabled:opacity-40">Confirm</button>
+                  <button disabled={busyId === b._id || b.status === "cancelled"} onClick={() => onStatus(b._id, "cancelled")} className="flex-1 py-2 rounded-xl border border-red-200 text-red-600 text-xs font-bold disabled:opacity-40">Cancel</button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between px-5 py-4 border-t border-[#e7dfd0] text-xs text-[#5a6a7e]">
+            <span>{(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}</span>
+            <div className="flex items-center gap-2">
+              <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="p-2 rounded-lg border border-[#e7dfd0] disabled:opacity-30 hover:bg-[#f5f0e8]"><FiChevronLeft /></button>
+              <span className="font-bold text-[#0d1f35]">{page} / {pages}</span>
+              <button disabled={page >= pages} onClick={() => setPage((p) => p + 1)} className="p-2 rounded-lg border border-[#e7dfd0] disabled:opacity-30 hover:bg-[#f5f0e8]"><FiChevronRight /></button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+/* ───────────── Services panel ───────────── */
+const ServicesPanel = ({ services, bookings, loading, onSave, onDelete }) => {
+  const [search, setSearch] = useState("");
+  const [cat, setCat] = useState("all");
+  const [modal, setModal] = useState(null);
+
+  const categories = useMemo(() => [...new Set(services.map((s) => s.category).filter(Boolean))], [services]);
+  const bookedCount = useMemo(() => {
+    const m = {};
+    bookings.filter((b) => b.status !== "cancelled").forEach((b) => (m[b.serviceId] = (m[b.serviceId] || 0) + 1));
+    return m;
+  }, [bookings]);
+
+  const filtered = services
+    .filter((s) => cat === "all" || s.category === cat)
+    .filter((s) => `${s.name} ${s.category} ${s.location}`.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div>
+      <div className="flex flex-col md:flex-row gap-3 mb-6">
+        <div className="relative flex-1">
+          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a6a7e]" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search packages…" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-[#e7dfd0] text-sm outline-none focus:border-[#0b6b62]" />
+        </div>
+        <select value={cat} onChange={(e) => setCat(e.target.value)} className="px-4 py-3 rounded-2xl bg-white border border-[#e7dfd0] text-sm font-semibold outline-none">
+          <option value="all">All categories</option>
+          {categories.map((c) => <option key={c}>{c}</option>)}
+        </select>
+        <button onClick={() => setModal({})} className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-[#0d1f35] text-sm font-black flex items-center justify-center gap-2 hover:shadow-lg">
+          <FiPlus /> New package
+        </button>
+      </div>
+
+      {loading ? (
+        <Spinner />
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-[#5a6a7e] text-sm bg-white rounded-2xl border border-[#e7dfd0]">
-          No services found.{" "}
-          <button
-            onClick={() => setModal("add")}
-            className="text-[#0b6b62] font-semibold underline"
-          >
-            Add one?
-          </button>
+        <div className="bg-white rounded-3xl border border-[#e7dfd0]">
+          <Empty icon={<FiMap />} title="No packages" text="Create your first tour package." />
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {filtered.map((s) => (
-            <div
-              key={s._id}
-              className="bg-white border border-[#e7dfd0] rounded-2xl overflow-hidden group hover:border-[#c9a84c]/40 hover:shadow-lg transition-all duration-300"
-            >
-              <div className="aspect-video bg-[#f5f0e8] overflow-hidden relative">
-                {s.picture ? (
-                  <img
-                    src={s.picture}
-                    alt={s.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[#5a6a7e]">
-                    <FiImage size={32} />
+            <article key={s._id} className="bg-white rounded-3xl border border-[#e7dfd0] overflow-hidden group hover:shadow-xl transition">
+              <div className="relative aspect-[16/10] overflow-hidden bg-[#f5f0e8]">
+                <img src={s.picture} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" onError={(e) => (e.target.style.opacity = 0.2)} />
+                <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">{s.category}</span>
+                <span className="absolute top-3 right-3 bg-[#0d1f35]/85 text-white text-[10px] font-bold px-3 py-1 rounded-full">{bookedCount[s._id] || 0} active</span>
+              </div>
+              <div className="p-5">
+                <h3 className="font-black leading-tight line-clamp-1">{s.name}</h3>
+                <p className="text-xs text-[#5a6a7e] mt-1 flex items-center gap-1"><FiMapPin size={11} />{s.location} · {s.duration}</p>
+                <p className="text-sm text-[#5a6a7e] mt-3 line-clamp-2">{s.about}</p>
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#e7dfd0]">
+                  <p className="font-black text-[#e85d45] text-lg" style={serif}>{s.balance}</p>
+                  <div className="flex gap-1">
+                    <button onClick={() => setModal(s)} className="p-2.5 rounded-xl text-[#0b6b62] hover:bg-[#0b6b62]/10" title="Edit"><FiEdit2 size={16} /></button>
+                    <button onClick={() => onDelete(s, bookedCount[s._id] || 0)} className="p-2.5 rounded-xl text-red-500 hover:bg-red-50" title="Delete"><FiTrash2 size={16} /></button>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                <span className="absolute top-3 left-3 bg-white backdrop-blur text-[#0d1f35] text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
-                  {s.category || "General"}
-                </span>
-                <span className="absolute bottom-3 right-3 bg-white/90 backdrop-blur text-[#e85d45] text-xs font-bold px-3 py-1 rounded-full">
-                  {s.balance}
-                </span>
-              </div>
-              <div className="p-4">
-                <h3 className="font-bold text-[#0d1f35] text-sm mb-1 line-clamp-1">
-                  {s.name}
-                </h3>
-                <p className="text-xs text-[#5a6a7e] line-clamp-2 mb-3 leading-relaxed">
-                  {s.about}
-                </p>
-                <div className="flex items-center gap-3 text-xs text-[#5a6a7e] mb-4">
-                  <span>📍 {s.location || "Bangladesh"}</span>
-                  <span>⏱ {s.duration || "Flexible"}</span>
-                </div>
-                <div className="flex gap-2 pt-3 border-t border-[#f0ebe2]">
-                  <button
-                    onClick={() => setModal(s)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-[#e7dfd0] text-xs font-semibold text-[#0d1f35] hover:bg-red-500"
-                  >
-                    <FiEdit2 size={13} /> Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(s._id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-red-100 text-xs font-semibold text-red-600 hover:bg-red-50"
-                  >
-                    <FiTrash2 size={13} /> Delete
-                  </button>
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}
 
       {modal && (
         <ServiceModal
-          initial={modal === "add" ? null : modal}
+          initial={modal._id ? modal : null}
           onClose={() => setModal(null)}
-          onSave={handleSave}
+          onSave={async (form) => {
+            const ok = await onSave(form);
+            if (ok) setModal(null);
+            return ok;
+          }}
         />
       )}
     </div>
   );
 };
 
-// ─── Bookings Panel ───────────────────────────────────────────────────────────
-const BookingsPanel = () => {
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setFilter] = useState("all");
-  const [sort, setSort] = useState("date-desc");
-  const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState(null);
+/* ───────────── Root ───────────── */
+const TABS = [
+  { id: "overview", label: "Overview", icon: <FiGrid /> },
+  { id: "bookings", label: "Bookings", icon: <FiList /> },
+  { id: "services", label: "Packages", icon: <FiMap /> },
+];
 
-  const fetchBookings = useCallback(async () => {
+const AdminDashboard = () => {
+  const [user, authLoading] = useAuthState(auth);
+  const [tab, setTab] = useState("overview");
+  const [bookings, setBookings] = useState([]);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  const [confirmBusy, setConfirmBusy] = useState(false);
+
+  const isAdmin = user?.email === ADMIN_EMAIL;
+
+  const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_BOOKINGS);
-      const data = await res.json();
-      setBookings(data);
+      const [bRes, sRes] = await Promise.all([
+        authFetch(API_BOOKINGS),
+        fetch(API_SERVICES_PUBLIC),
+      ]);
+      if (bRes.status === 401 || bRes.status === 403) {
+        toast.error("Admin access denied by server. Check ADMIN_EMAILS and that your email is verified.");
+      } else if (!bRes.ok) throw new Error("bookings");
+      else {
+        const b = await bRes.json();
+        setBookings(Array.isArray(b) ? b : []);
+      }
+      const s = sRes.ok ? await sRes.json() : [];
+      setServices(Array.isArray(s) ? s : []);
     } catch {
-      toast.error("Failed to load bookings");
+      toast.error("Failed to load dashboard data");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
+    if (isAdmin) loadAll();
+  }, [isAdmin, loadAll]);
 
-  const updateStatus = async (id, newStatus) => {
+  const selected = bookings.find((b) => b._id === selectedId) || null;
+
+  const updateStatus = async (id, status) => {
+    setBusyId(id);
     try {
-      const res = await fetch(`${API_BOOKINGS}/${id}`, {
+      const res = await authFetch(`${API_BOOKINGS}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ status }),
       });
-      const result = await res.json();
-      if (result.success) {
-        toast.success(`Booking marked as ${newStatus}`);
-        setBookings((prev) =>
-          prev.map((b) => (b._id === id ? { ...b, status: newStatus } : b)),
-        );
-        setSelected((prev) =>
-          prev?._id === id ? { ...prev, status: newStatus } : prev,
-        );
-      }
-    } catch {
-      toast.error("Failed to update status");
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result.success) throw new Error(result.message);
+      setBookings((p) => p.map((b) => (b._id === id ? { ...b, status } : b)));
+      toast.success(`Booking marked as ${status}`);
+    } catch (e) {
+      toast.error(e.message || "Failed to update status");
+    } finally {
+      setBusyId(null);
     }
   };
 
-  const deleteBooking = async (id) => {
-    if (!window.confirm("Delete this booking permanently?")) return;
-    try {
-      const res = await fetch(`${API_BOOKINGS}/${id}`, { method: "DELETE" });
-      const result = await res.json();
-      if (result.success) {
+  const deleteBooking = (b) =>
+    setConfirm({
+      title: "Delete this booking?",
+      text: `${b.userName} · ${b.serviceName}. This cannot be undone.`,
+      label: "Delete",
+      run: async () => {
+        const res = await authFetch(`${API_BOOKINGS}/${b._id}`, { method: "DELETE" });
+        const r = await res.json().catch(() => ({}));
+        if (!res.ok || !r.success) throw new Error(r.message || "Delete failed");
+        setBookings((p) => p.filter((x) => x._id !== b._id));
+        setSelectedId(null);
         toast.success("Booking deleted");
-        setBookings((prev) => prev.filter((b) => b._id !== id));
-        if (selected?._id === id) setSelected(null);
-      }
-    } catch {
-      toast.error("Failed to delete booking");
-    }
-  };
-
-  const confirmed = bookings.filter((b) => b.status === "confirmed");
-  const revenue = confirmed.reduce((s, b) => s + Number(b.totalAmount), 0);
-
-  const filtered = bookings
-    .filter((b) => statusFilter === "all" || b.status === statusFilter)
-    .filter((b) => {
-      const q = search.toLowerCase();
-      return (
-        !q ||
-        [b.userName, b.userEmail, b.serviceName, b.phoneNumber]
-          .join(" ")
-          .toLowerCase()
-          .includes(q)
-      );
-    })
-    .sort((a, b) => {
-      if (sort === "date-desc")
-        return new Date(b.preferredDate) - new Date(a.preferredDate);
-      if (sort === "date-asc")
-        return new Date(a.preferredDate) - new Date(b.preferredDate);
-      if (sort === "amount-desc") return b.totalAmount - a.totalAmount;
-      if (sort === "amount-asc") return a.totalAmount - b.totalAmount;
-      return 0;
+      },
     });
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE) || 1;
-  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const saveService = async (form) => {
+    const isEdit = !!form._id;
+    try {
+      const res = await authFetch(isEdit ? `${API_SERVICES}/${form._id}` : API_SERVICES, {
+        method: isEdit ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const r = await res.json().catch(() => ({}));
+      if (!res.ok || !r.success) throw new Error(r.message || "Save failed");
+      setServices((p) => (isEdit ? p.map((s) => (s._id === r.service._id ? r.service : s)) : [r.service, ...p]));
+      toast.success(isEdit ? "Package updated" : "Package created");
+      return true;
+    } catch (e) {
+      toast.error(e.message || "Failed to save package");
+      return false;
+    }
+  };
 
-  return (
-    <div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-        <StatCard label="Total" value={bookings.length} />
-        <StatCard
-          label="Confirmed"
-          value={confirmed.length}
-          color="text-green-700"
-        />
-        <StatCard
-          label="Pending"
-          value={bookings.filter((b) => b.status === "pending").length}
-          color="text-yellow-600"
-        />
-        <StatCard
-          label="Cancelled"
-          value={bookings.filter((b) => b.status === "cancelled").length}
-          color="text-red-600"
-        />
-        <StatCard
-          label="Revenue"
-          value={"৳" + revenue.toLocaleString()}
-          color="text-[#185FA5]"
-        />
-      </div>
+  const deleteService = (s, active) =>
+    setConfirm({
+      title: "Delete this package?",
+      text: active
+        ? `"${s.name}" has ${active} active booking(s). Existing bookings stay, but the package disappears from the site.`
+        : `"${s.name}" will be removed from the site.`,
+      label: "Delete",
+      run: async () => {
+        const res = await authFetch(`${API_SERVICES}/${s._id}`, { method: "DELETE" });
+        const r = await res.json().catch(() => ({}));
+        if (!res.ok || !r.success) throw new Error(r.message || "Delete failed");
+        setServices((p) => p.filter((x) => x._id !== s._id));
+        toast.success("Package deleted");
+      },
+    });
 
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="flex items-center gap-2 bg-white border border-[#e7dfd0] rounded-xl px-3 py-2 flex-1 min-w-[180px]">
-          <FiSearch size={15} className="text-[#5a6a7e]" />
-          <input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Search name, email, service…"
-            className="bg-transparent outline-none text-sm flex-1 text-[#0d1f35] placeholder:text-[#a0aab4]"
-          />
-          {search && (
-            <button onClick={() => setSearch("")} className="text-[#5a6a7e]">
-              <FiX size={14} />
-            </button>
-          )}
-        </div>
+  const runConfirm = async () => {
+    setConfirmBusy(true);
+    try {
+      await confirm.run();
+      setConfirm(null);
+    } catch (e) {
+      toast.error(e.message || "Action failed");
+    } finally {
+      setConfirmBusy(false);
+    }
+  };
 
-        <div className="flex gap-2 flex-wrap">
-          {STATUSES.map((s) => (
-            <button
-              key={s}
-              onClick={() => {
-                setFilter(s);
-                setPage(1);
-              }}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold capitalize border transition-colors ${
-                statusFilter === s
-                  ? s === "all"
-                    ? "bg-[#0d1f35] text-white border-[#0d1f35]"
-                    : s === "confirmed"
-                      ? "bg-green-600 text-white border-green-600"
-                      : s === "pending"
-                        ? "bg-yellow-500 text-white border-yellow-500"
-                        : "bg-red-600 text-white border-red-600"
-                  : "bg-white text-[#5a6a7e] border-[#e7dfd0] hover:bg-[#f5f0e8]"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-
-        <select
-          value={sort}
-          onChange={(e) => {
-            setSort(e.target.value);
-            setPage(1);
-          }}
-          className="bg-white border border-[#e7dfd0] rounded-xl px-3 py-2 text-sm text-[#0d1f35] outline-none cursor-pointer"
-        >
-          <option value="date-desc">Newest first</option>
-          <option value="date-asc">Oldest first</option>
-          <option value="amount-desc">Highest amount</option>
-          <option value="amount-asc">Lowest amount</option>
-        </select>
-
-        <button
-          onClick={fetchBookings}
-          className="flex items-center gap-2 px-4 py-2.5 border border-[#e7dfd0] bg-white rounded-xl hover:bg-[#f5f0e8] text-sm font-semibold text-[#5a6a7e]"
-        >
-          <FiRefreshCw size={15} />
-        </button>
-      </div>
-
-      <div className="bg-white rounded-3xl border border-[#e7dfd0] overflow-hidden">
-        {loading ? (
-          <Spinner />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[680px]">
-              <thead className="bg-[#f5f0e8] border-b border-[#e7dfd0]">
-                <tr>
-                  {[
-                    "Service",
-                    "Customer",
-                    "Date",
-                    "Travelers",
-                    "Amount",
-                    "Status",
-                    "Actions",
-                  ].map((h) => (
-                    <th
-                      key={h}
-                      className={`px-5 py-3.5 text-xs font-semibold text-[#5a6a7e] uppercase tracking-wide ${
-                        h === "Travelers" || h === "Actions"
-                          ? "text-center"
-                          : "text-left"
-                      }`}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {paginated.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="text-center py-14 text-[#5a6a7e] text-sm"
-                    >
-                      No bookings found.
-                    </td>
-                  </tr>
-                ) : (
-                  paginated.map((b) => (
-                    <tr
-                      key={b._id}
-                      onClick={() => setSelected(b)}
-                      className="border-b border-[#f0ebe2] hover:bg-slate-800 cursor-pointer transition-colors"
-                    >
-                      <td
-                        className="px-5 py-4 font-semibold text-sm text-[#0d1f35] max-w-[160px] truncate"
-                        title={b.serviceName}
-                      >
-                        {b.serviceName}
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="font-semibold text-sm text-[#0d1f35]">
-                          {b.userName}
-                        </div>
-                        <div className="text-xs text-[#5a6a7e]">
-                          {b.userEmail}
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 text-sm text-[#0d1f35] whitespace-nowrap">
-                        {fmtDate(b.preferredDate)}
-                      </td>
-                      <td className="px-5 py-4 text-sm text-center text-[#0d1f35]">
-                        {b.travelers}
-                      </td>
-                      <td className="px-5 py-4 text-sm font-bold text-[#e85d45] whitespace-nowrap">
-                        {fmtAmt(b.totalAmount)}
-                      </td>
-                      <td className="px-5 py-4">
-                        <StatusBadge status={b.status} />
-                      </td>
-                      <td
-                        className="px-5 py-4"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="flex gap-1 justify-center">
-                          {b.status !== "confirmed" && (
-                            <button
-                              onClick={() => updateStatus(b._id, "confirmed")}
-                              className="p-1.5 rounded-lg text-green-600 hover:bg-green-50"
-                            >
-                              <FiCheckCircle size={17} />
-                            </button>
-                          )}
-                          {b.status !== "cancelled" && (
-                            <button
-                              onClick={() => updateStatus(b._id, "cancelled")}
-                              className="p-1.5 rounded-lg text-yellow-600 hover:bg-yellow-50"
-                            >
-                              <FiXCircle size={17} />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => deleteBooking(b._id)}
-                            className="p-1.5 rounded-lg text-red-500 hover:bg-red-50"
-                          >
-                            <FiTrash2 size={17} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {!loading && filtered.length > PER_PAGE && (
-          <div className="flex items-center justify-between px-5 py-3 border-t border-[#e7dfd0] text-xs text-[#5a6a7e]">
-            <span>
-              Showing {(page - 1) * PER_PAGE + 1}–
-              {Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}
-            </span>
-            <div className="flex gap-1">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1.5 rounded-lg border border-[#e7dfd0] hover:bg-[#f5f0e8] disabled:opacity-40"
-              >
-                Prev
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setPage(n)}
-                  className={`px-3 py-1.5 rounded-lg border ${n === page ? "bg-[#0d1f35] text-white border-[#0d1f35]" : "border-[#e7dfd0] hover:bg-[#f5f0e8]"}`}
-                >
-                  {n}
-                </button>
-              ))}
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-3 py-1.5 rounded-lg border border-[#e7dfd0] hover:bg-[#f5f0e8] disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {selected && (
-        <BookingDrawer
-          booking={selected}
-          onClose={() => setSelected(null)}
-          onUpdate={updateStatus}
-          onDelete={deleteBooking}
-        />
-      )}
-    </div>
-  );
-};
-
-// ─── Root Component ───────────────────────────────────────────────────────────
-const TABS = [
-  { id: "bookings", label: "Bookings" },
-  { id: "services", label: "Services" },
-];
-
-const AdminDashboard = () => {
-  const [user] = useAuthState(auth);
-  const [tab, setTab] = useState("bookings");
-
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  if (authLoading) {
+    return (
+      <main className="min-h-screen bg-[#f5f0e8] pt-[76px] flex items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#e7dfd0] border-t-[#0b6b62]" />
+      </main>
+    );
+  }
 
   if (!user || !isAdmin) {
     return (
-      <main className="min-h-screen bg-[#f5f0e8] pt-[76px] flex items-center justify-center">
+      <main className="min-h-screen bg-[#f5f0e8] pt-[76px] flex items-center justify-center px-6">
         <div className="text-center">
-          <h2 className="text-4xl font-black mb-4">Access Denied</h2>
-          <p className="text-[#5a6a7e]">Only admin can access this page.</p>
+          <div className="text-5xl mb-4">🔒</div>
+          <h2 className="text-4xl font-black mb-3" style={serif}>Access Denied</h2>
+          <p className="text-[#5a6a7e]">Only the admin can access this page.</p>
         </div>
       </main>
     );
   }
 
+  const pendingCount = bookings.filter((b) => b.status === "pending").length;
+
   return (
     <main className="min-h-screen bg-[#f5f0e8] pt-[76px] pb-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
-        <div className="flex flex-wrap items-center justify-between gap-4 py-8">
+      <section className="bg-gradient-to-br from-[#0d1f35] to-[#0b6b62] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10 flex flex-wrap items-end justify-between gap-5">
           <div>
-            <h1 className="text-3xl font-black text-[#0d1f35]">
-              Admin Dashboard
-            </h1>
-            <p className="text-[#5a6a7e] mt-1 text-sm">
-              Logged in as{" "}
-              <span className="font-semibold text-[#0d1f35]">{user.email}</span>
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-[#e8c96a] font-black">Sababa Tours</p>
+            <h1 className="text-4xl md:text-5xl font-black mt-2" style={serif}>Admin Dashboard</h1>
+            <p className="text-white/60 text-sm mt-2">Signed in as {user.email}</p>
+          </div>
+          <div className="flex gap-3">
+            <button onClick={loadAll} className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm font-bold flex items-center gap-2">
+              <FiRefreshCw className={loading ? "animate-spin" : ""} /> Refresh
+            </button>
+            <button onClick={() => setTab("services")} className="px-5 py-3 rounded-2xl bg-[#e8c96a] text-[#0d1f35] text-sm font-black flex items-center gap-2 hover:shadow-lg">
+              <FiPlus /> Packages
+            </button>
           </div>
         </div>
+      </section>
 
-        <div className="flex gap-1 bg-white border border-[#e7dfd0] rounded-2xl p-1 mb-6 w-fit">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="-mt-6 mb-6 flex gap-1 bg-white border border-[#e7dfd0] rounded-2xl p-1.5 w-fit shadow-md max-w-full overflow-x-auto">
           {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                tab === t.id
-                  ? "bg-[#0d1f35] text-white shadow-sm"
-                  : "text-[#5a6a7e] hover:text-[#0d1f35] hover:bg-[#f5f0e8]"
-              }`}
-            >
-              {t.label}
+            <button key={t.id} onClick={() => setTab(t.id)} className={`px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 whitespace-nowrap transition ${tab === t.id ? "bg-[#0d1f35] text-white shadow" : "text-[#5a6a7e] hover:bg-[#f5f0e8]"}`}>
+              {t.icon} {t.label}
+              {t.id === "bookings" && pendingCount > 0 && (
+                <span className="bg-[#e85d45] text-white text-[10px] font-black rounded-full px-2 py-0.5">{pendingCount}</span>
+              )}
             </button>
           ))}
         </div>
 
-        {tab === "bookings" ? <BookingsPanel /> : <ServicesPanel />}
+        {tab === "overview" &&
+          (loading ? <Spinner /> : <Overview bookings={bookings} services={services} onOpen={(b) => setSelectedId(b._id)} goTab={setTab} />)}
+        {tab === "bookings" && (
+          <BookingsPanel bookings={bookings} loading={loading} busyId={busyId} onOpen={(b) => setSelectedId(b._id)} onStatus={updateStatus} onDelete={deleteBooking} />
+        )}
+        {tab === "services" && (
+          <ServicesPanel services={services} bookings={bookings} loading={loading} onSave={saveService} onDelete={deleteService} />
+        )}
       </div>
+
+      {selected && (
+        <BookingDrawer booking={selected} busy={busyId === selected._id} onClose={() => setSelectedId(null)} onStatus={updateStatus} onDelete={deleteBooking} />
+      )}
+      <ConfirmDialog open={!!confirm} title={confirm?.title} text={confirm?.text} confirmLabel={confirm?.label} danger busy={confirmBusy} onConfirm={runConfirm} onCancel={() => setConfirm(null)} />
     </main>
   );
 };

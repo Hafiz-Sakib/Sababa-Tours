@@ -127,7 +127,11 @@ const Login = () => {
           <h2 className="mt-3 text-4xl font-black tracking-tight">Sign in</h2>
           <p className="mt-2 text-sm text-[#65758a]">
             New here?{" "}
-            <Link to="/register" className="font-black text-[#f25f4c]">
+            <Link
+              to="/register"
+              state={{ from: location.state?.from }}
+              className="font-black text-[#f25f4c]"
+            >
               Create an account
             </Link>
           </p>

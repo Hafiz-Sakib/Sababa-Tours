@@ -42,14 +42,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route
-          path="/booking/:bookingId"
-          element={
-            <RequireAuth>
-              <Booking />
-            </RequireAuth>
-          }
-        />
+        {/* Public: anyone can view a package and fill the form.
+            Login is requested only when confirming the booking. */}
+        <Route path="/booking/:bookingId" element={<Booking />} />
         <Route
           path="/my-bookings"
           element={
