@@ -11,6 +11,8 @@ import Services from "./Components/Services/Services";
 import Blogs from "./Components/Pages/Blogs";
 import About from "./Components/Pages/About";
 import Contact from "./Components/Pages/Contact";
+import Destinations from "./Components/Pages/Destinations";
+import Guide from "./Components/Pages/Guide";
 import NotFound from "./Components/Pages/NotFound";
 
 import Login from "./Components/Auth/Login";
@@ -36,6 +38,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/destinations" element={<Destinations />} />
+        <Route path="/guide" element={<Guide />} />
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />

@@ -10,6 +10,7 @@ import {
   useInView,
   useMotionValue,
   useReducedMotion,
+  useScroll,
   useSpring,
   useTransform,
 } from "motion/react";
@@ -390,5 +391,50 @@ export const BlurAccordion = ({ items }) => {
         );
       })}
     </div>
+  );
+};
+
+/* ───────────── Scroll progress: a thin bar under the navbar fills as you read ───────────── */
+export const ScrollProgress = () => {
+  const { scrollYProgress } = useScroll();
+  const x = useSpring(scrollYProgress, { stiffness: 140, damping: 28, restDelta: 0.001 });
+  return (
+    <motion.div
+      aria-hidden
+      className="fixed inset-x-0 top-[72px] z-[45] h-[3px] origin-left bg-gradient-to-r from-[#c9a84c] to-[#0b6b62]"
+      style={{ scaleX: x }}
+    />
+  );
+};
+
+/* ───────────── Flip card: tap or hover to turn it over ───────────── */
+export const FlipCard = ({ front, back, className = "" }) => {
+  const [flipped, setFlipped] = useState(false);
+  const reduce = useReducedMotion();
+  return (
+    <button
+      type="button"
+      onClick={() => setFlipped((f) => !f)}
+      onMouseEnter={() => setFlipped(true)}
+      onMouseLeave={() => setFlipped(false)}
+      aria-pressed={flipped}
+      className={`relative block h-full w-full text-left [perspective:1000px] ${className}`}
+    >
+      <motion.div
+        className="relative h-full w-full [transform-style:preserve-3d]"
+        animate={{ rotateY: flipped && !reduce ? 180 : 0 }}
+        transition={{ type: "spring", stiffness: 160, damping: 20 }}
+      >
+        <div className="absolute inset-0 [backface-visibility:hidden]" style={{ opacity: reduce && flipped ? 0 : 1 }}>
+          {front}
+        </div>
+        <div
+          className="absolute inset-0 [backface-visibility:hidden]"
+          style={{ transform: reduce ? "none" : "rotateY(180deg)", opacity: reduce && !flipped ? 0 : 1 }}
+        >
+          {back}
+        </div>
+      </motion.div>
+    </button>
   );
 };

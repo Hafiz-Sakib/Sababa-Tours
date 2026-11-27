@@ -1,7 +1,12 @@
 // src/Components/Contact/Contact.js
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
+  FiArrowRight,
   FiCheckCircle,
+  FiClock,
+  FiCompass,
+  FiCopy,
   FiMail,
   FiMapPin,
   FiPhone,
@@ -9,6 +14,22 @@ import {
   FiX,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
+import { BlurAccordion, Reveal, TiltCard } from "../ui/Motion";
+
+const EMAIL = "hello@sababatours.com";
+
+const nextSteps = [
+  { title: "We read your message", text: "A real person on the travel desk reviews your plan, dates and group size." },
+  { title: "We reply within 24 hours", text: "You get questions, ideas and a suggested route, never a hard sell." },
+  { title: "You decide", text: "Happy with the plan? Send a request. Not sure? Keep talking to us." },
+];
+
+const contactFaqs = [
+  { q: "Do I need to know my exact dates?", a: "No. Share a rough month or a range and we will suggest what works best for the place you want." },
+  { q: "Can I plan for a group or a family?", a: "Yes. Tell us group size, ages and any needs, and we will shape the pace and stays around them." },
+  { q: "Is there a fee to enquire?", a: "No. Sending an enquiry is free, and booking requests do not need payment up front." },
+  { q: "Prefer to pick a package first?", a: "Browse the packages and send a booking request in a few steps. You can track it in My Bookings." },
+];
 
 const WEB3FORMS_ACCESS_KEY = "fa7f8ec7-a4a8-424b-8efd-9b6387755682";
 
@@ -52,6 +73,17 @@ const Contact = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+      setCopied(true);
+      toast.success("Email copied");
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      toast.error("Could not copy. Please select the email manually.");
+    }
+  };
 
   const handleChange = (event) => {
     setForm({ ...form, [event.target.name]: event.target.value });
@@ -142,6 +174,41 @@ const Contact = () => {
           <p className="mt-6 text-lg text-white/80 max-w-2xl mx-auto">
             Share your vision. We’ll craft the perfect journey for you.
           </p>
+        </div>
+      </section>
+
+      {/* Quick channels */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 -mt-10 relative z-10">
+        <div className="grid gap-4 md:grid-cols-3">
+          <TiltCard max={3} className="rounded-3xl">
+            <div className="h-full rounded-3xl border border-[#e7dfd0] bg-white p-6 shadow-lg">
+              <FiMail className="text-2xl text-[#0f766e]" />
+              <p className="mt-3 text-xs font-bold uppercase tracking-widest text-[#65758a]">Email the desk</p>
+              <p className="mt-1 break-all font-bold">{EMAIL}</p>
+              <div className="mt-4 flex gap-2">
+                <button type="button" onClick={copyEmail} className="inline-flex items-center gap-2 rounded-full border border-[#e7dfd0] px-4 py-2 text-xs font-bold transition hover:bg-[#f6f2ea]">
+                  {copied ? <FiCheckCircle className="text-[#0f766e]" /> : <FiCopy />} {copied ? "Copied" : "Copy"}
+                </button>
+                <a href={`mailto:${EMAIL}`} className="inline-flex items-center gap-2 rounded-full bg-[#132236] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#0f766e]">Write</a>
+              </div>
+            </div>
+          </TiltCard>
+          <TiltCard max={3} className="rounded-3xl">
+            <div className="h-full rounded-3xl border border-[#e7dfd0] bg-white p-6 shadow-lg">
+              <FiClock className="text-2xl text-[#0f766e]" />
+              <p className="mt-3 text-xs font-bold uppercase tracking-widest text-[#65758a]">Reply time</p>
+              <p className="mt-1 text-3xl font-black">Within 24 hours</p>
+              <p className="mt-2 text-sm text-[#65758a]">Send your plan and we will come back with next steps.</p>
+            </div>
+          </TiltCard>
+          <TiltCard max={3} className="rounded-3xl">
+            <Link to="/services" className="group block h-full rounded-3xl bg-[#132236] p-6 text-white shadow-lg">
+              <FiCompass className="text-2xl text-[#f4c76b]" />
+              <p className="mt-3 text-xs font-bold uppercase tracking-widest text-white/60">Already know where?</p>
+              <p className="mt-1 text-2xl font-black">Send a request from a package</p>
+              <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#f4c76b] transition-all group-hover:gap-4">Browse packages <FiArrowRight /></span>
+            </Link>
+          </TiltCard>
         </div>
       </section>
 
@@ -289,6 +356,34 @@ const Contact = () => {
               {loading ? "Sending..." : "Send Inquiry"} <FiSend />
             </button>
           </form>
+        </div>
+      </section>
+
+      {/* What happens next + FAQ */}
+      <section className="bg-white py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 grid gap-14 lg:grid-cols-2">
+          <Reveal>
+            <p className="text-[#0f766e] uppercase tracking-widest text-sm font-bold">What happens next</p>
+            <h2 className="mt-3 text-3xl md:text-4xl font-black">Three steps, no pressure.</h2>
+            <ol className="mt-8 space-y-6">
+              {nextSteps.map((s, i) => (
+                <li key={s.title} className="flex gap-4">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#132236] text-sm font-bold text-white">{i + 1}</span>
+                  <div>
+                    <p className="font-bold">{s.title}</p>
+                    <p className="text-sm text-[#65758a]">{s.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <div className="mt-8 flex flex-wrap gap-3 text-sm font-bold">
+              <Link to="/destinations" className="rounded-full border border-[#e7dfd0] px-5 py-2.5 transition hover:bg-[#f6f2ea]">Explore destinations</Link>
+              <Link to="/guide" className="rounded-full border border-[#e7dfd0] px-5 py-2.5 transition hover:bg-[#f6f2ea]">Travel guide</Link>
+            </div>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <BlurAccordion items={contactFaqs} />
+          </Reveal>
         </div>
       </section>
     </main>

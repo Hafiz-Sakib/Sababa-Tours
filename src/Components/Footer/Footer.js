@@ -97,6 +97,8 @@ const Footer = () => {
             <ul className="space-y-4">
               {[
                 { label: "Tour Packages", to: "/services" },
+                { label: "Destinations", to: "/destinations" },
+                { label: "Travel Guide", to: "/guide" },
                 { label: "Travel Journal", to: "/blogs" },
                 { label: "About Us", to: "/about" },
                 { label: "Contact", to: "/contact" },

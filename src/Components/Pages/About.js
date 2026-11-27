@@ -10,6 +10,20 @@ import {
   FiStar,
   FiUsers,
 } from "react-icons/fi";
+import { FlipCard, Reveal, ScrollProgress, TiltCard } from "../ui/Motion";
+
+const promises = [
+  { icon: <FiCheckCircle />, title: "Honest totals", text: "A package total is the price multiplied by travelers. Our desk confirms the final amount with you before anything else." },
+  { icon: <FiUsers />, title: "Real people", text: "Every request is reviewed by our travel desk, and we reply within 24 hours." },
+  { icon: <FiMapPin />, title: "Local partners", text: "Vetted guides, drivers and stays, matched to your destination and trip style." },
+  { icon: <FiClock />, title: "Room to change", text: "Pending requests can be cancelled any time from My Bookings." },
+];
+
+const explore = [
+  { to: "/destinations", kicker: "Places", title: "Destinations", text: "Compare Bandarban, Rangamati and Cox's Bazar by season and style." },
+  { to: "/guide", kicker: "Prepare", title: "Travel guide", text: "A packing checklist and practical tips for every kind of trip." },
+  { to: "/services", kicker: "Book", title: "Tour packages", text: "Browse live packages and send a request in a few steps." },
+];
 
 const values = [
   "Human travel planning with clear, honest communication",
@@ -78,6 +92,7 @@ const About = () => {
 
   return (
     <main className="min-h-screen bg-[#f5f0e8] pt-[76px] text-[#0d1f35]">
+      <ScrollProgress />
       {/* ── Hero ── */}
       <section className="relative min-h-[75vh] flex items-center bg-[#0d1f35] text-white overflow-hidden noise">
         <div className="absolute inset-0 img-zoom">
@@ -279,6 +294,65 @@ const About = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Promises (flip cards) ── */}
+      <section className="py-20 md:py-28 bg-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <Reveal>
+            <p className="text-[#0b6b62] uppercase tracking-[0.25em] text-[10px] font-bold mb-5">What you can count on</p>
+            <h2 className="text-4xl md:text-5xl font-black mb-12 max-w-2xl" style={{ fontFamily: "var(--font-display)" }}>
+              Four promises, in plain words
+            </h2>
+          </Reveal>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {promises.map((p, i) => (
+              <Reveal key={p.title} delay={i * 0.07}>
+                <div className="h-64">
+                  <FlipCard
+                    front={
+                      <div className="flex h-full flex-col justify-between rounded-[2rem] border border-[#e7dfd0] bg-[#f5f0e8] p-7">
+                        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0b6b62]/10 text-xl text-[#0b6b62]">{p.icon}</span>
+                        <div>
+                          <h3 className="text-xl font-bold">{p.title}</h3>
+                          <p className="mt-1 text-[11px] font-bold uppercase tracking-widest text-[#5a6a7e]">Tap to flip</p>
+                        </div>
+                      </div>
+                    }
+                    back={
+                      <div className="flex h-full flex-col justify-center rounded-[2rem] bg-[#0d1f35] p-7 text-white">
+                        <h3 className="text-lg font-bold text-[#e8c96a]">{p.title}</h3>
+                        <p className="mt-3 text-sm leading-relaxed text-white/80">{p.text}</p>
+                      </div>
+                    }
+                  />
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Explore more ── */}
+      <section className="py-20 md:py-24">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 grid md:grid-cols-3 gap-6">
+          {explore.map((e, i) => (
+            <Reveal key={e.to} delay={i * 0.08}>
+              <TiltCard max={4} className="h-full rounded-3xl">
+                <Link to={e.to} className="group flex h-full flex-col justify-between rounded-3xl border border-[#e7dfd0] bg-white p-8 transition-shadow hover:shadow-xl">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#0b6b62]">{e.kicker}</span>
+                    <h3 className="mt-3 text-2xl font-black" style={{ fontFamily: "var(--font-display)" }}>{e.title}</h3>
+                    <p className="mt-2 text-sm text-[#5a6a7e]">{e.text}</p>
+                  </div>
+                  <span className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-[#0b6b62] transition-all group-hover:gap-4">
+                    Open <FiArrowRight />
+                  </span>
+                </Link>
+              </TiltCard>
+            </Reveal>
+          ))}
         </div>
       </section>
 

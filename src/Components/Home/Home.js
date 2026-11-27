@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FiArrowRight,
+  FiCalendar,
   FiClock,
   FiCompass,
   FiHeadphones,
@@ -17,6 +18,8 @@ import {
 } from "react-icons/fi";
 import ServiceCard from "../Services/ServiceCard";
 import Review from "./Review";
+import SeasonPicker from "../ui/SeasonPicker";
+import { articles, destinations } from "../../data/travel";
 import { API_BASE_URL } from "../../config";
 import {
   AnimatedNumber,
@@ -37,33 +40,6 @@ import {
 import { useScroll, useTransform } from "motion/react";
 
 /* ─────────────────────────── data ─────────────────────────── */
-const destinations = [
-  {
-    name: "Bandarban",
-    tag: "Cloud forests, hill trails, waterfalls",
-    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1100&q=85",
-    bestFor: "Adventure Seekers",
-    duration: "3–5 Days",
-    highlight: "Private hill guide · waterfall picnic · sunrise viewpoint",
-  },
-  {
-    name: "Rangamati",
-    tag: "Lake cruises, culture, calm escapes",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1100&q=85",
-    bestFor: "Culture & Slow Travel",
-    duration: "2–4 Days",
-    highlight: "Kaptai Lake cruise · local lunch · artisan village",
-  },
-  {
-    name: "Cox's Bazar",
-    tag: "Beach retreats and sunset stays",
-    image: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=1100&q=85",
-    bestFor: "Families & Beach Lovers",
-    duration: "3–6 Days",
-    highlight: "Oceanfront stay · sunset dinner · island day trip",
-  },
-];
-
 const tripStyles = [
   { name: "Relaxed", pace: "Slow mornings · scenic transfers · premium stays", multiplier: 145 },
   { name: "Adventure", pace: "Guided trails · early starts · local experiences", multiplier: 118 },
@@ -410,10 +386,36 @@ const Home = () => {
                 Three landscapes, one desk
               </h2>
             </div>
-            <p className="max-w-sm text-[#5a6a7e]">Hover or tap a panel to open it. Each region has its own pace, season and best-fit traveler.</p>
+            <div className="max-w-sm">
+              <p className="text-[#5a6a7e]">Hover or tap a panel to open it. Each region has its own pace, season and best-fit traveler.</p>
+              <Link to="/destinations" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#0b6b62] transition-all hover:gap-4">
+                Full destination guide <FiArrowRight />
+              </Link>
+            </div>
           </div>
         </Reveal>
         <DestinationStrip />
+      </section>
+
+      {/* ══════════════════ BEST TIME TO GO ══════════════════ */}
+      <section className="mx-auto max-w-5xl px-6 pb-24 lg:px-10">
+        <div className="grid items-start gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+          <Reveal>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-[#0b6b62]">When should I go?</p>
+            <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
+              Pick the month, see the best place
+            </h2>
+            <p className="mt-5 text-[#5a6a7e] leading-relaxed">
+              Hills, lakes and beaches each have a season when they shine. Choose a month and compare all three at a glance.
+            </p>
+            <Link to="/guide" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#0b6b62] transition-all hover:gap-4">
+              Read the travel guide <FiArrowRight />
+            </Link>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <SeasonPicker />
+          </Reveal>
+        </div>
       </section>
 
       {/* ══════════════════ LIVE PACKAGES ══════════════════ */}
@@ -507,6 +509,42 @@ const Home = () => {
             </div>
           </Reveal>
           <Journey />
+        </div>
+      </section>
+
+      {/* ══════════════════ JOURNAL TEASER ══════════════════ */}
+      <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
+        <div className="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <Reveal>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-[#0b6b62]">From the journal</p>
+            <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
+              Notes from the field
+            </h2>
+          </Reveal>
+          <Link to="/blogs" className="inline-flex items-center gap-2 text-sm font-bold text-[#0b6b62] transition-all hover:gap-4">
+            All articles <FiArrowRight />
+          </Link>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          {articles.map((a, i) => (
+            <Reveal key={a.title} delay={i * 0.08}>
+              <TiltCard max={4} className="h-full rounded-3xl">
+                <Link to="/blogs" className="group block h-full overflow-hidden rounded-3xl border border-[#e7dfd0] bg-white transition-shadow hover:shadow-xl">
+                  <div className="aspect-[16/10] overflow-hidden">
+                    <img src={a.image} alt={a.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  </div>
+                  <div className="p-6">
+                    <p className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest text-[#5a6a7e]">
+                      <span className="text-[#0b6b62]">{a.category}</span>
+                      <span className="flex items-center gap-1"><FiCalendar /> {a.date}</span>
+                    </p>
+                    <h3 className="mt-3 text-lg font-bold leading-snug">{a.title}</h3>
+                    <p className="mt-2 line-clamp-2 text-sm text-[#5a6a7e]">{a.excerpt}</p>
+                  </div>
+                </Link>
+              </TiltCard>
+            </Reveal>
+          ))}
         </div>
       </section>
 

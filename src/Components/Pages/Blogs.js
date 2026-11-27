@@ -1,42 +1,20 @@
 // src/Components/Blogs/Blogs.js
-import { useState } from "react";
+// Travel journal: featured story, category tabs, search, expandable articles, FAQ.
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { FiArrowRight, FiCalendar, FiChevronDown, FiClock, FiSearch, FiTag } from "react-icons/fi";
+import { articles } from "../../data/travel";
 import {
-  FiCalendar,
-  FiChevronDown,
-  FiChevronUp,
-  FiTag,
-  FiSearch,
-} from "react-icons/fi";
-
-const articles = [
-  {
-    title: "Best time to visit Bangladesh's hill destinations",
-    category: "Travel Tips",
-    date: "Oct 2026",
-    image:
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&q=85",
-    excerpt:
-      "A practical seasonal guide for dry trails, clear views, waterfalls, and comfortable road transfers.",
-  },
-  {
-    title: "How to plan a premium family beach escape",
-    category: "Planning",
-    date: "Sep 2026",
-    image:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&q=85",
-    excerpt:
-      "The small choices that make a Cox's Bazar trip smoother for families, from hotel location to transfer timing.",
-  },
-  {
-    title: "Responsible travel in local communities",
-    category: "Culture",
-    date: "Aug 2026",
-    image:
-      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=900&q=85",
-    excerpt:
-      "How to travel with curiosity and respect while supporting local guides, hosts, and makers.",
-  },
-];
+  AnimatePresence,
+  AnimatedNumber,
+  BlurAccordion,
+  BlurText,
+  PillTabs,
+  Reveal,
+  ScrollProgress,
+  TiltCard,
+  motion,
+} from "../ui/Motion";
 
 const faqs = [
   {
@@ -57,41 +35,68 @@ const faqs = [
   },
 ];
 
-const FAQItem = ({ faq }) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="border-b border-[#e7dfd0] last:border-b-0">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between gap-6 py-6 text-left hover:text-[#0f766e] transition"
+const categories = ["All", ...new Set(articles.map((a) => a.category))];
+
+const Meta = ({ a }) => (
+  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-bold uppercase tracking-widest text-[#65758a]">
+    <span className="flex items-center gap-1.5"><FiTag className="text-[#0f766e]" /> {a.category}</span>
+    <span className="flex items-center gap-1.5"><FiCalendar className="text-[#0f766e]" /> {a.date}</span>
+    <span className="flex items-center gap-1.5"><FiClock className="text-[#0f766e]" /> {a.read}</span>
+  </div>
+);
+
+const Body = ({ a, open }) => (
+  <AnimatePresence initial={false}>
+    {open && (
+      <motion.div
+        initial={{ height: 0, opacity: 0, filter: "blur(6px)" }}
+        animate={{ height: "auto", opacity: 1, filter: "blur(0px)" }}
+        exit={{ height: 0, opacity: 0, filter: "blur(6px)" }}
+        transition={{ type: "spring", stiffness: 260, damping: 30 }}
+        className="overflow-hidden"
       >
-        <span className="text-lg font-bold text-[#132236]">{faq.q}</span>
-        <span className="text-2xl text-[#0f766e] shrink-0">
-          {open ? <FiChevronUp /> : <FiChevronDown />}
-        </span>
-      </button>
-      {open && <p className="pb-8 text-[#65758a] leading-relaxed">{faq.a}</p>}
-    </div>
-  );
-};
+        <div className="space-y-3 pt-4 text-[#65758a] leading-relaxed">
+          {a.body.map((p, i) => <p key={i}>{p}</p>)}
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
+
+const Toggle = ({ open, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-expanded={open}
+    className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#0f766e] transition-all hover:gap-3"
+  >
+    {open ? "Show less" : "Read the notes"}
+    <motion.span animate={{ rotate: open ? 180 : 0 }}><FiChevronDown /></motion.span>
+  </button>
+);
 
 const Blogs = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [openTitle, setOpenTitle] = useState(null);
 
-  const categories = ["All", "Travel Tips", "Planning", "Culture"];
+  const filtered = useMemo(
+    () =>
+      articles.filter((a) => {
+        const q = searchTerm.toLowerCase();
+        const matchesSearch = a.title.toLowerCase().includes(q) || a.excerpt.toLowerCase().includes(q);
+        return matchesSearch && (activeCategory === "All" || a.category === activeCategory);
+      }),
+    [searchTerm, activeCategory],
+  );
 
-  const filteredArticles = articles.filter((article) => {
-    const matchesSearch =
-      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      activeCategory === "All" || article.category === activeCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const [featured, ...rest] = filtered;
+  const toggle = (t) => setOpenTitle((cur) => (cur === t ? null : t));
 
   return (
     <main className="min-h-screen bg-[#f6f2ea] pt-[76px] text-[#132236]">
+      <ScrollProgress />
+
       {/* Hero */}
       <section className="relative overflow-hidden bg-[#132236] py-20 md:py-28 text-white">
         <img
@@ -100,33 +105,25 @@ const Blogs = () => {
           className="absolute inset-0 h-full w-full object-cover opacity-25"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#132236]/95 via-[#132236]/80 to-[#132236]/70" />
-
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
-          <p className="text-[#f4c76b] uppercase tracking-[0.25em] text-sm font-bold">
-            Travel Journal
-          </p>
+          <p className="text-[#f4c76b] uppercase tracking-[0.25em] text-sm font-bold">Travel Journal</p>
           <h1 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-tight">
-            Useful insight before you pack.
+            <BlurText text="Useful insight before you pack." />
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-white/80">
-            Destination guides, planning advice, and stories from the field by
-            the Sababa travel desk.
+            Destination guides, planning advice, and stories from the field by the Sababa travel desk.
           </p>
         </div>
       </section>
 
-      {/* Latest Articles */}
       <section className="max-w-7xl mx-auto px-6 py-16 lg:px-10">
-        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <p className="text-[#0f766e] uppercase tracking-widest text-sm font-bold">
-              Latest Articles
-            </p>
-            <h2 className="mt-2 text-4xl md:text-5xl font-black">
-              Planning notes from the field.
-            </h2>
-          </div>
-
+        <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <PillTabs
+            id="journal-cats"
+            items={categories.map((c) => ({ id: c, label: c }))}
+            value={activeCategory}
+            onChange={setActiveCategory}
+          />
           <div className="relative w-full md:w-80">
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#65758a]" />
             <input
@@ -139,76 +136,95 @@ const Blogs = () => {
           </div>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-3 mb-10">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-6 py-2.5 rounded-2xl text-sm font-bold transition-all ${
-                activeCategory === cat
-                  ? "bg-[#132236] text-white"
-                  : "bg-white border border-[#e7dfd0] hover:border-[#0f766e]"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        <p className="mb-8 text-sm text-[#65758a]">
+          <b className="text-[#132236]"><AnimatedNumber value={filtered.length} /></b> {filtered.length === 1 ? "article" : "articles"}
+        </p>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredArticles.map((article, i) => (
-            <article
-              key={i}
-              className="group bg-white border border-[#e7dfd0] rounded-3xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all"
-            >
-              <div className="relative h-60 overflow-hidden">
-                <img
-                  src={article.image}
-                  alt={article.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-              </div>
-              <div className="p-7">
-                <div className="flex flex-wrap gap-4 text-xs font-bold uppercase tracking-widest text-[#65758a] mb-4">
-                  <span className="flex items-center gap-1.5">
-                    <FiTag className="text-[#0f766e]" /> {article.category}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <FiCalendar className="text-[#0f766e]" /> {article.date}
-                  </span>
+        {filtered.length === 0 ? (
+          <div className="rounded-3xl border border-[#e7dfd0] bg-white py-16 text-center">
+            <p className="text-lg font-bold">Nothing matches that search.</p>
+            <button onClick={() => { setSearchTerm(""); setActiveCategory("All"); }} className="mt-4 rounded-full bg-[#132236] px-6 py-3 text-sm font-bold text-white hover:bg-[#0f766e]">
+              Clear filters
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Featured */}
+            <Reveal>
+              <article className="grid overflow-hidden rounded-[2rem] border border-[#e7dfd0] bg-white shadow-sm lg:grid-cols-2">
+                <div className="relative min-h-[260px] overflow-hidden">
+                  <img src={featured.image} alt={featured.title} className="absolute inset-0 h-full w-full object-cover" />
+                  <span className="absolute left-5 top-5 rounded-full bg-[#f4c76b] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#132236]">Featured</span>
                 </div>
-                <h3 className="text-xl font-black leading-tight mb-3">
-                  {article.title}
-                </h3>
-                <p className="text-[#65758a] line-clamp-3">{article.excerpt}</p>
-              </div>
-            </article>
-          ))}
-        </div>
+                <div className="p-8 md:p-10">
+                  <Meta a={featured} />
+                  <h2 className="mt-4 text-3xl font-black leading-tight md:text-4xl">{featured.title}</h2>
+                  <p className="mt-3 text-[#65758a]">{featured.excerpt}</p>
+                  <Body a={featured} open={openTitle === featured.title} />
+                  <Toggle open={openTitle === featured.title} onClick={() => toggle(featured.title)} />
+                </div>
+              </article>
+            </Reveal>
+
+            {/* Rest */}
+            {rest.length > 0 && (
+              <motion.div layout className="mt-8 grid items-start gap-8 md:grid-cols-2">
+                <AnimatePresence mode="popLayout">
+                  {rest.map((a, i) => (
+                    <motion.div key={a.title} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: i * 0.05 }}>
+                      <TiltCard max={3} className="rounded-3xl">
+                        <article className="overflow-hidden rounded-3xl border border-[#e7dfd0] bg-white transition-shadow hover:shadow-xl">
+                          <div className="relative h-56 overflow-hidden">
+                            <img src={a.image} alt={a.title} className="h-full w-full object-cover" />
+                          </div>
+                          <div className="p-7">
+                            <Meta a={a} />
+                            <h3 className="mt-4 text-xl font-black leading-tight">{a.title}</h3>
+                            <p className="mt-2 text-[#65758a]">{a.excerpt}</p>
+                            <Body a={a} open={openTitle === a.title} />
+                            <Toggle open={openTitle === a.title} onClick={() => toggle(a.title)} />
+                          </div>
+                        </article>
+                      </TiltCard>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </>
+        )}
+
+        {/* Guide promo */}
+        <Reveal delay={0.05}>
+          <div className="mt-14 flex flex-col items-center justify-between gap-6 rounded-[2rem] bg-[#132236] p-8 text-white md:flex-row md:p-10">
+            <div>
+              <h3 className="text-2xl font-black">Ready to pack?</h3>
+              <p className="mt-1 text-white/65">Use the travel guide's checklist, or see which month suits your destination.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/guide" className="inline-flex items-center gap-2 rounded-full bg-[#f4c76b] px-7 py-3.5 text-sm font-black uppercase tracking-widest text-[#132236]">
+                Travel guide <FiArrowRight />
+              </Link>
+              <Link to="/destinations" className="rounded-full border border-white/30 px-7 py-3.5 text-sm font-bold">Destinations</Link>
+            </div>
+          </div>
+        </Reveal>
       </section>
 
       {/* FAQ Section */}
       <section className="bg-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid lg:grid-cols-2 gap-12">
           <div>
-            <p className="text-[#0f766e] uppercase tracking-widest text-sm font-bold">
-              FAQ
-            </p>
-            <h2 className="mt-4 text-4xl md:text-5xl font-black leading-tight">
-              Common questions, clear answers.
-            </h2>
+            <p className="text-[#0f766e] uppercase tracking-widest text-sm font-bold">FAQ</p>
+            <h2 className="mt-4 text-4xl md:text-5xl font-black leading-tight">Common questions, clear answers.</h2>
             <p className="mt-6 text-[#65758a] text-lg">
-              Need something specific? Reach out — we’re happy to help shape
-              your journey.
+              Need something specific? Reach out — we’re happy to help shape your journey.
             </p>
+            <Link to="/contact" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#0f766e] transition-all hover:gap-4">
+              Talk to the desk <FiArrowRight />
+            </Link>
           </div>
-
-          <div className="border border-[#e7dfd0] bg-[#fbf8f2] rounded-3xl p-8">
-            {faqs.map((faq, i) => (
-              <FAQItem key={i} faq={faq} />
-            ))}
-          </div>
+          <BlurAccordion items={faqs} />
         </div>
       </section>
     </main>

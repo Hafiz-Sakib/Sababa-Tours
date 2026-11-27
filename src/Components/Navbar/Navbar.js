@@ -18,7 +18,9 @@ import toast from "react-hot-toast";
 const links = [
   { name: "Home", path: "/" },
   { name: "Packages", path: "/services" },
+  { name: "Destinations", path: "/destinations" },
   { name: "Journal", path: "/blogs" },
+  { name: "Guide", path: "/guide", wideOnly: true },
   { name: "About", path: "/about" },
   { name: "Contact", path: "/contact" },
 ];
@@ -35,12 +37,12 @@ const NavPills = ({ items, solid }) => {
         onMouseLeave={() => setHover(null)}
       >
         {items.map((l) => (
-          <li key={l.path} onMouseEnter={() => setHover(l.path)}>
+          <li key={l.path} onMouseEnter={() => setHover(l.path)} className={l.wideOnly ? "hidden xl:block" : ""}>
             <NavLink
               to={l.path}
               end={l.path === "/"}
               className={({ isActive }) =>
-                `relative block px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
+                `relative block px-3 lg:px-4 py-2 text-sm font-semibold rounded-full transition-colors ${
                   isActive
                     ? "text-[#c9a84c]"
                     : solid
@@ -325,7 +327,7 @@ const NavBar = () => {
           onClick={() => setOpen(false)}
         />
 
-        <div className="relative pt-24 px-8 h-full flex flex-col">
+        <div className="relative pt-24 px-8 pb-10 h-full flex flex-col overflow-y-auto">
           <nav className="flex flex-col gap-2">
             {links.map((link, i) => (
               <Link
