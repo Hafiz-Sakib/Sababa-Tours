@@ -11,8 +11,8 @@ const RequireAuth = ({ children }) => {
       <div className="flex items-center justify-center min-h-screen bg-page-alt">
         <div className="flex flex-col items-center gap-5">
           <div className="relative w-14 h-14">
-            <div className="absolute inset-0 rounded-full border-2 border-[#c9a84c]/20"></div>
-            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#c9a84c] animate-spin"></div>
+            <div className="absolute inset-0 rounded-full border-2 border-accent/20"></div>
+            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-accent animate-spin"></div>
           </div>
           <p className="text-xs text-ink/40 tracking-[0.3em] uppercase font-semibold">
             Loading…

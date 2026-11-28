@@ -10,11 +10,11 @@ const CustomLink = ({ children, to, solid = true, ...props }) => {
       className={`relative px-3 py-2 text-xs font-black uppercase tracking-[0.16em] transition ${
         match
           ? solid
-            ? "text-[#0f766e]"
-            : "text-[#f4c76b]"
+            ? "text-brand"
+            : "text-accent-lt"
           : solid
-            ? "text-[#65758a] hover:text-[#132236]"
-            : "text-white/70 hover:text-white"
+            ? "text-muted hover:text-deep"
+            : "text-on/70 hover:text-on"
       }`}
       {...props}
     >

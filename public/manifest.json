@@ -1,25 +1,28 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "logo192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": ".",
+  "id": "/",
+  "short_name": "Sababa",
+  "name": "Sababa Tours",
+  "description": "Tour packages, guides and bookings across Bangladesh.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
+  "categories": ["travel", "lifestyle"],
+  "icons": [
+    { "src": "favicon.ico", "sizes": "64x64 32x32 24x24 16x16", "type": "image/x-icon" },
+    { "src": "logo192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "logo512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "maskable-192.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
+    { "src": "maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Packages", "short_name": "Packages", "url": "/services?source=shortcut", "icons": [{ "src": "logo192.png", "sizes": "192x192" }] },
+    { "name": "My Bookings", "short_name": "Bookings", "url": "/my-bookings?source=shortcut", "icons": [{ "src": "logo192.png", "sizes": "192x192" }] },
+    { "name": "Contact", "short_name": "Contact", "url": "/contact?source=shortcut", "icons": [{ "src": "logo192.png", "sizes": "192x192" }] }
+  ]
 }

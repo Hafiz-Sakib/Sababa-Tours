@@ -1,73 +1,63 @@
 /* ═════════════ Theme tokens ═════════════
    Space-separated RGB so Tailwind can add opacity (bg-ink/10). Components use the semantic classes
-   (bg-surface, text-ink, border-line ...), so nothing needs a `dark:` prefix and nothing needs !important.
+   (bg-surface, text-ink, border-line, bg-brand, text-accent ...), so nothing needs a `dark:` prefix.
 
-   DAY   "ivory dunes": warm ivory page, white cards, deep-navy ink, lagoon teal + gold accents.
-   NIGHT "moonlit lagoon": deep navy, lifted surfaces with a visible hairline, moonlight text,
-         brighter teal for readability, same gold. */
+   Palette (from the brand colour sheet)
+     brand   teal        #26A59E   primary actions, links, active states   (soft tint #D0EEEB)
+     accent  forest green #0F5C46  highlights, badges, price, CTAs         (lifted green in night mode)
+     deep    midnight    #101828   headings, dark hero bands, footer
+
+   DAY    soft teal-white page, white cards, midnight ink.
+   NIGHT  the same palette on a midnight base; brand-ink / accent lift a little for readability. */
 :root {
-  --page: 246 242 234;
-  --page-alt: 250 247 242;
-  --sandy: 245 240 232;
+  --page: 250 253 253;
+  --page-alt: 255 255 255;
+  --sandy: 238 247 246;
   --surface: 255 255 255;
-  --line: 231 223 208;
-  --ink: 13 31 53;
-  --muted: 90 106 126;
-  --panel: 13 31 53;
-  --panel2: 19 34 54;
-  --btn: 13 31 53;
-  --lagoon: 11 107 98;
-  --lagoon-ink: 11 107 98;
-  --coral: 214 77 56;
-  --shadow-card: 0 1px 2px rgba(13, 31, 53, 0.04), 0 16px 40px -16px rgba(13, 31, 53, 0.16);
-  --shadow-dock: 0 12px 40px -10px rgba(13, 31, 53, 0.28), 0 2px 6px rgba(13, 31, 53, 0.08);
+  --line: 214 233 231;
+  --ink: 16 24 40;
+  --muted: 84 100 112;
+  --panel: 236 247 245; /* day: light tinted bands (night keeps the midnight bands) */
+  --panel2: 244 250 249;
+  --btn: 29 138 132;
+  --on: 16 24 40;
+  --scrim: 255 255 255;
+  --cta: 38 165 158;
+  --brand: 38 165 158;
+  --brand-ink: 29 138 132;
+  --brand-soft: 208 238 235;
+  --accent: 15 92 70;
+  --accent-lt: 110 214 180;
+  --accent-soft: 214 238 229;
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 16px 40px -16px rgba(16, 24, 40, 0.18);
+  --shadow-dock: 0 12px 40px -10px rgba(16, 24, 40, 0.3), 0 2px 6px rgba(16, 24, 40, 0.08);
 }
 html.dark {
-  --page: 7 15 27;
-  --page-alt: 10 21 36;
-  --sandy: 12 25 43;
-  --surface: 16 31 52;
-  --line: 34 52 79;
-  --ink: 232 239 248;
-  --muted: 150 167 190;
-  --panel: 12 27 47;
-  --panel2: 15 32 54;
-  --btn: 12 120 111;
-  --lagoon: 16 142 130;
-  --lagoon-ink: 94 212 199;
-  --coral: 255 128 105;
+  --on: 255 255 255;
+  --scrim: 16 24 40;
+  --cta: 52 170 128;
+  --panel: 16 24 40;
+  --panel2: 22 38 58;
+  --page: 8 14 24;
+  --page-alt: 12 20 32;
+  --sandy: 18 30 44;
+  --surface: 16 26 40;
+  --line: 34 54 68;
+  --ink: 236 246 244;
+  --muted: 150 170 176;
+  --panel: 16 24 40;
+  --panel2: 22 38 58;
+  --btn: 38 165 158;
+  --brand: 38 165 158;
+  --brand-ink: 82 208 198;
+  --brand-soft: 18 58 60;
+  --accent: 52 170 128;
+  --accent-lt: 120 222 188;
+  --accent-soft: 16 52 44;
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.45), 0 18px 48px -16px rgba(0, 0, 0, 0.75);
   --shadow-dock: 0 12px 40px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
-
-/* ─── CSS Variables ─── */
 :root {
-  --gold-gradient: linear-gradient(
-    135deg,
-    #c9a84c 0%,
-    #e8c96a 50%,
-    #f4d88a 100%
-  );
-  --teal-gradient: linear-gradient(135deg, #0b6b62 0%, #0f8f84 100%);
-  --navy-gradient: linear-gradient(135deg, #0d1f35 0%, #132236 100%);
-  --dark-gold: linear-gradient(135deg, #0d1f35 0%, #c9a84c 100%);
-  --hero-gradient: linear-gradient(135deg, #0d1f35 0%, #0b6b62 100%);
-
-  /* Subtle overlays */
-  --glass-gold: rgba(201, 168, 76, 0.12);
-  --glow-gold: 0 0 25px rgba(201, 168, 76, 0.35);
-
-  --navy: #0d1f35;
-  --navy-deep: #070e1c;
-  --teal: #0b6b62;
-  --teal-lt: #0f8f84;
-  --gold: #c9a84c;
-  --gold-lt: #e8c96a;
-  --sand: rgb(var(--page));
-  --sand-lt: #faf7f2;
-  --coral: #e85d45;
-  --slate: #5a6a7e;
-  --border: rgba(201, 168, 76, 0.18);
   --radius-xl: 1.75rem;
   --radius-2xl: 2.5rem;
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -103,13 +93,6 @@ body {
 }
 
 /* ─── Night extras (the colours themselves come from the tokens above) ─── */
-html.dark {
-  --navy: #e4ecf7; /* legacy var(--navy) users */
-  --navy-deep: #f2f6fc;
-  --sand-lt: rgb(var(--page-alt));
-  --border: rgba(201, 168, 76, 0.16);
-}
-
 /* ambient glow, only visible through transparent sections */
 body::before {
   content: "";
@@ -118,14 +101,13 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(52rem 34rem at 8% -6%, rgba(201, 168, 76, 0.1), transparent 60%),
-    radial-gradient(44rem 30rem at 100% 105%, rgba(11, 107, 98, 0.08), transparent 60%);
+    radial-gradient(52rem 34rem at 8% -6%, rgb(var(--accent) / 0.08), transparent 60%),
+    radial-gradient(44rem 30rem at 100% 105%, rgb(var(--brand) / 0.1), transparent 60%);
 }
 html.dark body::before {
   background:
-    radial-gradient(56rem 36rem at 8% -8%, rgba(16, 142, 130, 0.16), transparent 60%),
-    radial-gradient(46rem 30rem at 100% 108%, rgba(201, 168, 76, 0.08), transparent 60%),
-    radial-gradient(40rem 28rem at 60% 40%, rgba(99, 102, 241, 0.05), transparent 65%);
+    radial-gradient(56rem 36rem at 8% -8%, rgb(var(--brand) / 0.22), transparent 60%),
+    radial-gradient(46rem 30rem at 100% 108%, rgb(var(--accent) / 0.1), transparent 60%);
 }
 
 /* photos: a touch calmer at night; logos in nav / footer stay true */
@@ -172,9 +154,9 @@ html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.18); }
 html.dark .text-emerald-600, html.dark .text-emerald-700, html.dark .text-green-600 { color: #6ee7b7; }
 html.dark .ring-emerald-200 { --tw-ring-color: rgba(52, 211, 153, 0.35); }
 
-/* the footer is always dark; at night give it a gold hairline so it does not melt into the page */
+/* the footer is always dark; at night give it an accent hairline so it does not melt into the page */
 html.dark footer {
-  border-top: 1px solid rgba(201, 168, 76, 0.14);
+  border-top: 1px solid rgba(15,92,70, 0.14);
 }
 
 /* ─── Page Entry Animations ─── */
@@ -307,15 +289,15 @@ html.dark footer {
   animation-delay: 0.8s;
 }
 
-/* ─── Gold Shimmer Text ─── */
+/* ─── Accent Shimmer Text ─── */
 .text-shimmer {
   background: linear-gradient(
     90deg,
-    var(--gold) 0%,
-    var(--gold-lt) 30%,
-    #fff9e8 50%,
-    var(--gold-lt) 70%,
-    var(--gold) 100%
+    rgb(var(--accent)) 0%,
+    rgb(var(--accent-lt)) 30%,
+    #e3f7f0 50%,
+    rgb(var(--accent-lt)) 70%,
+    rgb(var(--accent)) 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -325,27 +307,27 @@ html.dark footer {
 }
 
 /* ─── Gradient Borders ─── */
-.border-gold-gradient {
+.border-accent-gradient {
   border: 1px solid transparent;
   background-clip: padding-box;
   position: relative;
 }
-.border-gold-gradient::before {
+.border-accent-gradient::before {
   content: "";
   position: absolute;
   inset: -1px;
   border-radius: inherit;
   background: linear-gradient(
     135deg,
-    var(--gold),
+    rgb(var(--accent)),
     transparent 60%,
-    var(--teal)
+    rgb(var(--brand))
   );
   z-index: -1;
   opacity: 0.4;
   transition: opacity 0.3s;
 }
-.border-gold-gradient:hover::before {
+.border-accent-gradient:hover::before {
   opacity: 1;
 }
 
@@ -359,13 +341,13 @@ html.dark footer {
 .card-premium:hover {
   transform: translateY(-6px) scale(1.005);
   box-shadow:
-    0 28px 70px rgba(13, 31, 53, 0.14),
-    0 4px 12px rgba(13, 31, 53, 0.06);
+    0 28px 70px rgba(16,24,40, 0.14),
+    0 4px 12px rgba(16,24,40, 0.06);
 }
 html.dark .card-premium:hover {
   box-shadow:
     0 28px 70px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(201, 168, 76, 0.22);
+    0 0 0 1px rgba(15,92,70, 0.22);
 }
 
 /* ─── Pulse Ring (for active badges etc) ─── */
@@ -374,7 +356,7 @@ html.dark .card-premium:hover {
   position: absolute;
   inset: -6px;
   border-radius: 50%;
-  border: 2px solid var(--gold);
+  border: 2px solid rgb(var(--accent));
   animation: pulse-ring 1.8s ease-out infinite;
 }
 
@@ -392,17 +374,17 @@ html.dark .card-premium:hover {
 }
 
 /* ─── Luxury Divider ─── */
-.divider-gold {
+.divider-accent {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
-.divider-gold::before,
-.divider-gold::after {
+.divider-accent::before,
+.divider-accent::after {
   content: "";
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  background: linear-gradient(90deg, transparent, rgb(var(--accent)), transparent);
 }
 
 /* ─── Glass Morphism ─── */
@@ -415,7 +397,7 @@ html.dark .card-premium:hover {
 .glass-sand {
   background: rgb(var(--sandy) / 0.72);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(201, 168, 76, 0.16);
+  border: 1px solid rgba(15,92,70, 0.16);
 }
 
 /* ─── Noise Texture Overlay ─── */
@@ -503,7 +485,7 @@ h6 {
   background: rgb(var(--page));
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(var(--gold), var(--teal));
+  background: linear-gradient(rgb(var(--accent)), rgb(var(--brand)));
   border-radius: 3px;
 }
 
@@ -516,7 +498,7 @@ h6 {
   overflow-wrap: anywhere;
 }
 .planner-choice:focus-visible {
-  outline: 3px solid rgba(11, 107, 98, 0.3);
+  outline: 3px solid rgba(38,165,158, 0.3);
   outline-offset: 2px;
 }
 
@@ -526,19 +508,19 @@ h6 {
   overflow-wrap: anywhere;
 }
 .about-stat-card:focus-visible {
-  outline: 3px solid rgba(201, 168, 76, 0.35);
+  outline: 3px solid rgba(15,92,70, 0.35);
   outline-offset: 2px;
 }
 
 /* ─── Selection ─── */
 ::selection {
-  background: var(--gold);
-  color: var(--navy-deep);
+  background: rgb(var(--accent));
+  color: #fff;
 }
 
 /* ─── Focus ring ─── */
 *:focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid rgb(var(--accent));
   outline-offset: 3px;
 }
 .label-premium {
@@ -557,7 +539,7 @@ h6 {
 /* Premium Gradient Cards */
 .gradient-card {
   background: linear-gradient(145deg, rgb(var(--surface)), rgb(var(--sandy)));
-  border: 1px solid rgba(201, 168, 76, 0.2);
+  border: 1px solid rgba(15,92,70, 0.2);
 }
 
 /* ─── Motion kit (Components/ui/Motion.js) ─── */
@@ -652,4 +634,50 @@ h6 {
     color 1s ease,
     border-color 1s ease,
     box-shadow 1s ease !important;
+}
+
+
+/* ═════════════ Day mode: everything light (no night-style dark components) ═════════════ */
+html:not(.dark) .glass {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgb(var(--line));
+  color: rgb(var(--ink));
+}
+html:not(.dark) .text-shimmer {
+  background-image: linear-gradient(90deg, rgb(var(--accent)) 0%, rgb(var(--brand)) 50%, rgb(var(--accent)) 100%);
+}
+html:not(.dark) .noise::after { opacity: 0.5; }
+
+/* ═════════════ Responsive safety net (all pages) ═════════════ */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { overflow-x: hidden; min-width: 320px; }
+img, video, svg, canvas { max-width: 100%; }
+iframe { max-width: 100%; }
+h1, h2, h3, p, a, li, span { overflow-wrap: break-word; }
+table { max-width: 100%; }
+@media (max-width: 480px) {
+  body { font-size: 15px; }
+  h1 { word-break: break-word; }
+}
+/* safe areas for notched phones / installed PWA */
+footer { padding-bottom: env(safe-area-inset-bottom); }
+@media (display-mode: standalone) {
+  body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
+}
+/* comfortable touch targets */
+@media (pointer: coarse) {
+  button, [role="button"], a.btn, select { min-height: 40px; }
+}
+html:not(.dark) .text-on\/25,
+html:not(.dark) .text-on\/30,
+html:not(.dark) .text-on\/35,
+html:not(.dark) .text-on\/40 { color: rgb(var(--muted)); }
+html:not(.dark) .text-accent-lt { color: rgb(var(--accent)); }
+
+/* room for the docked bottom tab bar (phones & tablets) */
+@media (max-width: 1279.98px) {
+  html.has-tabbar body { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 1279.98px) {
+  body { padding-top: env(safe-area-inset-top); }
 }

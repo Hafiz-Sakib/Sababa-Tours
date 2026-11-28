@@ -23,7 +23,7 @@ const ExtraSection = ({ content, alternative }) => {
   }, []);
 
   return (
-    <section className="bg-white py-20 md:py-28">
+    <section className="bg-surface py-20 md:py-28">
       <div
         ref={ref}
         className={`reveal max-w-7xl mx-auto px-6 lg:px-10 flex flex-col ${
@@ -38,14 +38,14 @@ const ExtraSection = ({ content, alternative }) => {
             className="w-full h-[420px] md:h-[520px] lg:h-[580px] object-cover"
           />
           {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0d1f35]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-scrim/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-          {/* Corner gold accent */}
+          {/* Corner accent */}
           <div
             className={`
             absolute ${alternative ? "top-6 left-6" : "top-6 right-6"}
-            w-16 h-16 border-2 border-[#c9a84c]/40 rounded-[20px]
-            group-hover:scale-110 group-hover:border-[#c9a84c] transition-all duration-500
+            w-16 h-16 border-2 border-accent/40 rounded-[20px]
+            group-hover:scale-110 group-hover:border-accent transition-all duration-500
           `}
           />
         </div>
@@ -55,20 +55,20 @@ const ExtraSection = ({ content, alternative }) => {
           <div className="max-w-lg">
             {/* Label */}
             <div className="flex items-center gap-3 mb-8">
-              <div className="h-px w-10 bg-[#c9a84c]" />
-              <span className="text-[#c9a84c] text-[10px] font-bold tracking-[0.35em] uppercase">
+              <div className="h-px w-10 bg-accent" />
+              <span className="text-accent text-[10px] font-bold tracking-[0.35em] uppercase">
                 Featured Experience
               </span>
             </div>
 
             <h2
-              className="text-4xl md:text-5xl font-black leading-tight text-[#0d1f35] mb-6"
+              className="text-4xl md:text-5xl font-black leading-tight text-deep mb-6"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {content.title}
             </h2>
 
-            <p className="text-[#5a6a7e] text-[17px] leading-relaxed mb-10">
+            <p className="text-muted text-[17px] leading-relaxed mb-10">
               {content.des}
             </p>
 
@@ -76,9 +76,9 @@ const ExtraSection = ({ content, alternative }) => {
               to="/services"
               className="
                 group inline-flex items-center gap-3 px-8 py-4
-                bg-[#0d1f35] text-white text-sm font-black uppercase tracking-widest
-                rounded-full hover:bg-[#c9a84c] hover:text-[#0d1f35]
-                hover:shadow-lg hover:shadow-[#c9a84c]/20 hover:scale-105
+                bg-btn text-white text-sm font-black uppercase tracking-widest
+                rounded-full hover:bg-accent hover:text-deep
+                hover:shadow-lg hover:shadow-accent/20 hover:scale-105
                 transition-all duration-400 btn-glow
               "
             >

@@ -78,7 +78,7 @@ sababa-tours/
 
 - **Home** — Hero section, Trip Planner, Destinations, Stats
 - **Packages** — Tour packages with search, filter, and sorting
-- **Journal** — Travel blogs and FAQs
+- **Travel Blog** — Travel blogs and FAQs
 - **About** — Company story, values, and metrics
 - **Contact** — Concierge form and location map
 - **Authentication** — Login and Registration system
@@ -178,3 +178,9 @@ https://sababa-tours.vercel.app/
 ## ❤️ Acknowledgements
 
 Made with passion for exceptional travel experiences.
+
+## Update notes
+- Full responsive pass (mobile / tablet / desktop) and a light **day mode** with no dark bands (night mode unchanged).
+- New logo used in navbar, footer, auth pages, 404, favicon, PWA icons and offline page (`src/Components/ui/Logo.js`).
+- **PWA**: `public/manifest.json`, `public/service-worker.js`, `public/offline.html`, `src/pwa.js`, install button in navbar.
+  Test with `npm run build` then serve the `build` folder over HTTPS (service workers do not run in `npm start`).

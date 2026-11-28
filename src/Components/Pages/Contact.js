@@ -34,7 +34,7 @@ const contactFaqs = [
 const WEB3FORMS_ACCESS_KEY = "fa7f8ec7-a4a8-424b-8efd-9b6387755682";
 
 const SuccessModal = ({ onClose }) => (
-  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-navy/80 backdrop-blur-sm px-4">
+  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-scrim/80 backdrop-blur-sm px-4">
     <div className="relative w-full max-w-md bg-surface rounded-3xl p-10 text-center shadow-2xl">
       <button
         onClick={onClose}
@@ -44,7 +44,7 @@ const SuccessModal = ({ onClose }) => (
         <FiX size={28} />
       </button>
 
-      <div className="mx-auto w-20 h-20 flex items-center justify-center bg-lagoon/10 rounded-full text-6xl text-lagoon-ink mb-6">
+      <div className="mx-auto w-20 h-20 flex items-center justify-center bg-brand/10 rounded-full text-6xl text-brand-ink mb-6">
         <FiCheckCircle />
       </div>
 
@@ -55,7 +55,7 @@ const SuccessModal = ({ onClose }) => (
 
       <button
         onClick={onClose}
-        className="mt-8 w-full py-4 bg-btn text-white font-black uppercase tracking-widest rounded-2xl hover:bg-lagoon transition"
+        className="mt-8 w-full py-4 bg-btn text-white font-black uppercase tracking-widest rounded-2xl hover:bg-brand transition"
       >
         Back to Homepage
       </button>
@@ -148,7 +148,7 @@ const Contact = () => {
     `w-full border bg-page-alt px-6 py-4 rounded-2xl focus:outline-none text-base transition-all ${
       errors[field]
         ? "border-red-500"
-        : "border-line focus:border-lagoon"
+        : "border-line focus:border-brand"
     }`;
 
   return (
@@ -156,22 +156,22 @@ const Contact = () => {
       {success && <SuccessModal onClose={() => setSuccess(false)} />}
 
       {/* Hero */}
-      <section className="relative bg-panel2 py-20 md:py-28 text-white overflow-hidden">
+      <section className="relative bg-panel2 py-20 md:py-28 text-on overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1600&q=85"
           alt="Travel consultation"
           className="absolute inset-0 h-full w-full object-cover opacity-30"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/80 to-navy/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-scrim/95 via-scrim/80 to-scrim/70" />
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 text-center">
-          <p className="text-[#f4c76b] uppercase tracking-widest text-sm font-bold">
+          <p className="text-accent-lt uppercase tracking-widest text-sm font-bold">
             Concierge Desk
           </p>
           <h1 className="mt-4 text-5xl md:text-6xl font-black tracking-tighter">
             Tell us where you want to go.
           </h1>
-          <p className="mt-6 text-lg text-white/80 max-w-2xl mx-auto">
+          <p className="mt-6 text-lg text-on/80 max-w-2xl mx-auto">
             Share your vision. We’ll craft the perfect journey for you.
           </p>
         </div>
@@ -182,31 +182,31 @@ const Contact = () => {
         <div className="grid gap-4 md:grid-cols-3">
           <TiltCard max={3} className="rounded-3xl">
             <div className="h-full rounded-3xl border border-line bg-surface p-6 shadow-lg">
-              <FiMail className="text-2xl text-lagoon-ink" />
+              <FiMail className="text-2xl text-brand-ink" />
               <p className="mt-3 text-xs font-bold uppercase tracking-widest text-muted">Email the desk</p>
               <p className="mt-1 break-all font-bold">{EMAIL}</p>
               <div className="mt-4 flex gap-2">
                 <button type="button" onClick={copyEmail} className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-xs font-bold transition hover:bg-page">
-                  {copied ? <FiCheckCircle className="text-lagoon-ink" /> : <FiCopy />} {copied ? "Copied" : "Copy"}
+                  {copied ? <FiCheckCircle className="text-brand-ink" /> : <FiCopy />} {copied ? "Copied" : "Copy"}
                 </button>
-                <a href={`mailto:${EMAIL}`} className="inline-flex items-center gap-2 rounded-full bg-btn px-4 py-2 text-xs font-bold text-white transition hover:bg-lagoon">Write</a>
+                <a href={`mailto:${EMAIL}`} className="inline-flex items-center gap-2 rounded-full bg-btn px-4 py-2 text-xs font-bold text-white transition hover:bg-brand">Write</a>
               </div>
             </div>
           </TiltCard>
           <TiltCard max={3} className="rounded-3xl">
             <div className="h-full rounded-3xl border border-line bg-surface p-6 shadow-lg">
-              <FiClock className="text-2xl text-lagoon-ink" />
+              <FiClock className="text-2xl text-brand-ink" />
               <p className="mt-3 text-xs font-bold uppercase tracking-widest text-muted">Reply time</p>
               <p className="mt-1 text-3xl font-black">Within 24 hours</p>
               <p className="mt-2 text-sm text-muted">Send your plan and we will come back with next steps.</p>
             </div>
           </TiltCard>
           <TiltCard max={3} className="rounded-3xl">
-            <Link to="/services" className="group block h-full rounded-3xl bg-panel2 p-6 text-white shadow-lg">
-              <FiCompass className="text-2xl text-[#f4c76b]" />
-              <p className="mt-3 text-xs font-bold uppercase tracking-widest text-white/60">Already know where?</p>
+            <Link to="/services" className="group block h-full rounded-3xl bg-panel2 p-6 text-on shadow-lg">
+              <FiCompass className="text-2xl text-accent-lt" />
+              <p className="mt-3 text-xs font-bold uppercase tracking-widest text-on/60">Already know where?</p>
               <p className="mt-1 text-2xl font-black">Send a request from a package</p>
-              <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#f4c76b] transition-all group-hover:gap-4">Browse packages <FiArrowRight /></span>
+              <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-accent-lt transition-all group-hover:gap-4">Browse packages <FiArrowRight /></span>
             </Link>
           </TiltCard>
         </div>
@@ -216,7 +216,7 @@ const Contact = () => {
         {/* Contact Info */}
         <aside className="space-y-10">
           <div>
-            <p className="text-lagoon-ink uppercase tracking-widest text-sm font-bold">
+            <p className="text-brand-ink uppercase tracking-widest text-sm font-bold">
               Concierge Desk
             </p>
             <h2 className="mt-4 text-4xl font-black tracking-tight">
@@ -248,7 +248,7 @@ const Contact = () => {
               key={i}
               className="flex gap-6 bg-surface border border-line p-7 rounded-3xl"
             >
-              <div className="text-lagoon-ink">{item.icon}</div>
+              <div className="text-brand-ink">{item.icon}</div>
               <div>
                 <p className="font-bold uppercase tracking-widest text-sm text-muted">
                   {item.label}
@@ -272,7 +272,7 @@ const Contact = () => {
 
         {/* Contact Form - More Compact */}
         <div className="bg-surface border border-line rounded-3xl p-8 md:p-10 shadow-sm">
-          <p className="text-lagoon-ink uppercase tracking-widest text-sm font-bold">
+          <p className="text-brand-ink uppercase tracking-widest text-sm font-bold">
             Trip Inquiry
           </p>
           <h2 className="mt-3 text-3xl font-black tracking-tight">
@@ -351,7 +351,7 @@ const Contact = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-5 bg-btn text-white font-black uppercase tracking-widest rounded-2xl hover:bg-lagoon transition disabled:opacity-70 flex items-center justify-center gap-3"
+              className="w-full py-5 bg-btn text-white font-black uppercase tracking-widest rounded-2xl hover:bg-brand transition disabled:opacity-70 flex items-center justify-center gap-3"
             >
               {loading ? "Sending..." : "Send Inquiry"} <FiSend />
             </button>
@@ -363,7 +363,7 @@ const Contact = () => {
       <section className="bg-surface py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid gap-14 lg:grid-cols-2">
           <Reveal>
-            <p className="text-lagoon-ink uppercase tracking-widest text-sm font-bold">What happens next</p>
+            <p className="text-brand-ink uppercase tracking-widest text-sm font-bold">What happens next</p>
             <h2 className="mt-3 text-3xl md:text-4xl font-black">Three steps, no pressure.</h2>
             <ol className="mt-8 space-y-6">
               {nextSteps.map((s, i) => (

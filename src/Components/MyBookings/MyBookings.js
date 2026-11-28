@@ -78,7 +78,7 @@ const Rail = ({ status }) => {
               transition={{ delay: 0.15 * i, type: "spring", stiffness: 400 }}
               className={`grid h-6 w-6 place-items-center rounded-full text-[10px] font-black ${
                 i < filled
-                  ? "bg-lagoon text-white"
+                  ? "bg-brand text-white"
                   : "bg-line text-muted"
               }`}
             >
@@ -200,31 +200,31 @@ const MyBookings = () => {
   return (
     <main className="min-h-screen bg-sandy pt-[76px] pb-24">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-panel text-white">
+      <section className="relative overflow-hidden bg-panel text-on">
         <Aurora />
         <div className="relative mx-auto flex max-w-5xl flex-wrap items-end justify-between gap-6 px-6 py-14 lg:px-10">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#e8c96a]">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-lt">
               Your trips
             </p>
             <h1 className="mt-2 text-4xl font-black md:text-6xl" style={serif}>
               <BlurText text="My Bookings" />
             </h1>
-            <p className="mt-2 text-sm text-white/60">
+            <p className="mt-2 text-sm text-on/60">
               All your travel requests in one place
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <button
               onClick={fetchBookings}
-              className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm font-bold backdrop-blur transition hover:bg-white/20"
+              className="flex items-center gap-2 rounded-full border border-on/20 bg-on/10 px-5 py-3 text-sm font-bold backdrop-blur transition hover:bg-on/20"
             >
               <FiRefreshCw className={loading ? "animate-spin" : ""} /> Refresh
             </button>
             <Magnetic>
               <Link
                 to="/services"
-                className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] px-6 py-3 text-sm font-black text-navy hover:shadow-lg hover:shadow-[#c9a84c]/30"
+                className="flex items-center gap-2 rounded-full bg-gradient-to-r from-cta to-accent-lt px-6 py-3 text-sm font-black text-deep hover:shadow-lg hover:shadow-accent/30"
               >
                 Explore packages <FiArrowRight />
               </Link>
@@ -245,12 +245,12 @@ const MyBookings = () => {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + i * 0.07 }}
-              className="rounded-3xl border border-white/10 bg-white/[0.07] p-4 backdrop-blur"
+              className="rounded-3xl border border-on/10 bg-white/[0.07] p-4 backdrop-blur"
             >
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/50">
+              <p className="text-[10px] font-black uppercase tracking-widest text-on/50">
                 {l}
               </p>
-              <p className="mt-1 text-2xl font-black text-white" style={serif}>
+              <p className="mt-1 text-2xl font-black text-on" style={serif}>
                 <AnimatedNumber value={n} prefix={p} />
               </p>
             </motion.div>
@@ -293,7 +293,7 @@ const MyBookings = () => {
             {!bookings.length && (
               <Link
                 to="/services"
-                className="inline-block rounded-full bg-btn px-7 py-3 text-sm font-bold text-white hover:bg-lagoon"
+                className="inline-block rounded-full bg-btn px-7 py-3 text-sm font-bold text-white hover:bg-brand"
               >
                 Browse packages
               </Link>
@@ -315,7 +315,7 @@ const MyBookings = () => {
                   >
                     <TiltCard
                       max={2.5}
-                      className={`overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_10px_40px_rgba(13,31,53,0.06)] transition-shadow hover:shadow-[0_24px_60px_rgba(13,31,53,0.12)] ${b.status === "cancelled" ? "opacity-75" : ""}`}
+                      className={`overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_10px_40px_rgba(16,24,40,0.06)] transition-shadow hover:shadow-[0_24px_60px_rgba(16,24,40,0.12)] ${b.status === "cancelled" ? "opacity-75" : ""}`}
                     >
                       <div className={`h-1.5 bg-gradient-to-r ${st.bar}`} />
                       <div className="flex flex-col justify-between gap-5 p-7 md:flex-row md:items-start">
@@ -331,7 +331,7 @@ const MyBookings = () => {
                             style={serif}
                           >
                             {b.serviceId ? (
-                              <Link to={`/booking/${b.serviceId}`} className="hover:text-lagoon-ink">
+                              <Link to={`/booking/${b.serviceId}`} className="hover:text-brand-ink">
                                 {b.serviceName}
                               </Link>
                             ) : (
@@ -344,7 +344,7 @@ const MyBookings = () => {
                           <p className="mt-3 text-sm text-muted">{st.note}</p>
                         </div>
                         <div className="shrink-0 md:text-right">
-                          <p className="text-3xl font-black text-coral" style={serif}>
+                          <p className="text-3xl font-black text-accent" style={serif}>
                             <AnimatedNumber value={Number(b.totalAmount || 0)} prefix="BDT " />
                           </p>
                           <p className="text-[11px] font-bold uppercase tracking-widest text-muted">
@@ -434,7 +434,7 @@ const MyBookings = () => {
 
 const Info = ({ icon, label, children }) => (
   <div className="flex items-start gap-3">
-    <span className="mt-0.5 text-lagoon-ink">{icon}</span>
+    <span className="mt-0.5 text-brand-ink">{icon}</span>
     <div className="min-w-0">
       <p className="text-[10px] font-black uppercase tracking-widest text-muted">{label}</p>
       <p className="break-words font-semibold text-ink">{children || "—"}</p>

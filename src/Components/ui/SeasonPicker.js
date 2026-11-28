@@ -5,15 +5,15 @@ import { MONTHS, destinations, seasonLabel, seasons } from "../../data/travel";
 import { motion } from "./Motion";
 
 const TONE = {
-  3: "bg-lagoon text-white",
-  2: "bg-[#c9a84c] text-navy",
+  3: "bg-brand text-white",
+  2: "bg-accent text-deep",
   1: "bg-line text-muted",
 };
 
 const SeasonPicker = ({ className = "" }) => {
   const [m, setM] = useState(new Date().getMonth());
   return (
-    <div className={`rounded-[2rem] border border-line bg-surface p-5 shadow-[0_20px_60px_rgba(13,31,53,0.08)] sm:p-8 ${className}`}>
+    <div className={`rounded-[2rem] border border-line bg-surface p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)] sm:p-8 ${className}`}>
       <div role="tablist" aria-label="Month" className="flex flex-wrap gap-1.5">
         {MONTHS.map((name, i) => (
           <button
@@ -44,7 +44,7 @@ const SeasonPicker = ({ className = "" }) => {
               </div>
               <div className="h-2.5 overflow-hidden rounded-full bg-sandy">
                 <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-lagoon to-[#c9a84c]"
+                  className="h-full rounded-full bg-gradient-to-r from-brand to-accent"
                   initial={false}
                   animate={{ width: `${(score / 3) * 100}%` }}
                   transition={{ type: "spring", stiffness: 120, damping: 20 }}
@@ -52,7 +52,7 @@ const SeasonPicker = ({ className = "" }) => {
               </div>
               <div className="mt-2 flex gap-1" aria-hidden>
                 {seasons[d.key].map((v, i) => (
-                  <span key={i} className={`h-1.5 flex-1 rounded-full ${v === 3 ? "bg-lagoon" : v === 2 ? "bg-[#c9a84c]" : "bg-line"} ${i === m ? "ring-2 ring-navy ring-offset-1" : ""}`} />
+                  <span key={i} className={`h-1.5 flex-1 rounded-full ${v === 3 ? "bg-brand" : v === 2 ? "bg-accent" : "bg-line"} ${i === m ? "ring-2 ring-deep ring-offset-1" : ""}`} />
                 ))}
               </div>
             </div>

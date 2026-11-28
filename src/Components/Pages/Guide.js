@@ -25,7 +25,7 @@ const Ring = ({ pct }) => {
           cy="60"
           r={r}
           fill="none"
-          className="stroke-lagoon"
+          className="stroke-brand"
           strokeWidth="10"
           strokeLinecap="round"
           strokeDasharray={c}
@@ -66,14 +66,14 @@ const Guide = () => {
     <main className="min-h-screen bg-sandy pt-[76px] text-ink">
       <ScrollProgress />
 
-      <section className="relative overflow-hidden bg-panel py-20 text-white md:py-28">
+      <section className="relative overflow-hidden bg-panel py-20 text-on md:py-28">
         <Aurora />
         <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#e8c96a]">Travel guide</p>
+          <p className="text-xs font-bold uppercase tracking-[0.28em] text-accent-lt">Travel guide</p>
           <h1 className="mt-4 max-w-3xl text-4xl font-black leading-tight md:text-6xl" style={serif}>
             <BlurText text="Pack light, travel well." />
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-white/75">A checklist for every kind of trip and the small habits that keep it safe and smooth.</p>
+          <p className="mt-6 max-w-2xl text-lg text-on/75">A checklist for every kind of trip and the small habits that keep it safe and smooth.</p>
         </div>
       </section>
 
@@ -102,9 +102,9 @@ const Guide = () => {
                     type="button"
                     onClick={() => toggle(it)}
                     aria-pressed={on}
-                    className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition ${on ? "border-lagoon/40 bg-lagoon/8" : "border-line bg-surface hover:border-lagoon/40"}`}
+                    className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition ${on ? "border-brand/40 bg-brand/8" : "border-line bg-surface hover:border-brand/40"}`}
                   >
-                    <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ring-1 transition ${on ? "bg-lagoon text-white ring-lagoon" : "bg-surface text-transparent ring-line"}`}>
+                    <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ring-1 transition ${on ? "bg-brand text-white ring-brand" : "bg-surface text-transparent ring-line"}`}>
                       <FiCheck size={15} strokeWidth={3} />
                     </span>
                     <span className={`font-medium transition ${on ? "text-muted line-through" : ""}`}>{it}</span>
@@ -119,7 +119,7 @@ const Guide = () => {
       <section className="bg-surface py-20">
         <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-2 lg:px-10">
           <Reveal>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">Good habits</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">Good habits</p>
             <h2 className="text-3xl font-black md:text-4xl" style={serif}>Safe, smooth, respectful</h2>
             <p className="mt-4 text-muted">Short, practical notes from our travel desk. Ask us anything specific to your route.</p>
             <div className="mt-8 flex gap-4 rounded-3xl border border-amber-200 bg-amber-50 p-5 text-amber-900">
@@ -138,10 +138,10 @@ const Guide = () => {
       <section className="mx-auto max-w-4xl px-6 py-20 text-center">
         <h2 className="text-3xl font-black md:text-4xl" style={serif}>Ready to choose a trip?</h2>
         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-          <Link to="/services" className="inline-flex items-center justify-center gap-2 rounded-full bg-btn px-8 py-4 text-sm font-bold text-white hover:bg-lagoon">
+          <Link to="/services" className="inline-flex items-center justify-center gap-2 rounded-full bg-btn px-8 py-4 text-sm font-bold text-white hover:bg-brand">
             Browse packages <FiArrowRight />
           </Link>
-          <Link to="/destinations" className="rounded-full border border-navy/20 px-8 py-4 text-sm font-bold hover:bg-surface">Explore destinations</Link>
+          <Link to="/destinations" className="rounded-full border border-deep/20 px-8 py-4 text-sm font-bold hover:bg-surface">Explore destinations</Link>
         </div>
       </section>
     </main>

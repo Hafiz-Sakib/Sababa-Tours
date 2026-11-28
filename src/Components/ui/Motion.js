@@ -185,8 +185,8 @@ export const PillTabs = ({
       role="tablist"
       className={`relative inline-flex max-w-full gap-1 overflow-x-auto rounded-full p-1.5 ${
         dark
-          ? "bg-white/10 border border-white/15 backdrop-blur"
-          : "bg-surface border border-line shadow-[0_8px_30px_rgba(13,31,53,0.08)]"
+          ? "bg-on/10 border border-on/15 backdrop-blur"
+          : "bg-surface border border-line shadow-[0_8px_30px_rgba(16,24,40,0.08)]"
       } ${className}`}
     >
       {items.map((it) => {
@@ -203,7 +203,7 @@ export const PillTabs = ({
                   ? "text-ink"
                   : "text-white"
                 : dark
-                  ? "text-white/70 hover:text-white"
+                  ? "text-on/70 hover:text-on"
                   : "text-muted hover:text-ink"
             }`}
           >
@@ -212,7 +212,7 @@ export const PillTabs = ({
                 layoutId="pill-bg"
                 className={`absolute inset-0 -z-10 rounded-full ${
                   dark
-                    ? "bg-gradient-to-r from-[#c9a84c] to-[#e8c96a]"
+                    ? "bg-gradient-to-r from-cta to-accent-lt"
                     : "bg-btn shadow-lg"
                 }`}
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
@@ -224,9 +224,9 @@ export const PillTabs = ({
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
                   it.badgeTone === "alert"
-                    ? "bg-coral text-white"
+                    ? "bg-accent text-white"
                     : active
-                      ? "bg-white/20"
+                      ? "bg-on/20"
                       : "bg-sandy text-muted"
                 }`}
               >
@@ -246,13 +246,13 @@ export const Aurora = ({ className = "" }) => (
     aria-hidden
     className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
   >
-    <div className="mb-blob absolute -left-24 -top-24 h-[420px] w-[420px] rounded-full bg-[#0f8f84]/40 blur-[90px]" />
+    <div className="mb-blob absolute -left-24 -top-24 h-[420px] w-[420px] rounded-full bg-brand/40 blur-[90px]" />
     <div
-      className="mb-blob absolute right-[-80px] top-10 h-[380px] w-[380px] rounded-full bg-[#c9a84c]/25 blur-[90px]"
+      className="mb-blob absolute right-[-80px] top-10 h-[380px] w-[380px] rounded-full bg-accent/25 blur-[90px]"
       style={{ animationDelay: "-6s" }}
     />
     <div
-      className="mb-blob absolute bottom-[-120px] left-1/3 h-[360px] w-[360px] rounded-full bg-coral/15 blur-[100px]"
+      className="mb-blob absolute bottom-[-120px] left-1/3 h-[360px] w-[360px] rounded-full bg-accent/15 blur-[100px]"
       style={{ animationDelay: "-12s" }}
     />
   </div>
@@ -275,7 +275,7 @@ export const Backdrop = ({ onClick, className = "" }) => (
     exit={{ opacity: 0 }}
     transition={{ duration: 0.2 }}
     onClick={onClick}
-    className={`absolute inset-0 bg-navy/60 backdrop-blur-sm ${className}`}
+    className={`absolute inset-0 bg-scrim/60 backdrop-blur-sm ${className}`}
   />
 );
 
@@ -401,7 +401,7 @@ export const ScrollProgress = () => {
   return (
     <motion.div
       aria-hidden
-      className="fixed inset-x-0 top-[72px] z-[45] h-[3px] origin-left bg-gradient-to-r from-[#c9a84c] to-lagoon"
+      className="fixed inset-x-0 top-[72px] z-[45] h-[3px] origin-left bg-gradient-to-r from-accent to-brand"
       style={{ scaleX: x }}
     />
   );

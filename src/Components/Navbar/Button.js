@@ -17,30 +17,30 @@ const Button = ({
   const variants = {
     primary: `
   px-8 py-3.5
-  bg-gradient-to-r from-[#c9a84c] via-[#e8c96a] to-[#f4d88a]
-  text-[#0d1f35] font-black
-  hover:shadow-xl hover:shadow-[#c9a84c]/40
+  bg-gradient-to-r from-cta via-accent-lt to-accent-lt
+  text-deep font-black
+  hover:shadow-xl hover:shadow-accent/40
   hover:-translate-y-0.5 hover:scale-105
   active:scale-95
 `,
     outline: `
       px-8 py-3.5
-      border-2 border-[#c9a84c] text-[#c9a84c]
-      hover:bg-[#c9a84c] hover:text-[#0d1f35]
-      hover:shadow-md hover:shadow-[#c9a84c]/20
+      border-2 border-accent text-accent
+      hover:bg-accent hover:text-deep
+      hover:shadow-md hover:shadow-accent/20
       hover:scale-105
     `,
     ghost: `
       px-8 py-3.5
-      text-white/70 hover:text-white
-      border border-white/20 hover:border-white/50
-      hover:bg-white/8
+      text-on/70 hover:text-on
+      border border-on/20 hover:border-on/50
+      hover:bg-on/8
     `,
     dark: `
       px-8 py-3.5
-      bg-[#0d1f35] text-white
-      hover:bg-[#0b6b62]
-      hover:shadow-lg hover:shadow-[#0b6b62]/20
+      bg-btn text-white
+      hover:bg-brand
+      hover:shadow-lg hover:shadow-brand/20
       hover:-translate-y-0.5 hover:scale-105
     `,
   };

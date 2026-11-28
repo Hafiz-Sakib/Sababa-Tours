@@ -14,7 +14,8 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+import { registerServiceWorker, applyUpdate } from "./pwa";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -30,19 +31,21 @@ root.render(
             fontFamily: "var(--font-body)",
             fontSize: "0.875rem",
             borderRadius: "999px",
-            background: "#0d1f35",
-            color: "#f8f3ec",
+            background: "rgb(var(--surface))",
+            color: "rgb(var(--ink))",
+            border: "1px solid rgb(var(--line))",
+            boxShadow: "var(--shadow-card)",
           },
           success: {
             iconTheme: {
-              primary: "#5aaa78",
-              secondary: "#f8f3ec",
+              primary: "#26A59E",
+              secondary: "#F2F9F8",
             },
           },
           error: {
             iconTheme: {
-              primary: "#e4a63a",
-              secondary: "#f8f3ec",
+              primary: "#EF4444",
+              secondary: "#F2F9F8",
             },
           },
         }}
@@ -52,3 +55,25 @@ root.render(
 );
 
 reportWebVitals();
+
+// PWA: offline support + "new version" prompt
+registerServiceWorker({
+  onUpdate: (reg) =>
+    toast(
+      (t) => (
+        <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          A new version is ready
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              applyUpdate(reg);
+            }}
+            style={{ background: "#1D8A84", color: "#fff", border: 0, borderRadius: 999, padding: "6px 14px", fontWeight: 700, cursor: "pointer" }}
+          >
+            Update
+          </button>
+        </span>
+      ),
+      { duration: Infinity },
+    ),
+});

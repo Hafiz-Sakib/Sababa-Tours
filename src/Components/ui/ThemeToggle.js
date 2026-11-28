@@ -24,7 +24,7 @@ const MoonIcon = () => (
   </svg>
 );
 
-export default function ThemeToggle({ solid = true, className = "" }) {
+export default function ThemeToggle({ solid = true, small = false, className = "" }) {
   const dark = useDark();
   const still = !!useReducedMotion();
   const t = still ? { duration: 0 } : GLIDE;
@@ -38,15 +38,15 @@ export default function ThemeToggle({ solid = true, className = "" }) {
       aria-pressed={dark}
       onClick={(e) => toggleTheme(e.currentTarget)}
       whileTap={still ? undefined : { scale: 0.88 }}
-      className={`relative flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-[14px] border outline-none transition-colors duration-700 ${
+      className={`relative flex ${small ? "h-9 w-9 rounded-xl" : "h-10 w-10 rounded-[14px]"} shrink-0 cursor-pointer items-center justify-center overflow-hidden border outline-none transition-colors duration-700 ${
         solid
           ? "border-line bg-sandy hover:bg-line/60"
-          : "border-white/25 bg-white/10 hover:bg-white/20"
+          : "border-on/25 bg-on/10 hover:bg-on/20"
       } ${className}`}
     >
       <motion.span
         aria-hidden
-        className="absolute text-[#d4962a]"
+        className="absolute text-accent"
         initial={false}
         animate={{ opacity: dark ? 0 : 1, rotate: dark ? 90 : 0, scale: dark ? 0.3 : 1 }}
         transition={t}
@@ -55,7 +55,7 @@ export default function ThemeToggle({ solid = true, className = "" }) {
       </motion.span>
       <motion.span
         aria-hidden
-        className="absolute text-[#e8c96a]"
+        className="absolute text-accent-lt"
         initial={false}
         animate={{ opacity: dark ? 1 : 0, rotate: dark ? 0 : -90, scale: dark ? 1 : 0.3 }}
         transition={t}

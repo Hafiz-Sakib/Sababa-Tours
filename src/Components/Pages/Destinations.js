@@ -65,14 +65,14 @@ const Destinations = () => {
     <main className="min-h-screen bg-sandy pt-[76px] text-ink">
       <ScrollProgress />
 
-      <section className="relative overflow-hidden bg-panel py-20 text-white md:py-28">
+      <section className="relative overflow-hidden bg-panel py-20 text-on md:py-28">
         <Aurora />
         <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#e8c96a]">Destinations</p>
+          <p className="text-xs font-bold uppercase tracking-[0.28em] text-accent-lt">Destinations</p>
           <h1 className="mt-4 max-w-3xl text-4xl font-black leading-tight md:text-6xl" style={serif}>
             <BlurText text="Pick a landscape, then the right month." />
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-white/75">
+          <p className="mt-6 max-w-2xl text-lg text-on/75">
             Three regions we know well. See what each is best for, when it shines, and the packages that go there.
           </p>
         </div>
@@ -92,12 +92,12 @@ const Destinations = () => {
             transition={{ duration: 0.3 }}
             className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]"
           >
-            <TiltCard max={2.5} className="overflow-hidden rounded-[2rem] shadow-[0_30px_80px_rgba(13,31,53,0.18)]">
+            <TiltCard max={2.5} className="overflow-hidden rounded-[2rem] shadow-[0_30px_80px_rgba(16,24,40,0.18)]">
               <img src={d.image} alt={d.name} className="h-[360px] w-full object-cover md:h-[460px]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-transparent to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6 text-white">
+              <div className="absolute inset-0 bg-gradient-to-t from-scrim/80 via-transparent to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 text-on">
                 <h2 className="text-4xl font-black" style={serif}>{d.name}</h2>
-                <p className="mt-1 text-white/80">{d.tag}</p>
+                <p className="mt-1 text-on/80">{d.tag}</p>
               </div>
             </TiltCard>
 
@@ -109,7 +109,7 @@ const Destinations = () => {
                   [<FiCompass key="g" />, "Best months", bestRange],
                 ].map(([icon, k, v]) => (
                   <div key={k} className="rounded-2xl border border-line bg-surface p-4">
-                    <span className="text-lagoon-ink">{icon}</span>
+                    <span className="text-brand-ink">{icon}</span>
                     <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-muted">{k}</p>
                     <p className="text-sm font-bold leading-snug">{v}</p>
                   </div>
@@ -117,11 +117,11 @@ const Destinations = () => {
               </div>
 
               <div className="rounded-3xl border border-line bg-surface p-6">
-                <h3 className="mb-3 text-xs font-black uppercase tracking-widest text-lagoon-ink">Signature moments</h3>
+                <h3 className="mb-3 text-xs font-black uppercase tracking-widest text-brand-ink">Signature moments</h3>
                 <ul className="space-y-2.5">
                   {things.map((t) => (
                     <li key={t} className="flex items-start gap-3 text-sm">
-                      <FiMapPin className="mt-0.5 shrink-0 text-[#c9a84c]" /> {t}
+                      <FiMapPin className="mt-0.5 shrink-0 text-accent" /> {t}
                     </li>
                   ))}
                 </ul>
@@ -131,11 +131,11 @@ const Destinations = () => {
               </div>
 
               <div className="rounded-3xl border border-line bg-surface p-6">
-                <h3 className="mb-3 text-xs font-black uppercase tracking-widest text-lagoon-ink">Through the year</h3>
+                <h3 className="mb-3 text-xs font-black uppercase tracking-widest text-brand-ink">Through the year</h3>
                 <div className="flex gap-1">
                   {seasons[d.key].map((v, i) => (
                     <div key={i} className="flex-1 text-center">
-                      <div className={`h-10 rounded-lg ${v === 3 ? "bg-lagoon" : v === 2 ? "bg-[#c9a84c]" : "bg-line"}`} title={`${MONTHS[i]}: ${seasonLabel[v]}`} />
+                      <div className={`h-10 rounded-lg ${v === 3 ? "bg-brand" : v === 2 ? "bg-accent" : "bg-line"}`} title={`${MONTHS[i]}: ${seasonLabel[v]}`} />
                       <span className="mt-1 block text-[10px] font-semibold text-muted">{MONTHS[i][0]}</span>
                     </div>
                   ))}
@@ -143,7 +143,7 @@ const Destinations = () => {
                 <div className="mt-3 flex flex-wrap gap-4 text-[11px] text-muted">
                   {[3, 2, 1].map((v) => (
                     <span key={v} className="flex items-center gap-1.5">
-                      <span className={`h-2.5 w-2.5 rounded-full ${v === 3 ? "bg-lagoon" : v === 2 ? "bg-[#c9a84c]" : "bg-line"}`} />
+                      <span className={`h-2.5 w-2.5 rounded-full ${v === 3 ? "bg-brand" : v === 2 ? "bg-accent" : "bg-line"}`} />
                       {seasonLabel[v]}
                     </span>
                   ))}
@@ -158,7 +158,7 @@ const Destinations = () => {
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <h2 className="text-3xl font-black md:text-4xl" style={serif}>Packages in {d.name}</h2>
-            <Link to="/services" className="inline-flex items-center gap-2 text-sm font-bold text-lagoon-ink transition-all hover:gap-4">
+            <Link to="/services" className="inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-4">
               All packages <FiArrowRight />
             </Link>
           </div>
@@ -171,7 +171,7 @@ const Destinations = () => {
           ) : (
             <div className="rounded-3xl bg-sandy p-10 text-center">
               <p className="text-muted">No listed package for {d.name} right now. We can still build one for you.</p>
-              <Link to="/contact" className="mt-5 inline-block rounded-full bg-btn px-7 py-3 text-sm font-bold text-white hover:bg-lagoon">Ask our desk</Link>
+              <Link to="/contact" className="mt-5 inline-block rounded-full bg-btn px-7 py-3 text-sm font-bold text-white hover:bg-brand">Ask our desk</Link>
             </div>
           )}
         </div>
@@ -180,18 +180,18 @@ const Destinations = () => {
       <section className="mx-auto max-w-4xl px-6 py-20">
         <Reveal>
           <div className="mb-10 text-center">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">When should I go?</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">When should I go?</p>
             <h2 className="text-3xl font-black md:text-4xl" style={serif}>Compare every region by month</h2>
           </div>
           <SeasonPicker />
         </Reveal>
         <Reveal delay={0.1}>
-          <div className="mt-12 flex flex-col items-center justify-between gap-5 rounded-[2rem] bg-panel p-8 text-white sm:flex-row">
+          <div className="mt-12 flex flex-col items-center justify-between gap-5 rounded-[2rem] bg-panel p-8 text-on sm:flex-row">
             <div>
               <h3 className="text-2xl font-black" style={serif}>Know what to pack?</h3>
-              <p className="mt-1 text-white/65">Our travel guide has a checklist for hills, lakes and beaches.</p>
+              <p className="mt-1 text-on/65">Our travel guide has a checklist for hills, lakes and beaches.</p>
             </div>
-            <Link to="/guide" className="shrink-0 rounded-full bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] px-8 py-4 text-sm font-black uppercase tracking-widest text-navy">Open the guide</Link>
+            <Link to="/guide" className="shrink-0 rounded-full bg-gradient-to-r from-cta to-accent-lt px-8 py-4 text-sm font-black uppercase tracking-widest text-deep">Open the guide</Link>
           </div>
         </Reveal>
       </section>

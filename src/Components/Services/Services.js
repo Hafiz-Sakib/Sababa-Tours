@@ -96,7 +96,7 @@ const Services = () => {
   return (
     <main className="min-h-screen bg-sandy pt-[76px] text-ink">
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden bg-panel py-24 md:py-32 text-white noise">
+      <section className="relative overflow-hidden bg-panel py-24 md:py-32 text-on noise">
         <div className="absolute inset-0 img-zoom">
           <img
             src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1600&q=85"
@@ -104,11 +104,11 @@ const Services = () => {
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-navy/97 via-navy/82 to-navy/60" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,rgba(11,107,98,0.15)_0%,transparent_60%)]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-scrim/97 via-scrim/82 to-scrim/60" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,rgba(38,165,158,0.15)_0%,transparent_60%)]" />
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
-          <p className="text-[#c9a84c] uppercase tracking-[0.28em] text-[10px] font-bold mb-5 animate-fade-in">
+          <p className="text-accent uppercase tracking-[0.28em] text-[10px] font-bold mb-5 animate-fade-in">
             Travel Packages
           </p>
           <h1
@@ -119,7 +119,7 @@ const Services = () => {
             <br />
             kind of traveler.
           </h1>
-          <p className="animate-fade-up delay-200 max-w-xl text-white/70 text-lg leading-relaxed">
+          <p className="animate-fade-up delay-200 max-w-xl text-on/70 text-lg leading-relaxed">
             Handcrafted journeys across Bangladesh — from misty hill tracks to
             golden beaches.
           </p>
@@ -137,7 +137,7 @@ const Services = () => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search destinations, hills, beaches, culture..."
-                className="w-full border border-line bg-page-alt pl-12 pr-11 py-4 rounded-2xl focus:border-lagoon/50 focus:bg-surface outline-none text-sm placeholder:text-muted/50 transition-all duration-300"
+                className="w-full border border-line bg-page-alt pl-12 pr-11 py-4 rounded-2xl focus:border-brand/50 focus:bg-surface outline-none text-sm placeholder:text-muted/50 transition-all duration-300"
               />
               {query && (
                 <button
@@ -161,7 +161,7 @@ const Services = () => {
                   className={`px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-xl border transition-all duration-300 active:scale-95 ${
                     sortBy === opt.value
                       ? "bg-btn text-white border-btn shadow-md"
-                      : "border-line text-muted hover:border-lagoon/40 hover:text-lagoon-ink"
+                      : "border-line text-muted hover:border-brand/40 hover:text-brand-ink"
                   }`}
                 >
                   {opt.label}
@@ -171,7 +171,7 @@ const Services = () => {
           </div>
 
           <p className="mt-3 text-xs font-bold text-muted">
-            <span className="text-lagoon-ink">{filtered.length}</span>{" "}
+            <span className="text-brand-ink">{filtered.length}</span>{" "}
             {filtered.length === 1 ? "package" : "packages"} available
           </p>
         </div>
@@ -181,7 +181,7 @@ const Services = () => {
       <section className="max-w-7xl mx-auto px-6 py-14 lg:px-10 pb-28">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-36 gap-4">
-            <div className="h-14 w-14 animate-spin rounded-full border-4 border-line border-t-lagoon" />
+            <div className="h-14 w-14 animate-spin rounded-full border-4 border-line border-t-brand" />
             <p className="text-muted text-sm">Loading packages…</p>
           </div>
         ) : filtered.length > 0 ? (
@@ -209,7 +209,7 @@ const Services = () => {
             </p>
             <button
               onClick={() => setQuery("")}
-              className="px-8 py-4 bg-btn text-white font-black uppercase tracking-widest rounded-2xl hover:bg-lagoon transition-all duration-300"
+              className="px-8 py-4 bg-btn text-white font-black uppercase tracking-widest rounded-2xl hover:bg-brand transition-all duration-300"
             >
               Clear Search
             </button>

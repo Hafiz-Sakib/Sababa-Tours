@@ -17,7 +17,7 @@ import {
   FiUsers,
 } from "react-icons/fi";
 import ServiceCard from "../Services/ServiceCard";
-import Review from "./Review";
+import Showcase from "./Showcase";
 import SeasonPicker from "../ui/SeasonPicker";
 import { articles, destinations } from "../../data/travel";
 import { API_BASE_URL } from "../../config";
@@ -123,13 +123,13 @@ const BoardingPass = () => {
             className="h-44 w-full object-cover"
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-navy/85 via-navy/20 to-transparent" />
-        <div className="absolute inset-x-6 bottom-4 flex items-end justify-between text-white">
+        <div className="absolute inset-0 bg-gradient-to-t from-scrim/85 via-scrim/20 to-transparent" />
+        <div className="absolute inset-x-6 bottom-4 flex items-end justify-between text-on">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#e8c96a]">Your trip</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-accent-lt">Your trip</p>
             <p className="text-2xl font-black leading-tight">{d.name}</p>
           </div>
-          <span className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold backdrop-blur">{d.duration}</span>
+          <span className="rounded-full bg-on/15 px-3 py-1 text-[11px] font-bold backdrop-blur">{d.duration}</span>
         </div>
       </div>
 
@@ -153,7 +153,7 @@ const BoardingPass = () => {
               onClick={() => setStyle(i)}
               aria-pressed={style === i}
               className={`rounded-2xl px-2 py-2.5 text-xs font-bold ring-1 transition ${
-                style === i ? "bg-lagoon text-white ring-lagoon" : "bg-surface text-muted ring-line hover:ring-lagoon/50"
+                style === i ? "bg-brand text-white ring-brand" : "bg-surface text-muted ring-line hover:ring-brand/50"
               }`}
             >
               {t.name}
@@ -176,12 +176,12 @@ const BoardingPass = () => {
       <div className="flex items-end justify-between gap-4 p-6">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted">Rough estimate</p>
-          <RollingNumber value={estimate} prefix="BDT " className="text-3xl font-bold text-coral" />
+          <RollingNumber value={estimate} prefix="BDT " className="text-3xl font-bold text-accent" />
           <p className="mt-1 text-[11px] text-muted">Indicative only. Packages show exact prices.</p>
         </div>
         <Link
           to="/services"
-          className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-btn px-5 py-3 text-xs font-bold text-white transition hover:bg-lagoon"
+          className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-btn px-5 py-3 text-xs font-bold text-white transition hover:bg-brand"
         >
           See packages <FiArrowRight className="transition-transform group-hover:translate-x-1" />
         </Link>
@@ -206,13 +206,13 @@ const DestinationStrip = () => {
             onFocus={() => setOpen(i)}
             onClick={() => setOpen(i)}
             transition={{ type: "spring", stiffness: 220, damping: 30 }}
-            className="group relative min-h-0 overflow-hidden rounded-[2rem] text-left outline-none focus-visible:ring-4 focus-visible:ring-[#c9a84c]/60"
+            className="group relative min-h-0 overflow-hidden rounded-[2rem] text-left outline-none focus-visible:ring-4 focus-visible:ring-accent/60"
             style={{ flex: on ? 4 : 1 }}
             aria-expanded={on}
           >
             <img src={d.image} alt={d.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div className={`absolute inset-0 transition-colors duration-500 ${on ? "bg-gradient-to-t from-navy/90 via-navy/25 to-transparent" : "bg-navy/55"}`} />
-            <div className="absolute inset-x-6 bottom-6 text-white">
+            <div className={`absolute inset-0 transition-colors duration-500 ${on ? "bg-gradient-to-t from-scrim/90 via-scrim/25 to-transparent" : "bg-scrim/55"}`} />
+            <div className="absolute inset-x-6 bottom-6 text-on">
               <p className={`font-black leading-tight ${on ? "text-3xl md:text-4xl" : "text-xl md:[writing-mode:vertical-rl] md:rotate-180"}`}>{d.name}</p>
               <AnimatePresence initial={false}>
                 {on && (
@@ -223,12 +223,12 @@ const DestinationStrip = () => {
                     transition={{ duration: 0.3, delay: 0.08 }}
                     className="mt-3 max-w-md"
                   >
-                    <p className="text-sm text-white/80">{d.tag}</p>
+                    <p className="text-sm text-on/80">{d.tag}</p>
                     <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-bold">
-                      <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{d.bestFor}</span>
-                      <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{d.duration}</span>
+                      <span className="rounded-full bg-on/15 px-3 py-1.5 backdrop-blur">{d.bestFor}</span>
+                      <span className="rounded-full bg-on/15 px-3 py-1.5 backdrop-blur">{d.duration}</span>
                     </div>
-                    <p className="mt-3 text-xs text-[#e8c96a]">{d.highlight}</p>
+                    <p className="mt-3 text-xs text-accent-lt">{d.highlight}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -251,7 +251,7 @@ const Journey = () => {
       <div aria-hidden className="absolute bottom-6 left-[22px] top-6 w-0.5 rounded-full bg-line" />
       <motion.div
         aria-hidden
-        className="absolute bottom-6 left-[22px] top-6 w-0.5 origin-top rounded-full bg-gradient-to-b from-[#c9a84c] to-lagoon"
+        className="absolute bottom-6 left-[22px] top-6 w-0.5 origin-top rounded-full bg-gradient-to-b from-accent to-brand"
         style={{ scaleY: reduce ? 1 : grow }}
       />
       <ol className="space-y-12">
@@ -330,40 +330,40 @@ const Home = () => {
           alt="Bangladesh landscape"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-navy/95 via-lagoon/70 to-navy/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-scrim/95 via-scrim/80 to-scrim/60 dark:via-brand/70 dark:to-scrim/90" />
         <Aurora className="opacity-70" />
 
         <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
           <div>
-            <p className="mb-7 inline-flex items-center gap-3 text-xs font-bold tracking-[0.28em] text-[#c9a84c]">
-              <span className="h-px w-10 bg-[#c9a84c]" /> BANGLADESH · HAND-PLANNED
+            <p className="mb-7 inline-flex items-center gap-3 text-xs font-bold tracking-[0.28em] text-accent">
+              <span className="h-px w-10 bg-accent" /> BANGLADESH · HAND-PLANNED
             </p>
-            <h1 className="text-5xl font-black leading-[1.05] text-white md:text-7xl" style={{ fontFamily: "var(--font-display)" }}>
+            <h1 className="text-5xl font-black leading-[1.05] text-on md:text-7xl" style={{ fontFamily: "var(--font-display)" }}>
               <BlurText text="Journeys through" />
               <br />
-              <span className="text-[#e8c96a]">
+              <span className="text-accent-lt">
                 <BlurText text="the green delta." delay={0.3} />
               </span>
             </h1>
-            <p className="mt-6 text-2xl font-bold text-white md:text-3xl">
+            <p className="mt-6 text-2xl font-bold text-on md:text-3xl">
               Discover{" "}
-              <FlipWords className="text-[#e8c96a]" words={["sea beaches", "misty hills", "mangrove forests", "living heritage"]} />
+              <FlipWords className="text-accent-lt" words={["sea beaches", "misty hills", "mangrove forests", "living heritage"]} />
             </p>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/75">
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-on/75">
               Hill trails, lake cruises and sunset beaches, planned around your pace by a local travel desk that stays with you all the way.
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <Magnetic>
                 <Link
                   to="/services"
-                  className="group flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] px-9 py-4 text-sm font-black uppercase tracking-widest text-navy transition-shadow hover:shadow-xl hover:shadow-[#c9a84c]/30"
+                  className="group flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-cta to-accent-lt px-9 py-4 text-sm font-black uppercase tracking-widest text-deep transition-shadow hover:shadow-xl hover:shadow-accent/30"
                 >
                   Explore packages <FiArrowRight className="transition-transform group-hover:translate-x-1.5" />
                 </Link>
               </Magnetic>
               <Link
                 to="/contact"
-                className="flex items-center justify-center rounded-full border border-white/30 px-9 py-4 text-sm font-bold uppercase tracking-widest text-white transition hover:bg-white/10"
+                className="flex items-center justify-center rounded-full border border-on/30 px-9 py-4 text-sm font-bold uppercase tracking-widest text-on transition hover:bg-on/10"
               >
                 Talk to our desk
               </Link>
@@ -381,14 +381,14 @@ const Home = () => {
         <Reveal>
           <div className="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">Where we take you</p>
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">Where we take you</p>
               <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
                 Three landscapes, one desk
               </h2>
             </div>
             <div className="max-w-sm">
               <p className="text-muted">Hover or tap a panel to open it. Each region has its own pace, season and best-fit traveler.</p>
-              <Link to="/destinations" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-lagoon-ink transition-all hover:gap-4">
+              <Link to="/destinations" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-4">
                 Full destination guide <FiArrowRight />
               </Link>
             </div>
@@ -401,14 +401,14 @@ const Home = () => {
       <section className="mx-auto max-w-5xl px-6 pb-24 lg:px-10">
         <div className="grid items-start gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <Reveal>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">When should I go?</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">When should I go?</p>
             <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
               Pick the month, see the best place
             </h2>
             <p className="mt-5 text-muted leading-relaxed">
               Hills, lakes and beaches each have a season when they shine. Choose a month and compare all three at a glance.
             </p>
-            <Link to="/guide" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-lagoon-ink transition-all hover:gap-4">
+            <Link to="/guide" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-4">
               Read the travel guide <FiArrowRight />
             </Link>
           </Reveal>
@@ -423,12 +423,12 @@ const Home = () => {
         <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
           <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">Featured this season</p>
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">Featured this season</p>
               <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
                 Handpicked journeys
               </h2>
             </div>
-            <Link to="/services" className="inline-flex items-center gap-2 text-sm font-bold tracking-widest text-lagoon-ink transition-all hover:gap-4">
+            <Link to="/services" className="inline-flex items-center gap-2 text-sm font-bold tracking-widest text-brand-ink transition-all hover:gap-4">
               Browse all <FiArrowRight />
             </Link>
           </div>
@@ -464,7 +464,7 @@ const Home = () => {
       {/* ══════════════════ WHY SABABA (bento) ══════════════════ */}
       <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
         <Reveal>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">Why Sababa</p>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">Why Sababa</p>
           <h2 className="mb-12 max-w-2xl text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
             Planned by people, not templates
           </h2>
@@ -473,22 +473,22 @@ const Home = () => {
           {pillars.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.08}>
               <div className="h-full rounded-[2rem] border border-line bg-surface p-8 transition-shadow hover:shadow-xl">
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-lagoon/10 text-xl text-lagoon-ink">{p.icon}</span>
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand/10 text-xl text-brand-ink">{p.icon}</span>
                 <h3 className="mt-6 text-xl font-bold">{p.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{p.text}</p>
               </div>
             </Reveal>
           ))}
           <Reveal className="md:col-span-3" delay={0.1}>
-            <div className="relative overflow-hidden rounded-[2rem] bg-panel p-8 text-white md:p-10">
+            <div className="relative overflow-hidden rounded-[2rem] bg-panel p-8 text-on md:p-10">
               <Aurora className="opacity-60" />
               <div className="relative grid gap-8 sm:grid-cols-3">
                 {liveStats.map((st) => (
                   <div key={st.label}>
-                    <p className="text-5xl font-black text-[#e8c96a]" style={{ fontFamily: "var(--font-display)" }}>
+                    <p className="text-5xl font-black text-accent-lt" style={{ fontFamily: "var(--font-display)" }}>
                       {st.node}
                     </p>
-                    <p className="mt-2 text-xs font-bold uppercase tracking-widest text-white/60">{st.label}</p>
+                    <p className="mt-2 text-xs font-bold uppercase tracking-widest text-on/60">{st.label}</p>
                   </div>
                 ))}
               </div>
@@ -497,12 +497,14 @@ const Home = () => {
         </div>
       </section>
 
+      <Showcase services={services} places={places} fromPrice={fromPrice} />
+
       {/* ══════════════════ JOURNEY ══════════════════ */}
       <section className="bg-surface py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <Reveal>
             <div className="mb-14 text-center">
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">How it works</p>
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">How it works</p>
               <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
                 From idea to itinerary
               </h2>
@@ -512,16 +514,16 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ══════════════════ JOURNAL TEASER ══════════════════ */}
+      {/* ══════════════════ TRAVEL BLOG TEASER ══════════════════ */}
       <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
         <div className="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <Reveal>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-lagoon-ink">From the journal</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">Travel Blog</p>
             <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
               Notes from the field
             </h2>
           </Reveal>
-          <Link to="/blogs" className="inline-flex items-center gap-2 text-sm font-bold text-lagoon-ink transition-all hover:gap-4">
+          <Link to="/blogs" className="inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-4">
             All articles <FiArrowRight />
           </Link>
         </div>
@@ -535,7 +537,7 @@ const Home = () => {
                   </div>
                   <div className="p-6">
                     <p className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest text-muted">
-                      <span className="text-lagoon-ink">{a.category}</span>
+                      <span className="text-brand-ink">{a.category}</span>
                       <span className="flex items-center gap-1"><FiCalendar /> {a.date}</span>
                     </p>
                     <h3 className="mt-3 text-lg font-bold leading-snug">{a.title}</h3>
@@ -552,7 +554,7 @@ const Home = () => {
       <section className="py-24">
         <div className="mx-auto max-w-3xl px-6">
           <div className="mb-12 text-center">
-            <p className="mb-4 text-xs font-bold tracking-[0.28em] text-lagoon-ink">GOOD TO KNOW</p>
+            <p className="mb-4 text-xs font-bold tracking-[0.28em] text-brand-ink">GOOD TO KNOW</p>
             <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
               <BlurText text="Questions, answered" />
             </h2>
@@ -564,7 +566,7 @@ const Home = () => {
       </section>
 
       {/* ══════════════════ CTA ══════════════════ */}
-      <section className="relative overflow-hidden bg-lagoon py-28 text-white">
+      <section className="relative overflow-hidden bg-brand py-28 text-white">
         <Aurora className="opacity-60" />
         <div className="relative mx-auto max-w-4xl px-6 text-center">
           <span className="mx-auto mb-8 grid h-16 w-16 place-items-center rounded-full border border-white/20 bg-white/10 text-2xl">
@@ -575,7 +577,7 @@ const Home = () => {
           </h2>
           <p className="mx-auto mb-12 max-w-xl text-lg text-white/75">Tell us your dream destination. Our team will shape the rest.</p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Link to="/contact" className="rounded-full bg-surface px-10 py-4 font-black uppercase tracking-widest text-lagoon-ink transition hover:bg-[#c9a84c] hover:text-navy">
+            <Link to="/contact" className="rounded-full bg-surface px-10 py-4 font-black uppercase tracking-widest text-brand-ink transition hover:bg-accent hover:text-deep">
               Start planning
             </Link>
             <Link to="/register" className="rounded-full border-2 border-white/40 px-10 py-4 font-bold uppercase tracking-widest transition hover:border-surface hover:bg-white/10">
@@ -585,7 +587,6 @@ const Home = () => {
         </div>
       </section>
 
-      <Review />
     </main>
   );
 };

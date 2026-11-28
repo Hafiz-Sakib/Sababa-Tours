@@ -102,9 +102,9 @@ const fmtLong = (d) =>
 
 const EASE = [0.22, 1, 0.36, 1];
 const inputBase =
-  "w-full border bg-sandy rounded-2xl px-4 py-3.5 text-base sm:text-sm outline-none transition-all duration-200 focus:bg-surface focus:ring-4 focus:ring-lagoon/10";
+  "w-full border bg-sandy rounded-2xl px-4 py-3.5 text-base sm:text-sm outline-none transition-all duration-200 focus:bg-surface focus:ring-4 focus:ring-brand/10";
 const inputCls = (err) =>
-  `${inputBase} ${err ? "border-red-400 focus:border-red-500" : "border-line focus:border-lagoon/60"}`;
+  `${inputBase} ${err ? "border-red-400 focus:border-red-500" : "border-line focus:border-brand/60"}`;
 
 const Label = ({ icon, children, optional }) => (
   <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted mb-2.5">
@@ -157,7 +157,7 @@ const Stepper = ({ step, onJump }) => (
                 className="absolute right-1/2 top-[17px] h-0.5 w-full -translate-y-1/2 overflow-hidden rounded-full bg-line"
               >
                 <motion.span
-                  className="block h-full origin-left bg-lagoon"
+                  className="block h-full origin-left bg-brand"
                   initial={false}
                   animate={{ scaleX: i <= step ? 1 : 0 }}
                   transition={{ duration: 0.5, ease: EASE }}
@@ -171,7 +171,7 @@ const Stepper = ({ step, onJump }) => (
               aria-label={`${done ? "Go back to " : ""}${s.label}`}
               className={`relative z-10 grid h-9 w-9 place-items-center rounded-full text-sm font-semibold ring-4 ring-surface transition-colors disabled:cursor-default ${
                 done
-                  ? "bg-lagoon text-white hover:bg-btn"
+                  ? "bg-brand text-white hover:bg-btn"
                   : cur
                     ? "bg-btn text-white"
                     : "bg-sandy text-muted"
@@ -181,7 +181,7 @@ const Stepper = ({ step, onJump }) => (
             </button>
             <span
               className={`mt-2 text-[11px] font-semibold leading-tight sm:text-sm ${
-                cur ? "text-ink" : done ? "text-lagoon-ink" : "text-muted/60"
+                cur ? "text-ink" : done ? "text-brand-ink" : "text-muted/60"
               }`}
             >
               {s.label}
@@ -204,13 +204,13 @@ const Row = ({ k, v }) => (
 
 const Receipt = ({ service, travelers, date, total, className = "" }) => (
   <div
-    className={`relative overflow-hidden rounded-[1.75rem] bg-surface p-5 shadow-[0_20px_60px_rgba(13,31,53,0.12)] ring-1 ring-line sm:p-6 ${className}`}
+    className={`relative overflow-hidden rounded-[1.75rem] bg-surface p-5 shadow-[0_20px_60px_rgba(16,24,40,0.12)] ring-1 ring-line sm:p-6 ${className}`}
   >
-    <div aria-hidden className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#c9a84c] via-[#e8c96a] to-lagoon" />
+    <div aria-hidden className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-cta via-accent-lt to-brand" />
     <div className="flex items-center justify-between gap-3 pt-1">
       <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">Your request</p>
       {service.category && (
-        <span className="rounded-full bg-lagoon/10 px-2.5 py-0.5 text-[11px] font-semibold text-lagoon-ink">
+        <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-ink">
           {service.category}
         </span>
       )}
@@ -229,7 +229,7 @@ const Receipt = ({ service, travelers, date, total, className = "" }) => (
     </div>
     <div className="mt-3 flex items-end justify-between gap-4 border-t border-line pt-4">
       <span className="text-sm font-semibold text-ink">Total estimate</span>
-      <RollingNumber value={total} prefix="BDT " className="text-3xl font-bold text-coral" />
+      <RollingNumber value={total} prefix="BDT " className="text-3xl font-bold text-accent" />
     </div>
     <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-muted">
       <FiClock size={14} className="mt-0.5 shrink-0" />
@@ -524,7 +524,7 @@ const Booking = () => {
           Package Not Found
         </h1>
         <p className="text-muted mb-8">Sorry, the tour you're looking for is no longer available.</p>
-        <Link to="/services" className="px-8 py-4 bg-btn text-white rounded-full font-bold hover:bg-lagoon transition-all">
+        <Link to="/services" className="px-8 py-4 bg-btn text-white rounded-full font-bold hover:bg-brand transition-all">
           Browse All Packages
         </Link>
       </main>
@@ -557,12 +557,12 @@ const Booking = () => {
           onLoad={() => setImgLoaded(true)}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imgLoaded ? "opacity-55" : "opacity-0"}`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-navy/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-scrim via-scrim/60 to-scrim/30" />
         <Aurora className="opacity-60" />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-8 pb-14 md:pb-16 min-h-[320px] md:min-h-[380px] flex flex-col justify-between">
           <Link
             to="/services"
-            className="inline-flex w-fit items-center gap-2 text-xs font-bold uppercase tracking-widest text-white/80 hover:text-white hover:gap-3 transition-all"
+            className="inline-flex w-fit items-center gap-2 text-xs font-bold uppercase tracking-widest text-on/80 hover:text-on hover:gap-3 transition-all"
           >
             <FiArrowLeft /> All packages
           </Link>
@@ -571,22 +571,22 @@ const Booking = () => {
               {[service.category, service.location, service.duration].filter(Boolean).map((t, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur text-white text-[10px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full border border-white/20"
+                  className="inline-flex items-center gap-1.5 bg-on/15 backdrop-blur text-on text-[10px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full border border-on/20"
                 >
                   {i === 0 ? <FiTag size={11} /> : i === 1 ? <FiMapPin size={11} /> : <FiClock size={11} />}
                   {t}
                 </span>
               ))}
             </div>
-            <h1 className="text-4xl md:text-6xl font-black leading-[1.05] text-white max-w-3xl" style={serif}>
+            <h1 className="text-4xl md:text-6xl font-black leading-[1.05] text-on max-w-3xl" style={serif}>
               <BlurText text={service.name} />
             </h1>
-            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-white/80 text-sm">
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-on/80 text-sm">
               <span className="flex items-center gap-1.5">
-                <FiStar className="text-[#e8c96a] fill-current" /> 4.9 guest rating
+                <FiStar className="text-accent-lt fill-current" /> 4.9 guest rating
               </span>
               <span>
-                From <b className="text-[#e8c96a] text-lg">{service.balance}</b> / person
+                From <b className="text-accent-lt text-lg">{service.balance}</b> / person
               </span>
             </div>
           </div>
@@ -598,7 +598,7 @@ const Booking = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 -mt-14 md:-mt-16 mb-8 relative z-10">
           {highlights.map((h) => (
             <div key={h.label} className="bg-surface border border-line rounded-2xl p-4 text-center shadow-sm">
-              <div className="text-lagoon-ink text-lg mb-1.5 flex justify-center">{h.icon}</div>
+              <div className="text-brand-ink text-lg mb-1.5 flex justify-center">{h.icon}</div>
               <p className="font-bold text-ink leading-tight text-sm">{h.value}</p>
               <p className="text-[10px] uppercase tracking-widest text-muted font-bold mt-1">{h.label}</p>
             </div>
@@ -606,7 +606,7 @@ const Booking = () => {
         </div>
 
         <div ref={wizardTop} className="scroll-mt-24 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8">
-          <div className="min-w-0 rounded-[1.75rem] bg-surface p-4 shadow-[0_20px_60px_rgba(13,31,53,0.10)] ring-1 ring-line sm:rounded-[2rem] sm:p-8">
+          <div className="min-w-0 rounded-[1.75rem] bg-surface p-4 shadow-[0_20px_60px_rgba(16,24,40,0.10)] ring-1 ring-line sm:rounded-[2rem] sm:p-8">
             {existingBooking ? (
               <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
                 <div className="mx-auto w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mb-3">
@@ -618,7 +618,7 @@ const Booking = () => {
                   <br />
                   We'll contact you shortly.
                 </p>
-                <Link to="/my-bookings" className="inline-block px-7 py-3 bg-btn text-white rounded-full text-sm font-bold hover:bg-lagoon transition-all">
+                <Link to="/my-bookings" className="inline-block px-7 py-3 bg-btn text-white rounded-full text-sm font-bold hover:bg-brand transition-all">
                   View My Bookings
                 </Link>
               </div>
@@ -640,7 +640,7 @@ const Booking = () => {
                               <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
                                 <FiMapPin size={12} /> {service.location || "Bangladesh"} · {service.duration || "Flexible"}
                               </p>
-                              <p className="mt-2 text-xl font-bold text-coral">
+                              <p className="mt-2 text-xl font-bold text-accent">
                                 {service.balance} <span className="text-xs font-normal text-muted">/ person</span>
                               </p>
                             </div>
@@ -648,9 +648,9 @@ const Booking = () => {
                         </div>
 
                         <div className="relative overflow-hidden rounded-[1.75rem] bg-surface p-4 ring-1 ring-line sm:p-7">
-                          <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-lagoon/10 blur-3xl" />
+                          <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-brand/10 blur-3xl" />
                           <div className="relative flex items-center gap-3.5">
-                            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-lagoon/10 text-lagoon-ink ring-1 ring-lagoon/15 sm:h-12 sm:w-12">
+                            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand/10 text-brand-ink ring-1 ring-brand/15 sm:h-12 sm:w-12">
                               <FiUsers size={22} />
                             </span>
                             <div className="min-w-0">
@@ -678,12 +678,12 @@ const Booking = () => {
                                 aria-label="More travelers"
                                 disabled={travelers >= MAX_TRAVELERS}
                                 onClick={() => setTravelers((n) => Math.min(MAX_TRAVELERS, n + 1))}
-                                className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-btn text-white transition hover:bg-lagoon active:scale-90 disabled:opacity-40 sm:h-14 sm:w-14"
+                                className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-btn text-white transition hover:bg-brand active:scale-90 disabled:opacity-40 sm:h-14 sm:w-14"
                               >
                                 <FiPlus size={22} />
                               </button>
                             </div>
-                            <span className="relative z-10 -mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-lagoon/10 px-4 py-1.5 text-xs font-semibold text-lagoon-ink ring-4 ring-surface sm:text-sm">
+                            <span className="relative z-10 -mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-4 py-1.5 text-xs font-semibold text-brand-ink ring-4 ring-surface sm:text-sm">
                               <FiUsers size={15} />
                               <span className="tabular-nums">{travelers}</span> {travelers === 1 ? "traveler" : "travelers"}
                             </span>
@@ -698,8 +698,8 @@ const Booking = () => {
                               step={1}
                               value={travelers}
                               onChange={(ev) => setTravelers(+ev.target.value)}
-                              className="w-full accent-lagoon"
-                              style={{ background: `linear-gradient(90deg,rgb(var(--lagoon)) ${pct}%,rgb(var(--line)) ${pct}%)`, height: 6, borderRadius: 99, appearance: "auto" }}
+                              className="w-full accent-brand"
+                              style={{ background: `linear-gradient(90deg,rgb(var(--brand)) ${pct}%,rgb(var(--line)) ${pct}%)`, height: 6, borderRadius: 99, appearance: "auto" }}
                             />
                             <div className="mt-1 flex justify-between px-0.5 text-xs font-medium tabular-nums text-muted">
                               <span>1</span>
@@ -716,8 +716,8 @@ const Booking = () => {
                                 aria-pressed={travelers === n}
                                 className={`h-9 min-w-[3rem] rounded-full px-4 text-xs font-semibold tabular-nums ring-1 transition active:scale-95 ${
                                   travelers === n
-                                    ? "bg-lagoon/10 text-lagoon-ink ring-2 ring-lagoon"
-                                    : "bg-surface text-muted ring-line hover:ring-lagoon/60"
+                                    ? "bg-brand/10 text-brand-ink ring-2 ring-brand"
+                                    : "bg-surface text-muted ring-line hover:ring-brand/60"
                                 }`}
                               >
                                 {n}
@@ -749,7 +749,7 @@ const Booking = () => {
                           <Heading title={date ? fmtLong(date) : "Then review your day"} text={date ? "Your preferred start date." : "Select a date on the calendar."} />
                           <div className="space-y-3">
                             <div className="flex items-center gap-3.5 rounded-2xl bg-sandy p-4 ring-1 ring-line">
-                              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-surface text-lagoon-ink">
+                              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-surface text-brand-ink">
                                 <FiCalendar size={20} />
                               </span>
                               <div>
@@ -758,7 +758,7 @@ const Booking = () => {
                               </div>
                             </div>
                             <div className="flex items-center gap-3.5 rounded-2xl bg-sandy p-4 ring-1 ring-line">
-                              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-surface text-lagoon-ink">
+                              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-surface text-brand-ink">
                                 <FiClock size={20} />
                               </span>
                               <div>
@@ -778,8 +778,8 @@ const Booking = () => {
                     {step === 2 && (
                       <div className="space-y-7">
                         {!user && (
-                          <div className="flex gap-3 items-start bg-lagoon/8 border border-lagoon/20 rounded-2xl p-4">
-                            <FiLock className="text-lagoon-ink mt-0.5 shrink-0" />
+                          <div className="flex gap-3 items-start bg-brand/8 border border-brand/20 rounded-2xl p-4">
+                            <FiLock className="text-brand-ink mt-0.5 shrink-0" />
                             <p className="text-xs text-ink/80 leading-relaxed">
                               Fill in your details freely. You'll be asked to <b>log in only when you confirm</b> — your answers stay saved.
                             </p>
@@ -856,7 +856,7 @@ const Booking = () => {
                             <button
                               type="button"
                               onClick={() => jump(to)}
-                              className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-lagoon-ink ring-1 ring-lagoon/30 transition hover:ring-lagoon"
+                              className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-brand-ink ring-1 ring-brand/30 transition hover:ring-brand"
                             >
                               <FiEdit2 size={14} /> Edit
                             </button>
@@ -881,14 +881,14 @@ const Booking = () => {
                         </div>
                         <label
                           className={`flex cursor-pointer items-start gap-3 rounded-2xl p-4 ring-1 transition ${
-                            agree ? "bg-lagoon/8 ring-lagoon" : tried && !agree ? "ring-red-400" : "ring-line"
+                            agree ? "bg-brand/8 ring-brand" : tried && !agree ? "ring-red-400" : "ring-line"
                           }`}
                         >
                           <input type="checkbox" checked={agree} onChange={(ev) => setAgree(ev.target.checked)} className="peer sr-only" />
                           <span
                             aria-hidden
-                            className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md ring-1 transition peer-focus-visible:ring-2 peer-focus-visible:ring-lagoon ${
-                              agree ? "bg-lagoon text-white ring-lagoon" : "bg-surface text-transparent ring-line"
+                            className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md ring-1 transition peer-focus-visible:ring-2 peer-focus-visible:ring-brand ${
+                              agree ? "bg-brand text-white ring-brand" : "bg-surface text-transparent ring-line"
                             }`}
                           >
                             <FiCheck size={14} strokeWidth={3} />
@@ -898,8 +898,8 @@ const Booking = () => {
                           </span>
                         </label>
                         {!user && (
-                          <div className="rounded-2xl bg-lagoon/8 p-4 text-center ring-1 ring-lagoon/20">
-                            <p className="text-sm font-semibold text-lagoon-ink">Log in to send your request</p>
+                          <div className="rounded-2xl bg-brand/8 p-4 text-center ring-1 ring-brand/20">
+                            <p className="text-sm font-semibold text-brand-ink">Log in to send your request</p>
                             <p className="mt-1 text-xs text-muted">Your details are saved, you will come right back here.</p>
                           </div>
                         )}
@@ -923,7 +923,7 @@ const Booking = () => {
                       type="button"
                       onClick={() => setSheet(true)}
                       aria-label="Show request summary"
-                      className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl bg-lagoon/8 px-3 py-2 text-left ring-1 ring-lagoon/15 sm:mr-auto sm:max-w-[17rem] sm:flex-none lg:pointer-events-none lg:cursor-default"
+                      className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl bg-brand/8 px-3 py-2 text-left ring-1 ring-brand/15 sm:mr-auto sm:max-w-[17rem] sm:flex-none lg:pointer-events-none lg:cursor-default"
                     >
                       <span className="min-w-0">
                         <span className="block truncate text-[11px] text-muted sm:text-xs">Total estimate</span>
@@ -935,7 +935,7 @@ const Booking = () => {
                         type="button"
                         onClick={() => go(1)}
                         aria-disabled={!stepOk[step]()}
-                        className={`group inline-flex h-12 items-center gap-2 rounded-full bg-btn px-6 text-sm font-bold text-white transition hover:bg-lagoon active:scale-95 sm:px-8 ${stepOk[step]() ? "" : "opacity-80"}`}
+                        className={`group inline-flex h-12 items-center gap-2 rounded-full bg-btn px-6 text-sm font-bold text-white transition hover:bg-brand active:scale-95 sm:px-8 ${stepOk[step]() ? "" : "opacity-80"}`}
                       >
                         Continue <FiArrowRight className="transition-transform group-hover:translate-x-1" />
                       </button>
@@ -944,9 +944,9 @@ const Booking = () => {
                         type="button"
                         onClick={submit}
                         disabled={submitting}
-                        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] px-5 text-sm font-black text-navy transition hover:shadow-lg hover:shadow-[#c9a84c]/30 active:scale-95 disabled:opacity-60 sm:px-8"
+                        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-cta to-accent-lt px-5 text-sm font-black text-deep transition hover:shadow-lg hover:shadow-accent/30 active:scale-95 disabled:opacity-60 sm:px-8"
                       >
-                        {submitting && <span className="h-4 w-4 animate-spin rounded-full border-2 border-navy/30 border-t-navy" />}
+                        {submitting && <span className="h-4 w-4 animate-spin rounded-full border-2 border-deep/30 border-t-deep" />}
                         {submitting ? "Submitting…" : user ? "Confirm request" : "Log in to confirm"}
                       </button>
                     )}
@@ -962,7 +962,7 @@ const Booking = () => {
               <ul className="grid grid-cols-2 gap-2 px-2 text-[11px] font-semibold text-muted">
                 {["No payment now", "Reply within 24h", "Cancel while pending", "Secure login"].map((t) => (
                   <li key={t} className="flex items-center gap-1.5">
-                    <FiCheck className="text-lagoon-ink" /> {t}
+                    <FiCheck className="text-brand-ink" /> {t}
                   </li>
                 ))}
               </ul>
@@ -976,11 +976,11 @@ const Booking = () => {
             <div className="h-full bg-surface border border-line rounded-[28px] p-7 md:p-9 shadow-sm">
               <h2 className="text-3xl font-black mb-4" style={serif}>Trip Overview</h2>
               <p className="text-muted leading-relaxed whitespace-pre-line">{service.about}</p>
-              <h3 className="font-black uppercase tracking-widest text-[10px] text-lagoon-ink mt-9 mb-4">What's included</h3>
+              <h3 className="font-black uppercase tracking-widest text-[10px] text-brand-ink mt-9 mb-4">What's included</h3>
               <div className="grid sm:grid-cols-2 gap-3">
                 {inclusions.map((item) => (
                   <div key={item} className="flex items-center gap-3 p-3.5 rounded-2xl bg-sandy">
-                    <span className="w-7 h-7 rounded-xl bg-lagoon/10 flex items-center justify-center text-lagoon-ink shrink-0">
+                    <span className="w-7 h-7 rounded-xl bg-brand/10 flex items-center justify-center text-brand-ink shrink-0">
                       <FiCheck size={14} />
                     </span>
                     <span className="text-sm text-muted font-medium">{item}</span>
@@ -1028,7 +1028,7 @@ const Booking = () => {
                     </div>
                     <div className="p-5 flex items-center justify-between gap-3">
                       <p className="font-bold leading-tight line-clamp-2">{s.name}</p>
-                      <p className="font-bold text-coral shrink-0">{s.balance}</p>
+                      <p className="font-bold text-accent shrink-0">{s.balance}</p>
                     </div>
                   </Link>
                 </TiltCard>
@@ -1041,7 +1041,7 @@ const Booking = () => {
       <AnimatePresence>
         {sheet && (
           <div className="fixed inset-0 z-[70] flex items-end justify-center p-4 sm:items-center lg:hidden">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSheet(false)} className="absolute inset-0 bg-navy/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSheet(false)} className="absolute inset-0 bg-scrim/60 backdrop-blur-sm" />
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}

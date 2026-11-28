@@ -1,4 +1,5 @@
 // src/Components/Auth/Registration.js
+import Logo from "../ui/Logo";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -27,7 +28,7 @@ const auth = getAuth(app);
 
 const Rule = ({ met, label }) => (
   <li
-    className={`flex items-center gap-2 text-xs font-bold ${met ? "text-lagoon-ink" : "text-muted"}`}
+    className={`flex items-center gap-2 text-xs font-bold ${met ? "text-brand-ink" : "text-muted"}`}
   >
     {met ? <FiCheck /> : <FiX />} {label}
   </li>
@@ -127,8 +128,8 @@ const Registration = () => {
   const inputClass = (field) =>
     `w-full border bg-page-alt py-4 pl-11 pr-4 text-sm text-ink placeholder:text-muted/60 focus:outline-none ${
       errors[field]
-        ? "border-coral"
-        : "border-line focus:border-lagoon"
+        ? "border-accent"
+        : "border-line focus:border-brand"
     }`;
 
   return (
@@ -140,15 +141,15 @@ const Registration = () => {
             alt="Create travel account"
             className="absolute inset-0 h-full w-full object-cover opacity-48"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/55 to-transparent" />
-          <div className="absolute bottom-0 p-10 text-white">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f4c76b]">
+          <div className="absolute inset-0 bg-gradient-to-t from-scrim via-scrim/55 to-transparent" />
+          <div className="absolute bottom-0 p-10 text-on">
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-accent-lt">
               Start Planning
             </p>
             <h1 className="mt-4 text-5xl font-black tracking-tight">
               Your next journey deserves a better desk.
             </h1>
-            <p className="mt-5 text-sm leading-7 text-white/68">
+            <p className="mt-5 text-sm leading-7 text-on/68">
               Create an account to request trips and keep your planning
               conversations in one place.
             </p>
@@ -156,7 +157,8 @@ const Registration = () => {
         </div>
 
         <div className="border border-line bg-surface p-7 shadow-sm md:p-10">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-lagoon-ink">
+          <Logo variant="full" className="mx-auto mb-6 h-24 w-auto" />
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-brand-ink">
             Create Account
           </p>
           <h2 className="mt-3 text-4xl font-black tracking-tight">
@@ -167,7 +169,7 @@ const Registration = () => {
             <Link
               to="/login"
               state={{ from: location.state?.from }}
-              className="font-black text-coral"
+              className="font-black text-accent"
             >
               Sign in
             </Link>
@@ -189,7 +191,7 @@ const Registration = () => {
                 />
               </div>
               {errors.name && (
-                <p className="mt-2 text-xs font-bold text-coral">
+                <p className="mt-2 text-xs font-bold text-accent">
                   {errors.name}
                 </p>
               )}
@@ -211,7 +213,7 @@ const Registration = () => {
                 />
               </div>
               {errors.email && (
-                <p className="mt-2 text-xs font-bold text-coral">
+                <p className="mt-2 text-xs font-bold text-accent">
                   {errors.email}
                 </p>
               )}
@@ -247,7 +249,7 @@ const Registration = () => {
                 <Rule met={rules.number} label="Number" />
               </ul>
               {errors.password && (
-                <p className="mt-2 text-xs font-bold text-coral">
+                <p className="mt-2 text-xs font-bold text-accent">
                   {errors.password}
                 </p>
               )}
@@ -269,7 +271,7 @@ const Registration = () => {
                 />
               </div>
               {errors.confirm && (
-                <p className="mt-2 text-xs font-bold text-coral">
+                <p className="mt-2 text-xs font-bold text-accent">
                   {errors.confirm}
                 </p>
               )}
@@ -277,7 +279,7 @@ const Registration = () => {
 
             <button
               disabled={loading}
-              className="inline-flex w-full items-center justify-center gap-2 bg-btn px-7 py-4 text-xs font-black uppercase tracking-[0.16em] text-white transition hover:bg-lagoon disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 bg-btn px-7 py-4 text-xs font-black uppercase tracking-[0.16em] text-white transition hover:bg-brand disabled:opacity-60"
             >
               {loading ? "Creating..." : "Create Account"} <FiArrowRight />
             </button>
@@ -295,11 +297,11 @@ const Registration = () => {
             <button
               onClick={handleGoogleSignUp}
               disabled={googleLoading}
-              className="flex items-center justify-center gap-3 border border-line px-5 py-4 text-sm font-bold transition hover:border-lagoon disabled:opacity-60"
+              className="flex items-center justify-center gap-3 border border-line px-5 py-4 text-sm font-bold transition hover:border-brand disabled:opacity-60"
             >
               {googleLoading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-muted/30 border-t-lagoon rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-muted/30 border-t-brand rounded-full animate-spin" />
                   Connecting…
                 </>
               ) : (

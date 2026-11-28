@@ -1,3 +1,4 @@
+import Logo from "../ui/Logo";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
@@ -71,13 +72,14 @@ const ForgotPassword = () => {
       <div className="max-w-md mx-auto px-6 py-16">
         <Link
           to="/login"
-          className="inline-flex items-center gap-2 text-lagoon-ink mb-8 hover:gap-3 transition-all"
+          className="inline-flex items-center gap-2 text-brand-ink mb-8 hover:gap-3 transition-all"
         >
           <FiArrowLeft /> Back to Sign In
         </Link>
 
         {!success ? (
           <div className="bg-surface border border-line rounded-3xl p-8 md:p-10 shadow-sm">
+          <Logo variant="full" className="mx-auto mb-6 h-24 w-auto" />
             <h2 className="text-4xl font-black tracking-tight mb-2">
               Forgot Password?
             </h2>
@@ -98,7 +100,7 @@ const ForgotPassword = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     required
-                    className="w-full border border-line bg-page-alt py-4 pl-11 pr-4 rounded-2xl focus:outline-none focus:border-lagoon"
+                    className="w-full border border-line bg-page-alt py-4 pl-11 pr-4 rounded-2xl focus:outline-none focus:border-brand"
                   />
                 </div>
               </div>
@@ -106,7 +108,7 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 bg-btn text-white font-black uppercase tracking-widest rounded-2xl hover:bg-lagoon disabled:opacity-70 transition"
+                className="w-full py-4 bg-btn text-white font-black uppercase tracking-widest rounded-2xl hover:bg-brand disabled:opacity-70 transition"
               >
                 {loading ? "Sending..." : "Send Reset Link"}
               </button>
@@ -116,7 +118,7 @@ const ForgotPassword = () => {
           /* Success State with Resend */
           <div className="bg-surface border border-line rounded-3xl p-10 text-center shadow-sm">
             <div className="mx-auto w-20 h-20 flex items-center justify-center bg-green-100 rounded-full text-5xl mb-6">
-              <FiCheckCircle className="text-lagoon-ink" />
+              <FiCheckCircle className="text-brand-ink" />
             </div>
 
             <h2 className="text-3xl font-black mb-3">Check Your Email</h2>
@@ -129,7 +131,7 @@ const ForgotPassword = () => {
               <button
                 onClick={() => sendResetEmail(true)}
                 disabled={resendLoading || cooldown > 0}
-                className="w-full py-4 border border-line hover:border-lagoon rounded-2xl font-medium flex items-center justify-center gap-3 transition disabled:opacity-50"
+                className="w-full py-4 border border-line hover:border-brand rounded-2xl font-medium flex items-center justify-center gap-3 transition disabled:opacity-50"
               >
                 <FiRefreshCw className={resendLoading ? "animate-spin" : ""} />
                 {cooldown > 0
@@ -139,7 +141,7 @@ const ForgotPassword = () => {
 
               <button
                 onClick={() => navigate("/login")}
-                className="w-full py-4 bg-btn text-white font-black rounded-2xl hover:bg-lagoon transition"
+                className="w-full py-4 bg-btn text-white font-black rounded-2xl hover:bg-brand transition"
               >
                 Back to Sign In
               </button>

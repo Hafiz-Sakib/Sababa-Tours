@@ -97,13 +97,13 @@ const Empty = ({ icon, title, text }) => (
   </div>
 );
 
-const StatCard = ({ icon, label, value, prefix = "", sub, tone = "navy", i = 0 }) => {
+const StatCard = ({ icon, label, value, prefix = "", sub, tone = "ink", i = 0 }) => {
   const tones = {
-    navy: "bg-ink/8 text-ink",
+    ink: "bg-ink/8 text-ink",
     amber: "bg-amber-100 text-amber-600",
     green: "bg-emerald-100 text-emerald-600",
-    coral: "bg-coral/12 text-coral",
-    teal: "bg-lagoon/10 text-lagoon-ink",
+    accent: "bg-accent/12 text-accent",
+    brand: "bg-brand/10 text-brand-ink",
   };
   return (
     <motion.div
@@ -111,7 +111,7 @@ const StatCard = ({ icon, label, value, prefix = "", sub, tone = "navy", i = 0 }
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: i * 0.07, type: "spring", stiffness: 260, damping: 24 }}
       whileHover={{ y: -4 }}
-      className="bg-surface rounded-3xl border border-line p-5 flex items-start gap-4 shadow-[0_8px_30px_rgba(13,31,53,0.05)] hover:shadow-[0_20px_50px_rgba(13,31,53,0.12)] transition-shadow"
+      className="bg-surface rounded-3xl border border-line p-5 flex items-start gap-4 shadow-[0_8px_30px_rgba(16,24,40,0.05)] hover:shadow-[0_20px_50px_rgba(16,24,40,0.12)] transition-shadow"
     >
       <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shrink-0 ${tones[tone]}`}>
         {icon}
@@ -148,7 +148,7 @@ const ConfirmDialog = ({ open, title, text, confirmLabel, danger, busy, onConfir
           <button
             onClick={onConfirm}
             disabled={busy}
-            className={`flex-1 py-3 rounded-2xl text-sm font-bold text-white disabled:opacity-60 ${danger ? "bg-red-500 hover:bg-red-600" : "bg-btn hover:bg-lagoon"}`}
+            className={`flex-1 py-3 rounded-2xl text-sm font-bold text-white disabled:opacity-60 ${danger ? "bg-red-500 hover:bg-red-600" : "bg-btn hover:bg-brand"}`}
           >
             {busy ? "Please wait…" : confirmLabel}
           </button>
@@ -163,7 +163,7 @@ const ConfirmDialog = ({ open, title, text, confirmLabel, danger, busy, onConfir
 /* ───────────── Booking drawer ───────────── */
 const Row = ({ icon, label, children }) => (
   <div className="flex gap-3 py-3.5 border-b border-line last:border-0">
-    <div className="w-8 h-8 rounded-lg bg-sandy text-lagoon-ink flex items-center justify-center shrink-0">
+    <div className="w-8 h-8 rounded-lg bg-sandy text-brand-ink flex items-center justify-center shrink-0">
       {icon}
     </div>
     <div className="min-w-0">
@@ -191,24 +191,24 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
         transition={{ type: "spring", stiffness: 320, damping: 34 }}
         className="fixed right-0 top-0 h-full w-full max-w-md bg-surface z-50 shadow-2xl flex flex-col"
       >
-        <div className="relative overflow-hidden p-6 bg-panel text-white">
+        <div className="relative overflow-hidden p-6 bg-panel text-on">
           <Aurora />
           <div className="relative">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-[#c9a84c] font-black">Booking</p>
+              <p className="text-[10px] uppercase tracking-widest text-accent font-black">Booking</p>
               <h2 className="text-2xl font-black leading-tight mt-1" style={serif}>
                 {b.serviceName}
               </h2>
-              <p className="text-[11px] text-white/50 font-mono mt-1">#{b._id}</p>
+              <p className="text-[11px] text-on/50 font-mono mt-1">#{b._id}</p>
             </div>
-            <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10" aria-label="Close">
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-on/10" aria-label="Close">
               <FiX size={18} />
             </button>
           </div>
           <div className="mt-4 flex items-center justify-between">
             <StatusBadge status={b.status} />
-            <p className="text-2xl font-black text-[#e8c96a]" style={serif}>
+            <p className="text-2xl font-black text-accent-lt" style={serif}>
               {fmtAmt(b.totalAmount)}
             </p>
           </div>
@@ -220,11 +220,11 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
             <b>{b.userName}</b>
           </Row>
           <Row icon={<FiMail size={14} />} label="Email">
-            <a className="text-lagoon-ink hover:underline" href={`mailto:${b.userEmail}`}>{b.userEmail}</a>
+            <a className="text-brand-ink hover:underline" href={`mailto:${b.userEmail}`}>{b.userEmail}</a>
           </Row>
           <Row icon={<FiPhone size={14} />} label="Phone">
             <div className="flex flex-wrap items-center gap-3">
-              <a className="text-lagoon-ink hover:underline" href={`tel:${b.phoneNumber}`}>{b.phoneNumber}</a>
+              <a className="text-brand-ink hover:underline" href={`tel:${b.phoneNumber}`}>{b.phoneNumber}</a>
               <a className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700" href={wa} target="_blank" rel="noreferrer">
                 WhatsApp
               </a>
@@ -291,7 +291,7 @@ const FormField = ({ label, required, error, children }) => (
   </div>
 );
 const inp = (err) =>
-  `w-full border rounded-xl px-3.5 py-2.5 text-sm outline-none bg-page-alt focus:bg-surface ${err ? "border-red-400" : "border-line focus:border-lagoon"}`;
+  `w-full border rounded-xl px-3.5 py-2.5 text-sm outline-none bg-page-alt focus:bg-surface ${err ? "border-red-400" : "border-line focus:border-brand"}`;
 
 const ServiceModal = ({ initial, onClose, onSave }) => {
   const [form, setForm] = useState(initial || EMPTY_SERVICE);
@@ -344,9 +344,9 @@ const ServiceModal = ({ initial, onClose, onSave }) => {
                 </div>
               )}
             </div>
-            <div className="mt-3 rounded-2xl bg-panel text-white p-4">
+            <div className="mt-3 rounded-2xl bg-panel text-on p-4">
               <p className="font-black leading-tight line-clamp-2" style={serif}>{form.name || "Package name"}</p>
-              <p className="text-[#e8c96a] font-black mt-1">{form.balance || "BDT —"}</p>
+              <p className="text-accent-lt font-black mt-1">{form.balance || "BDT —"}</p>
             </div>
           </div>
           <div className="space-y-4">
@@ -377,7 +377,7 @@ const ServiceModal = ({ initial, onClose, onSave }) => {
         </div>
         <div className="px-6 pb-6 flex gap-3">
           <button onClick={onClose} className="flex-1 py-3 rounded-2xl border border-line text-sm font-bold text-muted hover:bg-sandy">Cancel</button>
-          <button onClick={submit} disabled={saving} className="flex-1 py-3 rounded-2xl bg-btn text-white text-sm font-bold hover:bg-lagoon disabled:opacity-60">
+          <button onClick={submit} disabled={saving} className="flex-1 py-3 rounded-2xl bg-btn text-white text-sm font-bold hover:bg-brand disabled:opacity-60">
             {saving ? "Saving…" : isEdit ? "Save changes" : "Create package"}
           </button>
         </div>
@@ -429,14 +429,14 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
         <StatCard i={0} icon={<FiList />} label="Total bookings" value={bookings.length} sub={`${stats.pending} awaiting review`} />
         <StatCard i={1} icon={<FiClock />} tone="amber" label="Pending" value={stats.pending} sub={`${fmtAmt(stats.pipeline)} in pipeline`} />
         <StatCard i={2} icon={<FiCheckCircle />} tone="green" label="Confirmed" value={stats.confirmed} sub={`${stats.travelers} travelers`} />
-        <StatCard i={3} icon={<FiDollarSign />} tone="coral" label="Confirmed revenue" prefix="BDT " value={stats.revenue} sub={`${services.length} packages live`} />
+        <StatCard i={3} icon={<FiDollarSign />} tone="accent" label="Confirmed revenue" prefix="BDT " value={stats.revenue} sub={`${services.length} packages live`} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-surface rounded-3xl border border-line p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-black text-ink">Recent requests</h3>
-            <button onClick={() => goTab("bookings")} className="text-xs font-bold text-lagoon-ink hover:underline">View all</button>
+            <button onClick={() => goTab("bookings")} className="text-xs font-bold text-brand-ink hover:underline">View all</button>
           </div>
           {bookings.length === 0 ? (
             <Empty icon={<FiList />} title="No bookings yet" text="New requests will appear here." />
@@ -489,7 +489,7 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
                     </div>
                     <div className="h-2 rounded-full bg-sandy">
                       <motion.div
-                        className="h-2 rounded-full bg-gradient-to-r from-lagoon to-[#c9a84c]"
+                        className="h-2 rounded-full bg-gradient-to-r from-brand to-accent"
                         initial={{ width: 0 }}
                         animate={{ width: `${(n / stats.top[0][1]) * 100}%` }}
                         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -511,7 +511,7 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stats.upcoming.map((b) => (
               <button key={b._id} onClick={() => onOpen(b)} className="text-left rounded-2xl border border-line p-4 hover:shadow-lg hover:-translate-y-0.5 transition">
-                <p className="text-[10px] font-black uppercase tracking-widest text-lagoon-ink">{fmtDate(b.preferredDate)}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-brand-ink">{fmtDate(b.preferredDate)}</p>
                 <p className="font-black mt-1 line-clamp-1">{b.serviceName}</p>
                 <p className="text-xs text-muted mt-1">{b.userName} · {b.travelers} traveler{b.travelers > 1 ? "s" : ""}</p>
               </button>
@@ -571,7 +571,7 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete }
         <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, phone, package, ID…" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-page-alt border border-line text-sm outline-none focus:border-lagoon focus:bg-surface" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, phone, package, ID…" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-page-alt border border-line text-sm outline-none focus:border-brand focus:bg-surface" />
           </div>
           <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-4 py-3 rounded-2xl bg-page-alt border border-line text-sm font-semibold outline-none">
             <option value="date-desc">Newest requests</option>
@@ -579,7 +579,7 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete }
             <option value="trip">Trip date (soonest)</option>
             <option value="amount">Highest amount</option>
           </select>
-          <button onClick={exportCsv} disabled={!filtered.length} className="px-5 py-3 rounded-2xl bg-btn text-white text-sm font-bold hover:bg-lagoon disabled:opacity-40 flex items-center justify-center gap-2">
+          <button onClick={exportCsv} disabled={!filtered.length} className="px-5 py-3 rounded-2xl bg-btn text-white text-sm font-bold hover:bg-brand disabled:opacity-40 flex items-center justify-center gap-2">
             <FiDownload /> CSV
           </button>
         </div>
@@ -689,13 +689,13 @@ const ServicesPanel = ({ services, bookings, loading, onSave, onDelete }) => {
       <div className="flex flex-col md:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search packages…" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-surface border border-line text-sm outline-none focus:border-lagoon" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search packages…" className="w-full pl-11 pr-4 py-3 rounded-2xl bg-surface border border-line text-sm outline-none focus:border-brand" />
         </div>
         <select value={cat} onChange={(e) => setCat(e.target.value)} className="px-4 py-3 rounded-2xl bg-surface border border-line text-sm font-semibold outline-none">
           <option value="all">All categories</option>
           {categories.map((c) => <option key={c}>{c}</option>)}
         </select>
-        <button onClick={() => setModal({})} className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-navy text-sm font-black flex items-center justify-center gap-2 hover:shadow-lg">
+        <button onClick={() => setModal({})} className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cta to-accent-lt text-deep text-sm font-black flex items-center justify-center gap-2 hover:shadow-lg">
           <FiPlus /> New package
         </button>
       </div>
@@ -712,17 +712,17 @@ const ServicesPanel = ({ services, bookings, loading, onSave, onDelete }) => {
             <TiltCard key={s._id} max={4} className="bg-surface rounded-3xl border border-line overflow-hidden group hover:shadow-xl transition">
               <div className="relative aspect-[16/10] overflow-hidden bg-sandy">
                 <img src={s.picture} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" onError={(e) => (e.target.style.opacity = 0.2)} />
-                <span className="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">{s.category}</span>
-                <span className="absolute top-3 right-3 bg-navy/85 text-white text-[10px] font-bold px-3 py-1 rounded-full">{bookedCount[s._id] || 0} active</span>
+                <span className="absolute top-3 left-3 bg-on/90 backdrop-blur text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">{s.category}</span>
+                <span className="absolute top-3 right-3 bg-scrim/85 text-on text-[10px] font-bold px-3 py-1 rounded-full">{bookedCount[s._id] || 0} active</span>
               </div>
               <div className="p-5">
                 <h3 className="font-black leading-tight line-clamp-1">{s.name}</h3>
                 <p className="text-xs text-muted mt-1 flex items-center gap-1"><FiMapPin size={11} />{s.location} · {s.duration}</p>
                 <p className="text-sm text-muted mt-3 line-clamp-2">{s.about}</p>
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-line">
-                  <p className="font-black text-coral text-lg" style={serif}>{s.balance}</p>
+                  <p className="font-black text-accent text-lg" style={serif}>{s.balance}</p>
                   <div className="flex gap-1">
-                    <button onClick={() => setModal(s)} className="p-2.5 rounded-xl text-lagoon-ink hover:bg-lagoon/10" title="Edit"><FiEdit2 size={16} /></button>
+                    <button onClick={() => setModal(s)} className="p-2.5 rounded-xl text-brand-ink hover:bg-brand/10" title="Edit"><FiEdit2 size={16} /></button>
                     <button onClick={() => onDelete(s, bookedCount[s._id] || 0)} className="p-2.5 rounded-xl text-red-500 hover:bg-red-50" title="Delete"><FiTrash2 size={16} /></button>
                   </div>
                 </div>
@@ -882,7 +882,7 @@ const AdminDashboard = () => {
   if (authLoading) {
     return (
       <main className="min-h-screen bg-sandy pt-[76px] flex items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-line border-t-lagoon" />
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-line border-t-brand" />
       </main>
     );
   }
@@ -903,19 +903,19 @@ const AdminDashboard = () => {
 
   return (
     <main className="min-h-screen bg-sandy pt-[76px] pb-16">
-      <section className="relative overflow-hidden bg-panel text-white">
+      <section className="relative overflow-hidden bg-panel text-on">
         <Aurora />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12 flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-[#e8c96a] font-black">Sababa Tours</p>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-accent-lt font-black">Sababa Tours</p>
             <h1 className="text-4xl md:text-6xl font-black mt-2" style={serif}><BlurText text="Admin Dashboard" /></h1>
-            <p className="text-white/60 text-sm mt-2">Signed in as {user.email}</p>
+            <p className="text-on/60 text-sm mt-2">Signed in as {user.email}</p>
           </div>
           <div className="flex gap-3">
-            <button onClick={loadAll} className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm font-bold flex items-center gap-2">
+            <button onClick={loadAll} className="px-5 py-3 rounded-2xl bg-on/10 hover:bg-on/20 border border-on/20 text-sm font-bold flex items-center gap-2">
               <FiRefreshCw className={loading ? "animate-spin" : ""} /> Refresh
             </button>
-            <button onClick={() => setTab("services")} className="px-5 py-3 rounded-2xl bg-[#e8c96a] text-navy text-sm font-black flex items-center gap-2 hover:shadow-lg">
+            <button onClick={() => setTab("services")} className="px-5 py-3 rounded-2xl bg-accent-lt text-deep text-sm font-black flex items-center gap-2 hover:shadow-lg">
               <FiPlus /> Packages
             </button>
           </div>

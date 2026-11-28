@@ -1,5 +1,5 @@
 // src/Components/Blogs/Blogs.js
-// Travel journal: featured story, category tabs, search, expandable articles, FAQ.
+// Travel Blog: featured story, category tabs, search, expandable articles, FAQ.
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiArrowRight, FiCalendar, FiChevronDown, FiClock, FiSearch, FiTag } from "react-icons/fi";
@@ -39,9 +39,9 @@ const categories = ["All", ...new Set(articles.map((a) => a.category))];
 
 const Meta = ({ a }) => (
   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-bold uppercase tracking-widest text-muted">
-    <span className="flex items-center gap-1.5"><FiTag className="text-lagoon-ink" /> {a.category}</span>
-    <span className="flex items-center gap-1.5"><FiCalendar className="text-lagoon-ink" /> {a.date}</span>
-    <span className="flex items-center gap-1.5"><FiClock className="text-lagoon-ink" /> {a.read}</span>
+    <span className="flex items-center gap-1.5"><FiTag className="text-brand-ink" /> {a.category}</span>
+    <span className="flex items-center gap-1.5"><FiCalendar className="text-brand-ink" /> {a.date}</span>
+    <span className="flex items-center gap-1.5"><FiClock className="text-brand-ink" /> {a.read}</span>
   </div>
 );
 
@@ -68,7 +68,7 @@ const Toggle = ({ open, onClick }) => (
     type="button"
     onClick={onClick}
     aria-expanded={open}
-    className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-lagoon-ink transition-all hover:gap-3"
+    className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-3"
   >
     {open ? "Show less" : "Read the notes"}
     <motion.span animate={{ rotate: open ? 180 : 0 }}><FiChevronDown /></motion.span>
@@ -98,19 +98,19 @@ const Blogs = () => {
       <ScrollProgress />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-panel2 py-20 md:py-28 text-white">
+      <section className="relative overflow-hidden bg-panel2 py-20 md:py-28 text-on">
         <img
           src="https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1600&q=85"
-          alt="Travel journal"
+          alt="Travel Blog"
           className="absolute inset-0 h-full w-full object-cover opacity-25"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/80 to-navy/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-scrim/95 via-scrim/80 to-scrim/70" />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
-          <p className="text-[#f4c76b] uppercase tracking-[0.25em] text-sm font-bold">Travel Journal</p>
+          <p className="text-accent-lt uppercase tracking-[0.25em] text-sm font-bold">Travel Blog</p>
           <h1 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-tight">
             <BlurText text="Useful insight before you pack." />
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-white/80">
+          <p className="mt-6 max-w-2xl text-lg text-on/80">
             Destination guides, planning advice, and stories from the field by the Sababa travel desk.
           </p>
         </div>
@@ -131,7 +131,7 @@ const Blogs = () => {
               placeholder="Search articles..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full border border-line bg-page-alt pl-11 pr-4 py-4 rounded-2xl focus:border-lagoon outline-none"
+              className="w-full border border-line bg-page-alt pl-11 pr-4 py-4 rounded-2xl focus:border-brand outline-none"
             />
           </div>
         </div>
@@ -143,7 +143,7 @@ const Blogs = () => {
         {filtered.length === 0 ? (
           <div className="rounded-3xl border border-line bg-surface py-16 text-center">
             <p className="text-lg font-bold">Nothing matches that search.</p>
-            <button onClick={() => { setSearchTerm(""); setActiveCategory("All"); }} className="mt-4 rounded-full bg-btn px-6 py-3 text-sm font-bold text-white hover:bg-lagoon">
+            <button onClick={() => { setSearchTerm(""); setActiveCategory("All"); }} className="mt-4 rounded-full bg-btn px-6 py-3 text-sm font-bold text-white hover:bg-brand">
               Clear filters
             </button>
           </div>
@@ -154,7 +154,7 @@ const Blogs = () => {
               <article className="grid overflow-hidden rounded-[2rem] border border-line bg-surface shadow-sm lg:grid-cols-2">
                 <div className="relative min-h-[260px] overflow-hidden">
                   <img src={featured.image} alt={featured.title} className="absolute inset-0 h-full w-full object-cover" />
-                  <span className="absolute left-5 top-5 rounded-full bg-[#f4c76b] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-navy">Featured</span>
+                  <span className="absolute left-5 top-5 rounded-full bg-accent-lt px-3 py-1 text-[10px] font-black uppercase tracking-widest text-deep">Featured</span>
                 </div>
                 <div className="p-8 md:p-10">
                   <Meta a={featured} />
@@ -196,16 +196,16 @@ const Blogs = () => {
 
         {/* Guide promo */}
         <Reveal delay={0.05}>
-          <div className="mt-14 flex flex-col items-center justify-between gap-6 rounded-[2rem] bg-panel2 p-8 text-white md:flex-row md:p-10">
+          <div className="mt-14 flex flex-col items-center justify-between gap-6 rounded-[2rem] bg-panel2 p-8 text-on md:flex-row md:p-10">
             <div>
               <h3 className="text-2xl font-black">Ready to pack?</h3>
-              <p className="mt-1 text-white/65">Use the travel guide's checklist, or see which month suits your destination.</p>
+              <p className="mt-1 text-on/65">Use the travel guide's checklist, or see which month suits your destination.</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link to="/guide" className="inline-flex items-center gap-2 rounded-full bg-[#f4c76b] px-7 py-3.5 text-sm font-black uppercase tracking-widest text-navy">
+              <Link to="/guide" className="inline-flex items-center gap-2 rounded-full bg-accent-lt px-7 py-3.5 text-sm font-black uppercase tracking-widest text-deep">
                 Travel guide <FiArrowRight />
               </Link>
-              <Link to="/destinations" className="rounded-full border border-white/30 px-7 py-3.5 text-sm font-bold">Destinations</Link>
+              <Link to="/destinations" className="rounded-full border border-on/30 px-7 py-3.5 text-sm font-bold">Destinations</Link>
             </div>
           </div>
         </Reveal>
@@ -215,12 +215,12 @@ const Blogs = () => {
       <section className="bg-surface py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid lg:grid-cols-2 gap-12">
           <div>
-            <p className="text-lagoon-ink uppercase tracking-widest text-sm font-bold">FAQ</p>
+            <p className="text-brand-ink uppercase tracking-widest text-sm font-bold">FAQ</p>
             <h2 className="mt-4 text-4xl md:text-5xl font-black leading-tight">Common questions, clear answers.</h2>
             <p className="mt-6 text-muted text-lg">
               Need something specific? Reach out — we’re happy to help shape your journey.
             </p>
-            <Link to="/contact" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-lagoon-ink transition-all hover:gap-4">
+            <Link to="/contact" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-4">
               Talk to the desk <FiArrowRight />
             </Link>
           </div>

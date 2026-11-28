@@ -18,13 +18,13 @@ const Modal = ({ closeModal, service, travelers, date, bookingId, total }) => {
     : "To be confirmed";
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-navy/85 backdrop-blur-xl p-4">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-scrim/85 backdrop-blur-xl p-4">
       <div
-        className="relative w-full max-w-lg bg-surface rounded-[32px] shadow-[0_32px_80px_rgba(13,31,53,0.35)] overflow-hidden animate-scale-in"
+        className="relative w-full max-w-lg bg-surface rounded-[32px] shadow-[0_32px_80px_rgba(16,24,40,0.35)] overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Gold top accent */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#c9a84c] via-[#e8c96a] to-lagoon" />
+        {/* Accent top bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cta via-accent-lt to-brand" />
 
         {/* Close */}
         <button
@@ -37,7 +37,7 @@ const Modal = ({ closeModal, service, travelers, date, bookingId, total }) => {
 
         <div className="p-10 text-center">
           {/* Success icon */}
-          <div className="mx-auto w-20 h-20 flex items-center justify-center rounded-full bg-lagoon/10 border-2 border-lagoon/20 text-5xl text-lagoon-ink mb-8 animate-float">
+          <div className="mx-auto w-20 h-20 flex items-center justify-center rounded-full bg-brand/10 border-2 border-brand/20 text-5xl text-brand-ink mb-8 animate-float">
             <FiCheckCircle />
           </div>
 
@@ -83,7 +83,7 @@ const Modal = ({ closeModal, service, travelers, date, bookingId, total }) => {
                   : []),
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-lagoon/10 flex items-center justify-center text-lagoon-ink">
+                  <div className="w-9 h-9 rounded-xl bg-brand/10 flex items-center justify-center text-brand-ink">
                     {item.icon}
                   </div>
                   <div>
@@ -116,7 +116,7 @@ const Modal = ({ closeModal, service, travelers, date, bookingId, total }) => {
             </button>
             <Link
               to="/my-bookings"
-              className="py-4 bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-navy rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-[#c9a84c]/25 hover:scale-[1.02] transition-all duration-300 btn-glow"
+              className="py-4 bg-gradient-to-r from-cta to-accent-lt text-deep rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-accent/25 hover:scale-[1.02] transition-all duration-300 btn-glow"
             >
               My Bookings <FiArrowRight size={14} />
             </Link>

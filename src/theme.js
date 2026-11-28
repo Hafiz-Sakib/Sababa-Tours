@@ -20,7 +20,7 @@ export const isDark = () => !!root && root.classList.contains("dark");
    The toggle icons glide for 60% of SWITCH_MS, so the icon has settled before the circle finishes. */
 export const SWITCH_MS = 1100;
 const SWITCH_EASE = "cubic-bezier(.5,.05,.25,1)";
-const PAGE_BG = { light: "#f6f2ea", dark: "#070f1b" };
+const PAGE_BG = { light: "#FAFDFD", dark: "#080E18" };
 
 function paint(dark) {
   root.classList.toggle("dark", dark);

@@ -73,7 +73,7 @@ const TripCalendar = ({ value, onChange, min, maxDays = 365 }) => {
                   ? "text-white"
                   : off
                     ? "text-muted/40"
-                    : "bg-sandy text-ink hover:bg-lagoon/10 hover:text-lagoon-ink"
+                    : "bg-sandy text-ink hover:bg-brand/10 hover:text-brand-ink"
               }`}
             >
               {sel && (
