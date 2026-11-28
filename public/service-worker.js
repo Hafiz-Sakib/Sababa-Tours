@@ -3,7 +3,7 @@
    - pages: network first, falls back to the cached app, then /offline.html
    - API / Firebase / payment calls are NEVER cached (cross-origin non-image requests pass straight through)
    Bump VERSION to force every visitor to refresh the caches. */
-const VERSION = "sababa-v4";
+const VERSION = "sababa-v5";
 const SHELL = `${VERSION}-shell`;
 const ASSETS = `${VERSION}-assets`;
 const IMAGES = `${VERSION}-images`;
@@ -87,6 +87,7 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (!/^https?:$/.test(url.protocol)) return;
+  if (url.pathname.startsWith("/__/")) return; // Firebase auth handler: never cache or intercept
 
   // page navigations
   if (request.mode === "navigate") {

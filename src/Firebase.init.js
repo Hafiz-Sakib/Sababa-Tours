@@ -2,9 +2,18 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
+// On the live site, run the Google/Firebase auth handler on our own domain (proxied by
+// vercel.json). Browsers that block third-party storage otherwise lose the sign-in result
+// when the site (vercel.app) and authDomain (firebaseapp.com) differ.
+const PROD_HOST = "sababa-tours.vercel.app";
+const authDomain =
+  typeof window !== "undefined" && window.location.hostname === PROD_HOST
+    ? PROD_HOST
+    : "tour-guide-553b5.firebaseapp.com";
+
 const firebaseConfig = {
   apiKey: "AIzaSyAoj21_CgVl8LA9WUX-IfYIWYPQkzd1iN0",
-  authDomain: "tour-guide-553b5.firebaseapp.com",
+  authDomain,
   projectId: "tour-guide-553b5",
   storageBucket: "tour-guide-553b5.appspot.com",
   messagingSenderId: "654153106265",
