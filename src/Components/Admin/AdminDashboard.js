@@ -61,6 +61,7 @@ import {
   TiltCard,
   motion,
 } from "../ui/Motion";
+import { fixImageUrl, imgProps } from "../Utilities/image";
 
 const ADMIN_EMAIL = "hafizsakib5@gmail.com";
 const API_BOOKINGS = `${API_BASE_URL}/api/admin/bookings`;
@@ -399,7 +400,7 @@ const ServiceModal = ({ initial, onClose, onSave }) => {
     const ok = await onSave({
       ...form,
       name: form.name.trim(), about: form.about.trim(),
-      balance: form.balance.trim(), picture: form.picture.trim(),
+      balance: form.balance.trim(), picture: fixImageUrl(form.picture),
     });
     if (!ok) setSaving(false);
   };
@@ -416,7 +417,7 @@ const ServiceModal = ({ initial, onClose, onSave }) => {
           <div>
             <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-sandy flex items-center justify-center border border-line">
               {form.picture && imgOk ? (
-                <img src={form.picture} alt="Preview" className="w-full h-full object-cover" onError={() => setImgOk(false)} />
+                <img src={fixImageUrl(form.picture)} referrerPolicy="no-referrer" alt="Preview" className="w-full h-full object-cover" onError={() => setImgOk(false)} />
               ) : (
                 <div className="text-center text-muted text-xs p-4">
                   <FiImage size={30} className="mx-auto mb-2" />
@@ -451,7 +452,7 @@ const ServiceModal = ({ initial, onClose, onSave }) => {
               </FormField>
             </div>
             <FormField label="Image URL" required error={errors.picture}>
-              <input className={inp(errors.picture)} value={form.picture} onChange={set("picture")} placeholder="https://images.unsplash.com/…" />
+              <input className={inp(errors.picture)} value={form.picture} onChange={set("picture")} placeholder="Any image link: https://…" />
             </FormField>
           </div>
         </div>
@@ -798,7 +799,7 @@ const ServicesPanel = ({ services, bookings, loading, onSave, onDelete }) => {
           {filtered.map((s) => (
             <TiltCard key={s._id} max={4} className="bg-surface rounded-3xl border border-line overflow-hidden group hover:shadow-xl transition">
               <div className="relative aspect-[16/10] overflow-hidden bg-sandy">
-                <img src={s.picture} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" onError={(e) => (e.target.style.opacity = 0.2)} />
+                <img {...imgProps(s.picture)} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                 <span className="absolute top-3 left-3 bg-on/90 backdrop-blur text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">{s.category}</span>
                 <span className="absolute top-3 right-3 bg-scrim/85 text-on text-[10px] font-bold px-3 py-1 rounded-full">{bookedCount[s._id] || 0} active</span>
               </div>

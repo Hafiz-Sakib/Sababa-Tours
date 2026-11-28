@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { TiltCard } from "../ui/Motion";
 import { FiArrowRight, FiClock, FiMapPin, FiStar } from "react-icons/fi";
+import { imgProps } from "../Utilities/image";
 
 const ServiceCard = ({ service, dark = false }) => {
   const { name, balance, picture, about, id } = service;
@@ -22,7 +23,7 @@ const ServiceCard = ({ service, dark = false }) => {
       <Link to={`/booking/${id}`} className="block relative">
         <div className="relative aspect-[4/3] img-zoom overflow-hidden">
           <img
-            src={picture}
+            {...imgProps(picture)}
             alt={name}
             className="w-full h-full object-cover"
           />

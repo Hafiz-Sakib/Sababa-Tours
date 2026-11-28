@@ -41,6 +41,7 @@ import {
 import { auth } from "../../Firebase.init";
 import { API_BASE_URL } from "../../config";
 import { authFetch } from "../Utilities/authFetch";
+import { imgProps } from "../Utilities/image";
 
 const MAX_TRAVELERS = 20;
 const MAX_ADDRESS_WORDS = 30;
@@ -552,7 +553,7 @@ const Booking = () => {
       {/* ───────── Hero ───────── */}
       <section className="relative bg-panel overflow-hidden">
         <img
-          src={service.picture}
+          {...imgProps(service.picture)}
           alt={service.name}
           onLoad={() => setImgLoaded(true)}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imgLoaded ? "opacity-55" : "opacity-0"}`}
@@ -634,7 +635,7 @@ const Booking = () => {
                         <div>
                           <Heading title="Your package" text="You can change travelers and date in the next steps." />
                           <TiltCard max={3} className="flex gap-4 overflow-hidden rounded-3xl bg-sandy p-3 ring-1 ring-line">
-                            <img src={service.picture} alt={service.name} className="h-16 w-20 shrink-0 rounded-xl object-cover sm:h-20 sm:w-28" />
+                            <img {...imgProps(service.picture)} alt={service.name} className="h-16 w-20 shrink-0 rounded-xl object-cover sm:h-20 sm:w-28" />
                             <div className="min-w-0 py-1">
                               <p className="line-clamp-2 font-bold leading-snug text-ink">{service.name}</p>
                               <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
@@ -1024,7 +1025,7 @@ const Booking = () => {
                     className="group block bg-surface border border-line rounded-3xl overflow-hidden hover:shadow-xl transition-shadow"
                   >
                     <div className="aspect-[16/8] overflow-hidden">
-                      <img src={s.picture} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img {...imgProps(s.picture)} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div className="p-5 flex items-center justify-between gap-3">
                       <p className="font-bold leading-tight line-clamp-2">{s.name}</p>
