@@ -1,6 +1,7 @@
 import "./App.css";
 import { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { motion } from "motion/react";
 
 import Home from "./Components/Home/Home";
 import NavBar from "./Components/Navbar/Navbar";
@@ -31,10 +32,14 @@ function App() {
     fetch(`${API_BASE_URL}/health`).catch(() => {});
   }, []);
 
+  const { pathname } = useLocation();
+
   return (
     <div className="App">
       <NavBar />
       <AuthRedirectHandler />
+      {/* opacity only: a transform here would shift position:fixed children while it plays */}
+      <motion.div key={pathname} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<Services />} />
@@ -70,6 +75,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </motion.div>
       <Footer />
     </div>
   );

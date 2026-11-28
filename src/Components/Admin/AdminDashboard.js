@@ -33,6 +33,7 @@ import { API_BASE_URL } from "../../config";
 import { authFetch } from "../Utilities/authFetch";
 import EditBookingModal from "../Booking/EditBookingModal";
 import HoldToDelete from "../ui/HoldToDelete";
+import StatusAnalytics from "./StatusAnalytics";
 import { HoldChip } from "../Billing/HoldBanner";
 import InvoiceModal from "../Billing/InvoiceModal";
 import {
@@ -511,6 +512,8 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
         <StatCard i={2} icon={<FiCheckCircle />} tone="green" label="Confirmed" value={stats.confirmed} sub={`${stats.travelers} travelers`} />
         <StatCard i={3} icon={<FiDollarSign />} tone="accent" label="Payments received" prefix="BDT " value={stats.revenue} sub={`${services.length} packages live`} />
       </div>
+
+      <StatusAnalytics bookings={bookings} />
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-surface rounded-3xl border border-line p-6">
@@ -1063,14 +1066,24 @@ const AdminDashboard = () => {
           />
         </div>
 
-        {tab === "overview" &&
-          (loading ? <Spinner /> : <Overview bookings={bookings} services={services} onOpen={(b) => setSelectedId(b._id)} goTab={setTab} />)}
-        {tab === "bookings" && (
-          <BookingsPanel bookings={bookings} loading={loading} busyId={busyId} onOpen={(b) => setSelectedId(b._id)} onStatus={updateStatus} onDelete={deleteBooking} onEdit={setEditing} />
-        )}
-        {tab === "services" && (
-          <ServicesPanel services={services} bookings={bookings} loading={loading} onSave={saveService} onDelete={deleteService} />
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={tab}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {tab === "overview" &&
+              (loading ? <Spinner /> : <Overview bookings={bookings} services={services} onOpen={(b) => setSelectedId(b._id)} goTab={setTab} />)}
+            {tab === "bookings" && (
+              <BookingsPanel bookings={bookings} loading={loading} busyId={busyId} onOpen={(b) => setSelectedId(b._id)} onStatus={updateStatus} onDelete={deleteBooking} onEdit={setEditing} />
+            )}
+            {tab === "services" && (
+              <ServicesPanel services={services} bookings={bookings} loading={loading} onSave={saveService} onDelete={deleteService} />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       <AnimatePresence>

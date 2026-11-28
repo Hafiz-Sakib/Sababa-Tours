@@ -507,7 +507,7 @@ const Booking = () => {
   if (loading) {
     return (
       <main className="min-h-screen bg-sandy pt-[76px]">
-        <Shimmer className="h-[340px] rounded-none" />
+        <Shimmer className="h-[220px] rounded-none" />
         <div className="mx-auto mt-8 grid max-w-7xl gap-6 px-6 lg:grid-cols-[1fr_380px] lg:px-10">
           <Shimmer className="h-96 rounded-3xl" />
           <Shimmer className="h-96 rounded-3xl" />
@@ -559,15 +559,15 @@ const Booking = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-scrim via-scrim/60 to-scrim/30" />
         <Aurora className="opacity-60" />
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-8 pb-14 md:pb-16 min-h-[320px] md:min-h-[380px] flex flex-col justify-between">
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-6 pb-14 md:pb-16 min-h-[210px] md:min-h-[240px] flex flex-col justify-between">
           <Link
             to="/services"
             className="inline-flex w-fit items-center gap-2 text-xs font-bold uppercase tracking-widest text-on/80 hover:text-on hover:gap-3 transition-all"
           >
             <FiArrowLeft /> All packages
           </Link>
-          <div className="mt-14">
-            <div className="flex flex-wrap gap-2 mb-5">
+          <div className="mt-6">
+            <div className="flex flex-wrap gap-2 mb-3">
               {[service.category, service.location, service.duration].filter(Boolean).map((t, i) => (
                 <span
                   key={i}
@@ -578,10 +578,10 @@ const Booking = () => {
                 </span>
               ))}
             </div>
-            <h1 className="text-4xl md:text-6xl font-black leading-[1.05] text-on max-w-3xl" style={serif}>
+            <h1 className="text-2xl md:text-4xl font-black leading-[1.1] text-on max-w-3xl" style={serif}>
               <BlurText text={service.name} />
             </h1>
-            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-on/80 text-sm">
+            <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-on/80 text-sm">
               <span className="flex items-center gap-1.5">
                 <FiStar className="text-accent-lt fill-current" /> 4.9 guest rating
               </span>
@@ -634,7 +634,7 @@ const Booking = () => {
                         <div>
                           <Heading title="Your package" text="You can change travelers and date in the next steps." />
                           <TiltCard max={3} className="flex gap-4 overflow-hidden rounded-3xl bg-sandy p-3 ring-1 ring-line">
-                            <img src={service.picture} alt={service.name} className="h-24 w-28 shrink-0 rounded-2xl object-cover sm:h-28 sm:w-36" />
+                            <img src={service.picture} alt={service.name} className="h-16 w-20 shrink-0 rounded-xl object-cover sm:h-20 sm:w-28" />
                             <div className="min-w-0 py-1">
                               <p className="line-clamp-2 font-bold leading-snug text-ink">{service.name}</p>
                               <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
@@ -1023,7 +1023,7 @@ const Booking = () => {
                     to={`/booking/${s._id}`}
                     className="group block bg-surface border border-line rounded-3xl overflow-hidden hover:shadow-xl transition-shadow"
                   >
-                    <div className="aspect-[16/10] overflow-hidden">
+                    <div className="aspect-[16/8] overflow-hidden">
                       <img src={s.picture} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div className="p-5 flex items-center justify-between gap-3">

@@ -2,18 +2,25 @@
 import Logo from "../ui/Logo";
 import { Link } from "react-router-dom";
 import { FiMail, FiMapPin, FiPhone } from "react-icons/fi";
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-  FaTwitter,
-} from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
+// WhatsApp opens a chat with a ready-made first message
+const WHATSAPP_NUMBER = "8801516195904";
+const WHATSAPP_TEXT = "Hello Sababa Tours! I would like to know more about your tour packages.";
+
+// `bg` is the brand fill that rises on hover
 const socials = [
-  { icon: <FaFacebookF />, label: "Facebook", link: "https://www.facebook.com/Sakib1056" },
-  { icon: <FaInstagram />, label: "Instagram", link: "https://www.instagram.com/___sakib.404/" },
-  { icon: <FaLinkedinIn />, label: "LinkedIn", link: "https://www.linkedin.com/in/hafiz-sakib-96b8b3229/" },
-  { icon: <FaTwitter />, label: "Twitter", link: "https://x.com/hafiz_sakib1" },
+  { icon: <FaFacebookF />, label: "Facebook", link: "https://www.facebook.com/Sakib1056", bg: "#1877F2" },
+  { icon: <FaInstagram />, label: "Instagram", link: "https://www.instagram.com/___sakib.404/", bg: "linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)" },
+  { icon: <FaLinkedinIn />, label: "LinkedIn", link: "https://www.linkedin.com/in/hafiz-sakib-96b8b3229/", bg: "#0A66C2" },
+  { icon: <FaXTwitter />, label: "X", link: "https://x.com/hafiz_sakib1", bg: "#000000", ring: true },
+  {
+    icon: <FaWhatsapp />,
+    label: "WhatsApp",
+    link: `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_TEXT)}`,
+    bg: "#25D366",
+  },
 ];
 
 const explore = [
@@ -51,8 +58,8 @@ const Footer = () => {
               Refined, responsible journeys across Bangladesh.
             </p>
 
-            {/* Social: on hover a brand-colour fill rises from the bottom (Motion Brew style) */}
-            <div className="flex gap-2.5">
+            {/* Social: on hover the network's own colour rises from the bottom (Motion Brew style) */}
+            <div className="flex flex-wrap gap-2.5">
               {socials.map((s) => (
                 <a
                   key={s.label}
@@ -60,17 +67,18 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="
+                  className={`
                     group relative isolate w-10 h-10 flex items-center justify-center overflow-hidden
                     rounded-[13px] border border-on/12 text-on/55 text-sm
-                    hover:text-white hover:border-transparent hover:-translate-y-1
-                    hover:shadow-lg hover:shadow-brand/30
+                    hover:text-white hover:-translate-y-1 hover:shadow-lg
                     transition-all duration-300
-                  "
+                    ${s.ring ? "hover:border-white/40" : "hover:border-transparent"}
+                  `}
                 >
                   <span
                     aria-hidden
-                    className="absolute inset-0 -z-10 translate-y-full bg-gradient-to-br from-brand to-btn transition-transform duration-300 ease-out group-hover:translate-y-0"
+                    style={{ background: s.bg }}
+                    className="absolute inset-0 -z-10 translate-y-full transition-transform duration-300 ease-out group-hover:translate-y-0"
                   />
                   <span className="transition-transform duration-300 group-hover:scale-110">{s.icon}</span>
                 </a>

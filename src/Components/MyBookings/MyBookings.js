@@ -420,7 +420,7 @@ const MyBookings = () => {
             )}
           </motion.div>
         ) : (
-          <motion.div layout className="grid gap-6">
+          <motion.div layout className="grid gap-4">
             <AnimatePresence mode="popLayout">
               {visible.map((b, idx) => {
                 const shown = displayStatus(b);
@@ -439,7 +439,7 @@ const MyBookings = () => {
                       className={`overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_10px_40px_rgba(16,24,40,0.06)] transition-shadow hover:shadow-[0_24px_60px_rgba(16,24,40,0.12)] ${b.status === "cancelled" ? "opacity-75" : ""}`}
                     >
                       <div className={`h-1.5 bg-gradient-to-r ${st.bar}`} />
-                      <div className="flex flex-col justify-between gap-5 p-7 md:flex-row md:items-start">
+                      <div className="flex flex-col justify-between gap-3 p-5 md:flex-row md:items-start">
                         <div className="min-w-0">
                           <span
                             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold capitalize ring-1 ${st.pill}`}
@@ -448,7 +448,7 @@ const MyBookings = () => {
                             {st.label}
                           </span>
                           <h3
-                            className="mt-3 text-2xl font-black leading-tight text-ink md:text-3xl"
+                            className="mt-2 text-lg font-black leading-tight text-ink md:text-xl"
                             style={serif}
                           >
                             {b.serviceId ? (
@@ -462,14 +462,14 @@ const MyBookings = () => {
                           <p className="mt-1 text-xs text-muted">
                             ID: <span className="font-mono">{b._id}</span>
                           </p>
-                          <p className="mt-3 text-sm text-muted">
+                          <p className="mt-2 text-xs text-muted">
                             {b.cancelReason === "advance_not_paid"
                               ? "Cancelled automatically: the 30% advance was not paid within 72 hours."
                               : st.note}
                           </p>
                         </div>
                         <div className="shrink-0 md:text-right">
-                          <p className="text-3xl font-black text-accent" style={serif}>
+                          <p className="text-xl font-black text-accent" style={serif}>
                             <AnimatedNumber value={Number(b.totalAmount || 0)} prefix="BDT " />
                           </p>
                           <p className="text-[11px] font-bold uppercase tracking-widest text-muted">
@@ -478,12 +478,12 @@ const MyBookings = () => {
                         </div>
                       </div>
 
-                      <div className="px-7 pb-6">
+                      <div className="px-5 pb-4">
                         <Rail status={shown} bar={st.bar} />
                       </div>
 
                       {b.status === "awaiting_payment" && (
-                        <div className="px-7 pb-6">
+                        <div className="px-5 pb-4">
                           <HoldBanner
                             b={b}
                             compact
@@ -494,7 +494,7 @@ const MyBookings = () => {
                       )}
                       {(b.status === "confirmed" || b.status === "awaiting_payment" || moneyOf(b).paid > 0) && <MoneyStrip b={b} />}
 
-                      <div className="grid grid-cols-2 gap-5 border-t border-line bg-page-alt px-7 py-5 text-sm md:grid-cols-4">
+                      <div className="grid grid-cols-2 gap-3 border-t border-line bg-page-alt px-5 py-3.5 text-sm md:grid-cols-4">
                         <Info icon={<FiCalendar />} label="Trip date">
                           {fmt(b.preferredDate, { day: "numeric", month: "long", year: "numeric" })}
                         </Info>
@@ -582,7 +582,7 @@ const BookingActions = ({
             initial={{ opacity: 0, x: 12 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -12 }}
-            className="flex flex-wrap items-center gap-3 px-7 py-4"
+            className="flex flex-wrap items-center gap-3 px-5 py-3"
           >
             <span className="mr-auto min-w-[200px] text-sm text-muted">
               Cancel this request?
@@ -601,7 +601,7 @@ const BookingActions = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-wrap items-center justify-between gap-3 px-7 py-4"
+            className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
           >
             <div className="flex flex-wrap items-center gap-3">
               {showBilling && (
@@ -638,7 +638,7 @@ const BookingActions = ({
       </AnimatePresence>
 
       {access.locked && !askingCancel && (
-        <div className="flex items-start gap-3 border-t border-line px-7 py-3.5 text-sm text-muted">
+        <div className="flex items-start gap-3 border-t border-line px-5 py-2.5 text-sm text-muted">
           <FiLock className="mt-0.5 shrink-0 text-brand-ink" />
           <p>{access.lockMessage}</p>
         </div>

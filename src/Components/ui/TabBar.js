@@ -9,7 +9,7 @@ import { ICONS, HomeIcon } from "./TabIcons";
 const cn = (...a) => a.filter(Boolean).join(" ");
 const GLIDE = [0.22, 1, 0.36, 1];
 const SPRING = { type: "spring", stiffness: 500, damping: 34 };
-const SLIDE = { type: "spring", stiffness: 210, damping: 27, mass: 1 };
+const SLIDE = { type: "spring", stiffness: 170, damping: 24, mass: 0.95 };
 
 /** tabs: [{ id, label, icon: key of ICONS }] (up to 8). `value` = id of the active tab, "" for none. */
 export default function TabBar({ tabs = [], value = "", onChange, onReselect, className }) {
@@ -87,15 +87,15 @@ export default function TabBar({ tabs = [], value = "", onChange, onReselect, cl
                       <motion.span key={ripple} aria-hidden initial={{ scale: 0.4, opacity: 0.4 }} animate={{ scale: 2, opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: GLIDE }} className="absolute h-9 w-9 rounded-full bg-btn/25" />
                     )}
                   </AnimatePresence>
-                  <span className={cn("relative grid transition-colors duration-300", on ? "text-white" : "text-ink/50 group-hover:text-ink/80")}>
-                    <motion.span key={ripple} className="grid" initial={ripple > 0 && !still ? { scale: 0.7, rotate: -14 } : false} animate={{ scale: on ? 1.05 : 1, rotate: 0 }} transition={{ type: "spring", stiffness: 520, damping: 12 }}>
+                  <span className={cn("relative grid transition-colors duration-500", on ? "text-white" : "text-ink/50 group-hover:text-ink/80")}>
+                    <motion.span key={ripple} className="grid" initial={ripple > 0 && !still ? { scale: 0.7, rotate: -14 } : false} animate={{ scale: on ? 1.05 : 1, rotate: 0 }} transition={{ type: "spring", stiffness: 380, damping: 17 }}>
                       <Icon className="h-5 w-5" strokeWidth={on ? 2.25 : 2} active={playing === t.id} />
                     </motion.span>
                   </span>
                 </span>
                 <motion.span
                   animate={still ? undefined : { y: on ? 0 : 1, opacity: on ? 1 : 0.7 }}
-                  transition={{ duration: 0.3, ease: GLIDE }}
+                  transition={{ duration: 0.45, ease: GLIDE }}
                   className={cn("relative w-full truncate px-0 text-center text-[10px] font-semibold leading-none transition-colors duration-300 min-[380px]:text-[10.5px]", on ? "text-brand-ink" : "text-ink/55 group-hover:text-ink/80")}
                 >
                   {t.label}

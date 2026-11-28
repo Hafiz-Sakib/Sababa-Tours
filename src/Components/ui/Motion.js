@@ -179,9 +179,21 @@ export const PillTabs = ({
   id = "pill",
   dark = false,
   className = "",
-}) => (
+}) => {
+  const listRef = useRef(null);
+  const reduce = useReducedMotion();
+  // keep the active tab in view when the bar scrolls sideways on a phone
+  useEffect(() => {
+    const el = listRef.current?.querySelector('[aria-selected="true"]');
+    if (!el || !listRef.current) return;
+    const box = listRef.current;
+    const left = el.offsetLeft - (box.clientWidth - el.offsetWidth) / 2;
+    box.scrollTo({ left, behavior: reduce ? "auto" : "smooth" });
+  }, [value, reduce]);
+  return (
   <LayoutGroup id={id}>
     <div
+      ref={listRef}
       role="tablist"
       className={`relative inline-flex max-w-full gap-1 overflow-x-auto rounded-full p-1.5 ${
         dark
@@ -197,7 +209,7 @@ export const PillTabs = ({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(it.id)}
-            className={`relative z-0 flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold capitalize transition-colors ${
+            className={`relative z-0 flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold capitalize transition-colors duration-300 active:scale-[0.96] ${
               active
                 ? dark
                   ? "text-ink"
@@ -215,7 +227,7 @@ export const PillTabs = ({
                     ? "bg-gradient-to-r from-cta to-accent-lt"
                     : "bg-btn shadow-lg"
                 }`}
-                transition={{ type: "spring", stiffness: 420, damping: 32 }}
+                transition={{ type: "spring", stiffness: 260, damping: 28, mass: 0.9 }}
               />
             )}
             {it.icon}
@@ -238,7 +250,8 @@ export const PillTabs = ({
       })}
     </div>
   </LayoutGroup>
-);
+  );
+};
 
 /* ───────────── Aurora background: drifting blurred colour blobs ───────────── */
 export const Aurora = ({ className = "" }) => (
