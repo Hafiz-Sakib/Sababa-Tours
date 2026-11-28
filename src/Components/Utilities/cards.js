@@ -124,3 +124,25 @@ export const clearCard = (uid) => {
     /* ignore */
   }
 };
+
+/* name shown on the card by default: the Google (or sign-up) display name, then the e-mail name */
+export const holderName = (user) => {
+  const raw =
+    user?.displayName ||
+    (user?.providerData || []).map((p) => p?.displayName).find(Boolean) ||
+    (user?.email || "").split("@")[0] ||
+    "";
+  return raw.replace(/[^a-zA-Z .'-]/g, " ").replace(/\s+/g, " ").trim().slice(0, 26);
+};
+
+/* Bangladeshi banks for the bank payment (demo) */
+export const BANKS = [
+  "City Bank", "Dutch-Bangla Bank", "BRAC Bank", "Islami Bank", "Sonali Bank", "Eastern Bank",
+  "Janata Bank", "Agrani Bank", "Prime Bank", "Mutual Trust Bank", "Pubali Bank", "Standard Chartered",
+];
+export const accountOk = (v) => digits(v).length >= 10 && digits(v).length <= 16;
+export const maskAccount = (v) => {
+  const d = digits(v);
+  return d.length > 4 ? `•••• ${d.slice(-4)}` : d;
+};
+export const randomAccount = () => String(1 + rnd(9)) + randDigits(12);

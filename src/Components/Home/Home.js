@@ -173,8 +173,8 @@ const BoardingPass = () => {
         <div className="mx-6 border-t-2 border-dashed border-line" />
       </div>
 
-      <div className="flex items-end justify-between gap-4 p-6">
-        <div>
+      <div className="flex flex-wrap items-end justify-between gap-4 p-6">
+        <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted">Rough estimate</p>
           <RollingNumber value={estimate} prefix="BDT " className="text-3xl font-bold text-accent" />
           <p className="mt-1 text-[11px] text-muted">Indicative only. Packages show exact prices.</p>
@@ -333,7 +333,7 @@ const Home = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-scrim/95 via-scrim/80 to-scrim/60 dark:via-brand/70 dark:to-scrim/90" />
         <Aurora className="opacity-70" />
 
-        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
+        <div className="relative z-10 mx-auto grid w-full grid-cols-1 max-w-7xl items-center gap-12 px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
           <div>
             <p className="mb-7 inline-flex items-center gap-3 text-xs font-bold tracking-[0.28em] text-accent">
               <span className="h-px w-10 bg-accent" /> BANGLADESH · HAND-PLANNED

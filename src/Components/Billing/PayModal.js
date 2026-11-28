@@ -21,9 +21,12 @@ import {
   FiZap,
 } from "react-icons/fi";
 import AddCard from "../ui/brew/AddCard";
+import PayLogo from "../ui/PayLogo";
 import { money, fmtDateTime } from "../Utilities/payment";
 import {
+  BANKS,
   BRAND_LABEL,
+  accountOk,
   brandOf,
   clearCard,
   cvcLen,
@@ -31,12 +34,15 @@ import {
   expiryOk,
   formatExpiry,
   formatNumber,
+  holderName,
   loadCard,
   luhnOk,
+  maskAccount,
   maskPhone,
   numberLen,
   phoneOk,
   randomOtp,
+  randomAccount,
   randomPhone,
   randomRef,
   randomTestCard,
@@ -49,6 +55,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const WALLET = {
   bKash: { color: "#e2136e", grad: "linear-gradient(135deg,#e2136e,#a30b50)", pin: 5, prefix: "BK", sms: "bKash" },
   Nagad: { color: "#f6921e", grad: "linear-gradient(135deg,#f6921e,#d4380d)", pin: 4, prefix: "NG", sms: "Nagad" },
+  Bank: { color: "#0b9a4b", grad: "linear-gradient(135deg,#0b9a4b,#066f36)", pin: 4, prefix: "BN", sms: "Bank OTP" },
 };
 const CARD_GRAD = "linear-gradient(135deg,#0F5C46,#26A59E)";
 
@@ -309,17 +316,24 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
   const isCard = method === "Card";
   const wallet = WALLET[method];
   const color = isCard ? "#0F5C46" : wallet.color;
-  const holder = (user?.displayName || (user?.email || "").split("@")[0] || "").trim();
+  const isBank = method === "Bank";
+  const firstStep = isBank ? "bank" : "mobile";
+  const holder = holderName(user); // the Google account name by default
 
   const saved = useMemo(() => loadCard(user?.uid), [user?.uid]);
   const [card, setCard] = useState(saved);
-  const [step, setStep] = useState(isCard ? (saved ? "saved" : "empty") : "mobile");
+  const [step, setStep] = useState(isCard ? (saved ? "saved" : "empty") : firstStep);
   const [error, setError] = useState("");
   const [receipt, setReceipt] = useState(null);
 
   // card form
   const [num, setNum] = useState("");
   const [name, setName] = useState(holder);
+  const nameEdited = useRef(false);
+  // the Google profile can arrive a moment after the modal opens: keep the name in step until the customer types their own
+  useEffect(() => {
+    if (!nameEdited.current) setName(holder);
+  }, [holder]);
   const [exp, setExp] = useState("");
   const [cvc, setCvc] = useState("");
   const [remember, setRemember] = useState(true);
@@ -329,6 +343,9 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
   // wallet
   const [phone, setPhone] = useState(() => (phoneOk(booking?.phoneNumber) ? digits(booking.phoneNumber) : ""));
   const [agree, setAgree] = useState(true);
+  // bank
+  const [bank, setBank] = useState("");
+  const [acct, setAcct] = useState("");
   const [pin, setPin] = useState("");
 
   // code
@@ -392,6 +409,12 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
     goOtp({ brand: card.brand, last4: card.last4, label: `${BRAND_LABEL[card.brand]} •••• ${card.last4}`, prefix: "CH" }, "saved");
   };
 
+  const payBankStart = () => {
+    setTouched(true);
+    if (!bank || !accountOk(acct) || !agree) return;
+    goOtp({ account: maskAccount(acct), label: `${bank} ${maskAccount(acct)}`, prefix: wallet.prefix });
+  };
+
   const payWalletStart = () => {
     setTouched(true);
     if (!phoneOk(phone) || !agree) return;
@@ -428,18 +451,20 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
 
   const retry = () => {
     setError("");
-    setStep(isCard ? (card ? "saved" : "form") : "mobile");
+    setStep(isCard ? (card ? "saved" : "form") : firstStep);
   };
 
   const steps = isCard
     ? ["Securing connection", "Authorising with your bank", "Confirming payment"]
-    : [`Connecting to ${method}`, "Verifying your PIN", "Confirming payment"];
+    : isBank
+      ? ["Connecting to your bank", "Verifying your banking PIN", "Confirming payment"]
+      : [`Connecting to ${method}`, "Verifying your PIN", "Confirming payment"];
 
-  const phase = { empty: 0, saved: 0, form: 0, mobile: 0, otp: 1, pin: 2, processing: 3, success: 3, error: 3 }[step];
+  const phase = { empty: 0, saved: 0, form: 0, mobile: 0, bank: 0, otp: 1, pin: 2, processing: 3, success: 3, error: 3 }[step];
   const canBack = ["form", "otp", "pin"].includes(step);
   const back = () => {
     if (step === "form") setStep(card ? "saved" : "empty");
-    else if (step === "otp") setStep(isCard ? (from.current === "saved" ? "saved" : "form") : "mobile");
+    else if (step === "otp") setStep(isCard ? (from.current === "saved" ? "saved" : "form") : firstStep);
     else if (step === "pin") setStep("otp");
   };
   const busy = step === "processing";
@@ -488,19 +513,22 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
           <div className="relative flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-white/75">
-                {isCard ? <FiCreditCard /> : <FiSmartphone />} {isCard ? "Card payment" : `${method} payment`}
+                {isCard ? <FiCreditCard /> : isBank ? <FiShield /> : <FiSmartphone />} {isCard ? "Card payment" : isBank ? "Bank payment" : `${method} payment`}
               </p>
               <p className="mt-1 truncate text-sm font-semibold text-white/90">Sababa Tours · {booking?.serviceName}</p>
             </div>
-            {!busy && step !== "success" && (
-              <button type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 transition hover:bg-white/25">
-                <FiX size={18} />
-              </button>
-            )}
+            <div className="flex shrink-0 items-center gap-2">
+              {!isCard && <PayLogo method={method} size="md" />}
+              {!busy && step !== "success" && (
+                <button type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 transition hover:bg-white/25">
+                  <FiX size={18} />
+                </button>
+              )}
+            </div>
           </div>
           <div className="relative mt-3 flex items-end justify-between">
-            <p className="text-4xl font-black leading-none" style={serif}>{money(amount)}</p>
-            <span className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold">
+            <p className="text-3xl font-black leading-none whitespace-nowrap sm:text-4xl" style={serif}>{money(amount)}</p>
+            <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold">
               <FiShield size={11} /> Secure checkout
             </span>
           </div>
@@ -589,7 +617,7 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
                     <Field label="Name on card" error={touched && errs.name}>
                       <input
                         value={name}
-                        onChange={(e) => setName(e.target.value.replace(/[^a-zA-Z .'-]/g, "").slice(0, 26))}
+                        onChange={(e) => { nameEdited.current = true; setName(e.target.value.replace(/[^a-zA-Z .'-]/g, "").slice(0, 26)); }}
                         autoComplete="cc-name"
                         placeholder="As printed on the card"
                         className={`${inputCls} uppercase ${touched && errs.name ? "border-red-400" : "border-line"}`}
@@ -626,11 +654,65 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
                 </div>,
               )}
 
+            {step === "bank" &&
+              view("bank",
+                <div>
+                  <div className="flex items-center gap-3 rounded-2xl border border-line bg-page-alt p-4">
+                    <PayLogo method="Bank" size="lg" />
+                    <div className="min-w-0">
+                      <p className="font-black text-ink" style={serif}>Bank payment</p>
+                      <p className="text-xs text-muted">Pay from your bank account to <b className="text-ink">Sababa Tours</b></p>
+                    </div>
+                  </div>
+                  <Field label="Select your bank" error={touched && !bank ? "Choose your bank" : ""}>
+                    <div className="mt-1 grid grid-cols-2 gap-2">
+                      {BANKS.map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setBank(n)}
+                          aria-pressed={bank === n}
+                          className={`truncate rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition ${bank === n ? "border-brand bg-brand-soft/60 text-brand-ink ring-2 ring-brand/25" : "border-line bg-page-alt text-muted hover:text-ink"}`}
+                        >
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </Field>
+                  <div className="mt-4 space-y-3.5">
+                    <Field label="Account holder" hint="Taken from your Google account">
+                      <input value={holder.toUpperCase()} readOnly tabIndex={-1} className={`${inputCls} cursor-default uppercase opacity-80`} />
+                    </Field>
+                    <Field label="Account number" error={touched && !accountOk(acct) ? "Enter a valid account number (10 to 16 digits)" : ""}>
+                      <input
+                        value={acct}
+                        onChange={(e) => setAcct(digits(e.target.value).slice(0, 16))}
+                        inputMode="numeric"
+                        placeholder="Your bank account number"
+                        className={`${inputCls} font-mono tracking-wider ${touched && !accountOk(acct) ? "border-red-400" : "border-line"}`}
+                      />
+                    </Field>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setBank((b) => b || BANKS[0]); setAcct(randomAccount()); }}
+                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-brand-ink hover:underline"
+                  >
+                    <FiZap size={12} /> Fill demo account
+                  </button>
+                  <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-sm text-muted">
+                    <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[rgb(var(--brand))]" />
+                    I agree to the terms and the bank payment conditions.
+                  </label>
+                  <Primary color={color} className="mt-5" disabled={!agree} onClick={payBankStart}>Continue</Primary>
+                </div>,
+              )}
+
             {step === "mobile" &&
               view("mobile",
                 <div>
                   <div className="flex items-center gap-3 rounded-2xl border border-line bg-page-alt p-4">
-                    <span className="grid h-12 w-12 place-items-center rounded-xl text-lg font-black text-white" style={{ background: wallet.grad }}>{method[0]}</span>
+                    <PayLogo method={method} size="lg" />
                     <div>
                       <p className="font-black text-ink" style={serif}>{method}</p>
                       <p className="text-xs text-muted">Pay from your {method} account to <b className="text-ink">Sababa Tours</b></p>
@@ -667,17 +749,19 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
               view("otp",
                 <div className="text-center">
                   <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand-soft/60 text-brand-ink"><FiShield size={26} /></span>
-                  <h3 className="mt-4 text-xl font-black text-ink" style={serif}>{isCard ? "Verify with your bank" : "Enter verification code"}</h3>
+                  <h3 className="mt-4 text-xl font-black text-ink" style={serif}>{isCard ? "Verify with your bank" : isBank ? "Verify with your bank" : "Enter verification code"}</h3>
                   <p className="mx-auto mt-1 max-w-xs text-sm text-muted">
                     {isCard
                       ? `Your bank sent a 6-digit code to the phone linked to the card ending ${meta?.last4}.`
-                      : `We sent a 6-digit code by SMS to ${maskPhone(phone)}.`}
+                      : isBank
+                        ? `${bank} sent a 6-digit code by SMS to the phone linked to account ${maskAccount(acct)}.`
+                        : `We sent a 6-digit code by SMS to ${maskPhone(phone)}.`}
                   </p>
                   <div className="mt-6">
                     <CodeBoxes length={6} value={code} onChange={setCode} error={codeErr} />
                   </div>
                   {codeErr && <p className="mt-3 text-xs font-semibold text-red-500">That code is not right. Check the message and try again.</p>}
-                  <SmsBanner from={isCard ? "Bank OTP" : WALLET[method].sms} code={otp} onFill={() => setCode(otp)} />
+                  <SmsBanner from={isCard ? "Bank OTP" : isBank ? bank : WALLET[method].sms} code={otp} onFill={() => setCode(otp)} />
                   <Primary color={color} className="mt-6" disabled={code.length !== 6} onClick={verify}>Verify</Primary>
                   <div className="mt-4 text-xs text-muted">
                     {wait > 0 ? (
@@ -692,10 +776,10 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
             {step === "pin" &&
               view("pin",
                 <div className="text-center">
-                  <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl text-white" style={{ background: wallet.grad }}><FiLock size={24} /></span>
-                  <h3 className="mt-4 text-xl font-black text-ink" style={serif}>Enter your {method} PIN</h3>
+                  <PayLogo method={method} size="lg" className="mx-auto" />
+                  <h3 className="mt-4 text-xl font-black text-ink" style={serif}>{isBank ? "Enter your banking PIN" : `Enter your ${method} PIN`}</h3>
                   <p className="mx-auto mt-1 max-w-xs text-sm text-muted">
-                    Confirm the payment of <b className="text-ink">{money(amount)}</b> from {maskPhone(phone)}.
+                    Confirm the payment of <b className="text-ink">{money(amount)}</b> from {isBank ? `${bank} ${maskAccount(acct)}` : maskPhone(phone)}.
                   </p>
                   <div className="mt-6">
                     <CodeBoxes length={wallet.pin} value={pin} onChange={setPin} mask />

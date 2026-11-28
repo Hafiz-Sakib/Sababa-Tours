@@ -38,6 +38,7 @@ import {
 } from "../Utilities/payment";
 import { AnimatedNumber, Aurora, BlurText, PillTabs, Shimmer, motion, AnimatePresence } from "../ui/Motion";
 import ActionBtn from "../ui/ActionBtn";
+import PayLogo from "../ui/PayLogo";
 import HoldBanner from "./HoldBanner";
 import PayModal from "./PayModal";
 import Invoice from "./Invoice";
@@ -47,6 +48,7 @@ const serif = { fontFamily: "var(--font-display)" };
 const METHODS = [
   { id: "bKash", dot: "#e2136e" },
   { id: "Nagad", dot: "#f6921e" },
+  { id: "Bank", dot: "#0b9a4b" },
   { id: "Card", dot: "#2563eb" },
 ];
 
@@ -202,18 +204,19 @@ const PayCard = ({ b, m, busy, onPay }) => {
 
       <div className="mt-5">
         <Eyebrow>Pay with</Eyebrow>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {METHODS.map((x) => (
             <button
               key={x.id}
               type="button"
               onClick={() => setMethod(x.id)}
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition ${
-                method === x.id ? "border-brand bg-brand-soft/60 text-brand-ink" : "border-line bg-page-alt text-muted hover:text-ink"
+              aria-pressed={method === x.id}
+              className={`flex min-w-0 items-center gap-2.5 rounded-2xl border p-2 pr-3 text-left text-xs font-bold transition ${
+                method === x.id ? "border-brand bg-brand-soft/60 text-brand-ink ring-2 ring-brand/25" : "border-line bg-page-alt text-muted hover:text-ink"
               }`}
             >
-              <span className="h-2.5 w-2.5 rounded-full" style={{ background: x.dot }} />
-              {x.id}
+              <PayLogo method={x.id} size="sm" />
+              <span className="truncate">{x.id === "Bank" ? "Bank transfer" : x.id}</span>
             </button>
           ))}
         </div>
