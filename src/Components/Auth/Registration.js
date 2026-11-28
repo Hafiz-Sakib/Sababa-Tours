@@ -5,9 +5,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   createUserWithEmailAndPassword,
   getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
   updateProfile,
 } from "firebase/auth";
 import {
@@ -23,6 +20,7 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 import app from "../../Firebase.init";
+import { googleSignIn } from "./googleAuth";
 
 const auth = getAuth(app);
 
@@ -97,32 +95,9 @@ const Registration = () => {
 
   const handleGoogleSignUp = async () => {
     setGoogleLoading(true);
-    const provider = new GoogleAuthProvider();
-
-    try {
-      const result = await signInWithPopup(auth, provider);
-      console.log("✅ Google Sign-Up Success:", result.user.email);
-      toast.success("Account ready. Welcome!");
-      navigate(from, { replace: true });
-    } catch (popupError) {
-      if (
-        popupError.code === "auth/popup-blocked" ||
-        popupError.code === "auth/cancelled-popup-request"
-      ) {
-        try {
-          sessionStorage.setItem("redirectFrom", from);
-          await signInWithRedirect(auth, provider);
-        } catch (redirectError) {
-          console.error("Redirect failed:", redirectError);
-          toast.error("Google sign-up failed.");
-          setGoogleLoading(false);
-        }
-      } else {
-        console.error("Google sign-up error:", popupError);
-        toast.error("Google sign-up failed. Please try again.");
-        setGoogleLoading(false);
-      }
-    }
+    const ok = await googleSignIn(auth, from, "Account ready. Welcome!");
+    setGoogleLoading(false);
+    if (ok) navigate(from, { replace: true });
   };
 
   const inputClass = (field) =>
@@ -157,7 +132,9 @@ const Registration = () => {
         </div>
 
         <div className="border border-line bg-surface p-7 shadow-sm md:p-10">
-          <Logo variant="full" className="mx-auto mb-6 h-24 w-auto" />
+          <Link to="/" aria-label="Sababa Tours home" className="mx-auto mb-8 flex w-fit">
+            <Logo variant="lockup" className="h-12 w-auto" textClass="text-[30px]" />
+          </Link>
           <p className="text-xs font-black uppercase tracking-[0.22em] text-brand-ink">
             Create Account
           </p>

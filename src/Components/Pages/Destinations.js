@@ -8,6 +8,7 @@ import ServiceCard from "../Services/ServiceCard";
 import TripIndex from "../ui/brew/TripIndex";
 import ContactCard from "../ui/brew/ContactCard";
 import { API_BASE_URL, DESK_EMAIL } from "../../config";
+import { fetchRetry } from "../Utilities/apiFetch";
 import { fixImageUrl, imgProps } from "../Utilities/image";
 import {
   AnimatePresence,
@@ -65,8 +66,7 @@ const Destinations = () => {
     setLoading(true);
     setFailed(false);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/services`);
-      if (!res.ok) throw new Error("services");
+      const res = await fetchRetry(`${API_BASE_URL}/api/services`);
       const data = await res.json();
       const list = Array.isArray(data) ? data : data.data;
       setServices(

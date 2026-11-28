@@ -16,6 +16,9 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { registerServiceWorker, applyUpdate } from "./pwa";
+import { wakeServer } from "./Components/Utilities/apiFetch";
+
+wakeServer(); // wake the sleeping Render server while the page loads
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 

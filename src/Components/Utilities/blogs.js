@@ -3,6 +3,7 @@
 // the few articles in data/travel.js are shown instead, so the page is never blank.
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../../config";
+import { fetchRetry } from "./apiFetch";
 import { articles as fallbackArticles } from "../../data/travel";
 
 const monthYear = (d) =>
@@ -31,8 +32,7 @@ export const useBlogs = () => {
     let off = false;
     (async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/blogs`);
-        if (!res.ok) throw new Error("blogs");
+        const res = await fetchRetry(`${API_BASE_URL}/api/blogs`);
         const list = await res.json();
         if (off) return;
         if (Array.isArray(list) && list.length) setState({ blogs: list.map(normalizeBlog), loading: false, live: true });

@@ -27,6 +27,7 @@ import HighlightText from "../ui/brew/HighlightText";
 import SeasonPicker from "../ui/SeasonPicker";
 import { articles, destinations } from "../../data/travel";
 import { API_BASE_URL } from "../../config";
+import { fetchRetry } from "../Utilities/apiFetch";
 import {
   AnimatedNumber,
   AnimatePresence,
@@ -305,7 +306,7 @@ const Home = () => {
     let cancelled = false;
     (async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/services`);
+        const response = await fetchRetry(`${API_BASE_URL}/api/services`);
         const data = await response.json();
         const list = Array.isArray(data) ? data : data.data;
         if (!cancelled) setServices((list || []).map((s) => ({ ...s, id: s._id })));

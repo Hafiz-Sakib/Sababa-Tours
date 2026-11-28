@@ -4,15 +4,13 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   getAuth,
-  GoogleAuthProvider,
   signInWithEmailAndPassword,
-  signInWithPopup,
-  signInWithRedirect,
 } from "firebase/auth";
 import { FiArrowRight, FiEye, FiEyeOff, FiLock, FiMail } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 import app from "../../Firebase.init";
+import { googleSignIn } from "./googleAuth";
 
 const auth = getAuth(app);
 
@@ -62,32 +60,9 @@ const Login = () => {
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
-    const provider = new GoogleAuthProvider();
-
-    try {
-      const result = await signInWithPopup(auth, provider);
-      console.log("✅ Google Popup Success:", result.user.email);
-      toast.success("Signed in successfully.");
-      navigate(from, { replace: true });
-    } catch (popupError) {
-      if (
-        popupError.code === "auth/popup-blocked" ||
-        popupError.code === "auth/cancelled-popup-request"
-      ) {
-        try {
-          sessionStorage.setItem("redirectFrom", from);
-          await signInWithRedirect(auth, provider);
-        } catch (redirectError) {
-          console.error("Redirect failed:", redirectError);
-          toast.error("Google sign-in failed.");
-          setGoogleLoading(false);
-        }
-      } else {
-        console.error("Google sign-in error:", popupError);
-        toast.error("Google sign-in failed. Please try again.");
-        setGoogleLoading(false);
-      }
-    }
+    const ok = await googleSignIn(auth, from, "Signed in successfully.");
+    setGoogleLoading(false);
+    if (ok) navigate(from, { replace: true });
   };
 
   const inputClass = (field) =>
@@ -122,7 +97,9 @@ const Login = () => {
         </div>
 
         <div className="border border-line bg-surface p-7 shadow-sm md:p-10">
-          <Logo variant="full" className="mx-auto mb-6 h-24 w-auto" />
+          <Link to="/" aria-label="Sababa Tours home" className="mx-auto mb-8 flex w-fit">
+            <Logo variant="lockup" className="h-12 w-auto" textClass="text-[30px]" />
+          </Link>
           <p className="text-xs font-black uppercase tracking-[0.22em] text-brand-ink">
             Welcome Back
           </p>

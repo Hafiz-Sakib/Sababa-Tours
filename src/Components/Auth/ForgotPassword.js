@@ -79,7 +79,9 @@ const ForgotPassword = () => {
 
         {!success ? (
           <div className="bg-surface border border-line rounded-3xl p-8 md:p-10 shadow-sm">
-          <Logo variant="full" className="mx-auto mb-6 h-24 w-auto" />
+          <Link to="/" aria-label="Sababa Tours home" className="mx-auto mb-8 flex w-fit">
+            <Logo variant="lockup" className="h-12 w-auto" textClass="text-[30px]" />
+          </Link>
             <h2 className="text-4xl font-black tracking-tight mb-2">
               Forgot Password?
             </h2>

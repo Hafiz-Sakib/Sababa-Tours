@@ -6,6 +6,7 @@ import ServiceCard from "./ServiceCard";
 import BudgetMatch from "./BudgetMatch";
 import RequestFlow from "./RequestFlow";
 import { API_BASE_URL } from "../../config";
+import { fetchRetry } from "../Utilities/apiFetch";
 
 const API = `${API_BASE_URL}/api/services`;
 
@@ -19,6 +20,8 @@ const sortOptions = [
 const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("default");
   const [maxPrice, setMaxPrice] = useState(null);
@@ -26,6 +29,8 @@ const Services = () => {
 
   useEffect(() => {
     const fetchServices = async () => {
+      setLoading(true);
+      setFailed(false);
       // Render free tier may take ~50s to wake up
       const wakeTimer = setTimeout(() => {
         toast.loading("Waking up the server, this can take up to a minute. Please wait…", {
@@ -34,9 +39,7 @@ const Services = () => {
         });
       }, 4000);
       try {
-        const res = await fetch(API);
-
-        if (!res.ok) throw new Error("Network error");
+        const res = await fetchRetry(API);
 
         const result = await res.json();
 
@@ -51,7 +54,8 @@ const Services = () => {
         );
       } catch (error) {
         console.error("Failed to fetch services:", error);
-        setServices([]); // fallback
+        setServices([]);
+        setFailed(true);
       } finally {
         clearTimeout(wakeTimer);
         toast.dismiss("server-wake");
@@ -60,7 +64,7 @@ const Services = () => {
     };
 
     fetchServices();
-  }, []);
+  }, [attempt]);
 
   useEffect(() => {
     const el = gridRef.current;
@@ -195,6 +199,20 @@ const Services = () => {
           <div className="flex flex-col items-center justify-center py-36 gap-4">
             <div className="h-14 w-14 animate-spin rounded-full border-4 border-line border-t-brand" />
             <p className="text-muted text-sm">Loading packages…</p>
+          </div>
+        ) : failed ? (
+          <div className="text-center py-36 bg-surface border border-line rounded-[32px] shadow-sm">
+            <div className="text-5xl mb-6">📡</div>
+            <p className="text-3xl font-black text-ink mb-4" style={{ fontFamily: "var(--font-display)" }}>
+              Could not load packages
+            </p>
+            <p className="text-muted mb-8">The server may still be waking up. Please try again.</p>
+            <button
+              onClick={() => setAttempt((n) => n + 1)}
+              className="px-8 py-4 bg-btn text-white font-black uppercase tracking-widest rounded-2xl hover:bg-brand transition-all duration-300"
+            >
+              Retry
+            </button>
           </div>
         ) : filtered.length > 0 ? (
           <div
