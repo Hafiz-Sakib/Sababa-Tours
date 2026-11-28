@@ -25,12 +25,14 @@ const links = [
   { id: "contact", name: "Contact", path: "/contact", icon: "contact" },
 ];
 
-/* bottom tab bar: five main pages + Profile (About, Guide, bookings and account live in the Profile sheet) */
+/* bottom tab bar: every main page + Profile (the Profile sheet now only holds account things) */
 const tabs = [
   { id: "home", label: "Home", icon: "home" },
   { id: "places", label: "Places", icon: "places" },
-  { id: "packages", label: "Packages", icon: "packages" },
+  { id: "packages", label: "Tours", icon: "packages" },
+  { id: "guide", label: "Guide", icon: "guide" },
   { id: "journal", label: "Blog", icon: "journal" },
+  { id: "about", label: "About", icon: "about" },
   { id: "contact", label: "Contact", icon: "contact" },
   { id: "profile", label: "Profile", icon: "profile" },
 ];
@@ -306,8 +308,6 @@ const NavBar = () => {
                     <div className="mt-2 space-y-0.5">
                       {user && isAdmin && <SheetRow to="/admin" icon="admin" label="Admin Dashboard" hint="Manage packages, bookings and users" onClick={closeSheet} />}
                       {user && <SheetRow to="/my-bookings" icon="bookings" label="My Bookings" hint="Your trips and their status" onClick={closeSheet} />}
-                      <SheetRow to="/about" icon="about" label="About Sababa" hint="Who we are and how we plan" onClick={closeSheet} />
-                      <SheetRow to="/guide" icon="guide" label="Travel Guide" hint="Seasons, packing and tips" onClick={closeSheet} />
                     </div>
 
                     <div className="mt-2 space-y-2">
