@@ -184,6 +184,8 @@ const NavBar = () => {
   return (
     <>
       {/* ═══════════ Desktop: logo + actions pushed to the edges, tabs in the middle ═══════════ */}
+      {/* solid full-width band behind the floating navbar: white by day, dark surface at night, so page content never shows through */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-x-0 top-0 z-50 hidden h-[68px] border-b border-line bg-surface transition-colors duration-300 xl:block" />
       <div className="pointer-events-none fixed inset-x-0 top-2.5 z-50 hidden xl:block">
         <div className="flex items-center justify-between gap-3 px-3">
           <Link to="/" aria-label="Sababa Tours home" className={`${pill} flex items-center py-1 pl-2 pr-2 transition-transform duration-300 hover:scale-[1.03] 2xl:pr-4`}>
