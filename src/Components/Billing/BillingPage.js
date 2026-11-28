@@ -324,7 +324,12 @@ const BillingPage = () => {
           body: JSON.stringify({ amount, method, ref: meta.ref, brand: meta.brand, last4: meta.last4, account: meta.account }),
         });
         const r = await res.json().catch(() => ({}));
-        if (!res.ok || !r.success) throw new Error(r.message || "Payment failed. Please try again.");
+        if (!res.ok || !r.success) {
+          // the screen was out of date (e.g. already paid, status changed): show the server's version so the buttons and amounts are right
+          if (r.booking) setRaw((cur) => ({ ...cur, ...r.booking }));
+          else if (res.status === 409) load();
+          throw new Error(r.message || "Payment failed. Please try again.");
+        }
         const next = r.booking ? { ...raw, ...r.booking } : payLocally(raw, amount, method);
         const wasAwaiting = raw.status === "awaiting_payment";
         setRaw(next);
@@ -333,7 +338,7 @@ const BillingPage = () => {
         setBusy(false);
       }
     },
-    [raw],
+    [raw, load],
   );
 
   if (!user) return null;

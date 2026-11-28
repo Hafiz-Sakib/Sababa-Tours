@@ -22,10 +22,12 @@ export const advanceOf = (b) =>
     ? Number(b.advanceAmount)
     : Math.ceil((totalOf(b) * ADVANCE_PERCENT) / 100);
 export const paymentsOf = (b) => (Array.isArray(b.payments) ? b.payments : []);
-export const paidOf = (b) =>
-  Array.isArray(b.payments)
-    ? b.payments.reduce((s, p) => s + Number(p.amount || 0), 0)
-    : Number(b.paidAmount || 0);
+// The server keeps both the list and the running total. Older bookings can have a total without a full list,
+// so use the larger of the two: the screen must never show money as due that the server already counted as paid.
+export const paidOf = (b) => {
+  const listed = Array.isArray(b.payments) ? b.payments.reduce((s, p) => s + Number(p.amount || 0), 0) : 0;
+  return Math.max(listed, Number(b.paidAmount || 0));
+};
 
 /* when the unpaid-advance hold ends (ms) or null */
 export const holdEnd = (b) => {
