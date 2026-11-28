@@ -43,6 +43,7 @@ import {
   phoneOk,
   randomOtp,
   randomAccount,
+  randomCvc,
   randomPhone,
   randomRef,
   randomTestCard,
@@ -208,12 +209,14 @@ const Ghost = ({ children, className = "", ...p }) => (
 /* the three progress lines while the "bank" works */
 const Processing = ({ steps, run, onDone, onFail, color }) => {
   const [i, setI] = useState(0);
+  const job = useRef(null); // the payment is sent once, even if React runs this effect twice (StrictMode in dev)
   useEffect(() => {
     let alive = true;
     const tick = setInterval(() => setI((x) => Math.min(x + 1, steps.length - 1)), 900);
     (async () => {
       try {
-        const [res] = await Promise.all([run(), sleep(steps.length * 900 + 200)]);
+        if (!job.current) job.current = run();
+        const [res] = await Promise.all([job.current, sleep(steps.length * 900 + 200)]);
         if (alive) onDone(res);
       } catch (e) {
         if (alive) onFail(e);
@@ -362,6 +365,19 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
     return () => clearInterval(t);
   }, [step, otp]);
 
+  // a saved demo card: fill the security code for the customer
+  useEffect(() => {
+    if (step === "saved" && card && !cvc) setCvc(randomCvc(card.brand));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  // demo SMS: type the code in for the customer shortly after the message arrives
+  useEffect(() => {
+    if (step !== "otp") return undefined;
+    const t = setTimeout(() => setCode((c) => (c ? c : otp)), 2300);
+    return () => clearTimeout(t);
+  }, [step, otp]);
+
   const fillTest = () => {
     const t = randomTestCard(holder || "TEST USER");
     setNum(t.number);
@@ -429,10 +445,10 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
     }
     if (isCard) setStep("processing");
     else {
-      setPin("");
+      setPin("12345".slice(0, wallet?.pin || 4)); // demo PIN, ready to confirm
       setStep("pin");
     }
-  }, [code, otp, isCard]);
+  }, [code, otp, isCard, wallet]);
 
   // auto-verify once all six digits are in
   useEffect(() => {
@@ -601,7 +617,7 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
                     onClick={fillTest}
                     className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-brand/60 bg-brand-soft/40 py-2.5 text-xs font-black uppercase tracking-widest text-brand-ink transition hover:bg-brand-soft/70"
                   >
-                    <FiZap size={14} /> Use test card (random)
+                    <FiZap size={14} /> Use demo card (fills number, expiry &amp; CVC)
                   </button>
                   <div className="mt-4 space-y-3.5">
                     <Field label="Card number" error={touched && errs.num}>
@@ -784,7 +800,7 @@ const Checkout = ({ amount, method, booking, user, onConfirm, onClose, onInvoice
                   <div className="mt-6">
                     <CodeBoxes length={wallet.pin} value={pin} onChange={setPin} mask />
                   </div>
-                  <p className="mt-3 text-[11px] text-muted">Demo: any {wallet.pin}-digit PIN works.</p>
+                  <p className="mt-3 text-[11px] text-muted">Demo PIN is filled in. Just confirm.</p>
                   <Primary color={color} className="mt-6" disabled={pin.length !== wallet.pin} onClick={() => setStep("processing")}>
                     Confirm {money(amount)}
                   </Primary>

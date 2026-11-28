@@ -318,19 +318,48 @@ const BillingPage = () => {
     async (amount, method, meta = {}) => {
       setBusy(true);
       try {
-        const res = await authFetch(`${API_BASE_URL}/api/bookings/${raw._id}/pay`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount, method, ref: meta.ref, brand: meta.brand, last4: meta.last4, account: meta.account }),
-        });
+        const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
+        const body = JSON.stringify({ amount, method, ref: meta.ref, brand: meta.brand, last4: meta.last4, account: meta.account });
+        // the server may be waking up (free hosting): try up to 3 times before giving up
+        let res = null;
+        for (let n = 0; n < 3 && !res; n++) {
+          try {
+            const r0 = await authFetch(`${API_BASE_URL}/api/bookings/${raw._id}/pay`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body,
+            });
+            if (r0.status >= 502 && n < 2) await sleepMs(2500 * (n + 1));
+            else res = r0;
+          } catch (e) {
+            if (n === 2) throw new Error("Could not reach the server. Please check your connection and try again.");
+            await sleepMs(2500 * (n + 1));
+          }
+        }
         const r = await res.json().catch(() => ({}));
-        if (!res.ok || !r.success) {
-          // the screen was out of date (e.g. already paid, status changed): show the server's version so the buttons and amounts are right
-          if (r.booking) setRaw((cur) => ({ ...cur, ...r.booking }));
-          else if (res.status === 409) load();
+        let next = null;
+        if (res.ok && r.success) {
+          next = r.booking ? { ...raw, ...r.booking } : payLocally(raw, amount, method);
+        } else if (res.status === 409) {
+          // the screen was out of date. If the server already holds this payment (or the booking is fully paid), that is a success.
+          let fresh = r.booking || null;
+          try {
+            const lr = await authFetch(`${API_BASE_URL}/api/bookings/user/${user.uid}`);
+            const list = lr.ok ? await lr.json() : [];
+            fresh = (Array.isArray(list) ? list : []).find((x) => x._id === raw._id) || fresh;
+          } catch {
+            /* keep what the 409 reply carried */
+          }
+          if (fresh) {
+            const merged = { ...raw, ...fresh };
+            const hasRef = meta.ref && paymentsOf(merged).some((p) => p.ref === meta.ref);
+            if (hasRef || moneyOf(merged).paidInFull) next = merged;
+            else setRaw(merged);
+          }
+          if (!next) throw new Error(r.message || "Payment failed. Please try again.");
+        } else {
           throw new Error(r.message || "Payment failed. Please try again.");
         }
-        const next = r.booking ? { ...raw, ...r.booking } : payLocally(raw, amount, method);
         const wasAwaiting = raw.status === "awaiting_payment";
         setRaw(next);
         setReceipt({ amount, confirmed: wasAwaiting && next.status === "confirmed", full: moneyOf(next).paidInFull });
@@ -338,7 +367,7 @@ const BillingPage = () => {
         setBusy(false);
       }
     },
-    [raw, load],
+    [raw, user],
   );
 
   if (!user) return null;

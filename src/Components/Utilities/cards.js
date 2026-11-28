@@ -127,12 +127,17 @@ export const clearCard = (uid) => {
 
 /* name shown on the card by default: the Google (or sign-up) display name, then the e-mail name */
 export const holderName = (user) => {
-  const raw =
-    user?.displayName ||
-    (user?.providerData || []).map((p) => p?.displayName).find(Boolean) ||
-    (user?.email || "").split("@")[0] ||
-    "";
-  return raw.replace(/[^a-zA-Z .'-]/g, " ").replace(/\s+/g, " ").trim().slice(0, 26);
+  const clean = (v) => String(v || "").replace(/[^a-zA-Z .'-]/g, " ").replace(/\s+/g, " ").trim().slice(0, 26);
+  const candidates = [
+    user?.displayName,
+    ...(user?.providerData || []).map((p) => p?.displayName),
+    (user?.email || "").split("@")[0].replace(/[._\-+0-9]+/g, " "),
+  ];
+  for (const c of candidates) {
+    const n = clean(c);
+    if (n.length >= 2) return n;
+  }
+  return "Card Holder"; // e.g. a name written only in Bangla letters
 };
 
 /* Bangladeshi banks for the bank payment (demo) */
@@ -146,3 +151,5 @@ export const maskAccount = (v) => {
   return d.length > 4 ? `•••• ${d.slice(-4)}` : d;
 };
 export const randomAccount = () => String(1 + rnd(9)) + randDigits(12);
+
+export const randomCvc = (brand) => randDigits(brand === "amex" ? 4 : 3);
