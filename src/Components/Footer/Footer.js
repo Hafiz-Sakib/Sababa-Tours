@@ -1,12 +1,13 @@
 // src/Components/Footer/Footer.js
 import Logo from "../ui/Logo";
+import { DESK_EMAIL, DESK_PHONE, DESK_WHATSAPP } from "../../config";
 import { Link } from "react-router-dom";
 import { FiMail, FiMapPin, FiPhone } from "react-icons/fi";
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
 // WhatsApp opens a chat with a ready-made first message
-const WHATSAPP_NUMBER = "8801516195904";
+const WHATSAPP_NUMBER = DESK_WHATSAPP;
 const WHATSAPP_TEXT = "Hello Sababa Tours! I would like to know more about your tour packages.";
 
 // `bg` is the brand fill that rises on hover
@@ -33,8 +34,8 @@ const explore = [
 
 const contact = [
   { icon: <FiMapPin />, text: "Chittagong, Bangladesh" },
-  { icon: <FiPhone />, text: "+880 1XXX-XXXXXX" },
-  { icon: <FiMail />, text: "hello@sababatours.com" },
+  { icon: <FiPhone />, text: DESK_PHONE, href: `tel:${DESK_PHONE}` },
+  { icon: <FiMail />, text: DESK_EMAIL, href: `mailto:${DESK_EMAIL}` },
 ];
 
 const Footer = () => {
@@ -115,7 +116,7 @@ const Footer = () => {
               {contact.map((item, i) => (
                 <div key={i} className="flex gap-3 text-on/55 hover:text-on/80 transition-colors">
                   <span className="text-accent mt-0.5 shrink-0">{item.icon}</span>
-                  {item.text}
+                  {item.href ? <a href={item.href} className="break-all">{item.text}</a> : item.text}
                 </div>
               ))}
             </div>

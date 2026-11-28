@@ -5,6 +5,7 @@ import { forwardRef } from "react";
 import logoMark from "../../assets/logo/logo-mark.png";
 import { fmtDate, fmtDateTime, invoiceNo, money, moneyOf, paymentsOf } from "../Utilities/payment";
 import { extraRows } from "../Utilities/tripExtras";
+import { DESK_EMAIL, DESK_PHONE } from "../../config";
 
 const BRAND = "#1D8A84";
 const FOREST = "#0F5C46";
@@ -50,9 +51,9 @@ const Invoice = forwardRef(function Invoice({ b }, ref) {
                   Sababa Tours
                 </p>
                 <p className="mt-1.5 text-[11px] leading-relaxed text-[#546470]">
-                  Bangladesh · hello@sababatours.com
+                  Bangladesh · {DESK_EMAIL}
                   <br />
-                  +880 1XXX-XXXXXX
+                  {DESK_PHONE}
                 </p>
               </div>
             </div>

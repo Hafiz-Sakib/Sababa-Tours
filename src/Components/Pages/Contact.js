@@ -17,8 +17,9 @@ import {
 import toast from "react-hot-toast";
 import { BlurAccordion, Reveal, TiltCard } from "../ui/Motion";
 import BookingCard from "../ui/brew/BookingCard";
+import { DESK_ADDRESS, DESK_EMAIL, DESK_PHONE } from "../../config";
 
-const EMAIL = "hello@sababatours.com";
+const EMAIL = DESK_EMAIL;
 
 const nextSteps = [
   { title: "We read your message", text: "A real person on the travel desk reviews your plan, dates and group size." },
@@ -225,17 +226,19 @@ const Contact = () => {
             {
               icon: <FiMapPin className="text-3xl" />,
               label: "Office",
-              value: "Chittagong, Bangladesh",
+              value: DESK_ADDRESS,
             },
             {
               icon: <FiMail className="text-3xl" />,
               label: "Email",
-              value: "hello@sababatours.com",
+              value: DESK_EMAIL,
+              href: `mailto:${DESK_EMAIL}`,
             },
             {
               icon: <FiPhone className="text-3xl" />,
               label: "Phone",
-              value: "+880 1XXX-XXXXXX",
+              value: DESK_PHONE,
+              href: `tel:${DESK_PHONE}`,
             },
           ].map((item, i) => (
             <div
@@ -247,7 +250,9 @@ const Contact = () => {
                 <p className="font-bold uppercase tracking-widest text-sm text-muted">
                   {item.label}
                 </p>
-                <p className="text-lg font-medium mt-1">{item.value}</p>
+                <p className="text-lg font-medium mt-1">
+                  {item.href ? <a href={item.href} className="hover:text-brand-ink">{item.value}</a> : item.value}
+                </p>
               </div>
             </div>
           ))}

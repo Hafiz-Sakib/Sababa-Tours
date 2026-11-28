@@ -143,7 +143,7 @@ const Rail = ({ status, bar }) => {
 const MoneyStrip = ({ b }) => {
   const m = moneyOf(b);
   return (
-    <div className="mx-7 mb-6 rounded-2xl border border-line bg-page-alt p-4">
+    <div className="mx-5 mb-4 rounded-2xl border border-line bg-page-alt px-4 py-3">
       <div className="grid grid-cols-3 gap-3 text-center sm:text-left">
         {[
           ["Total", m.total, "text-ink"],
@@ -172,13 +172,13 @@ const MoneyStrip = ({ b }) => {
   );
 };
 
-/* picture of the booked place: leans with the cursor, zooms on hover, press it to open it large */
-const BookingImage = ({ picture, place, category, duration, name, cancelled, onOpen }) => {
+/* small rounded picture of the booked place: leans with the cursor, zooms on hover, press it to open it large */
+const BookingImage = ({ picture, name, cancelled, onOpen }) => {
   const reduce = useReducedMotion();
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const x = useSpring(useTransform(mx, (v) => v * -14), { stiffness: 140, damping: 20 });
-  const y = useSpring(useTransform(my, (v) => v * -14), { stiffness: 140, damping: 20 });
+  const x = useSpring(useTransform(mx, (v) => v * -8), { stiffness: 140, damping: 20 });
+  const y = useSpring(useTransform(my, (v) => v * -8), { stiffness: 140, damping: 20 });
   const move = (e) => {
     if (reduce) return;
     const r = e.currentTarget.getBoundingClientRect();
@@ -196,9 +196,9 @@ const BookingImage = ({ picture, place, category, duration, name, cancelled, onO
       onMouseMove={move}
       onMouseLeave={leave}
       aria-label={`Open picture of ${name}`}
-      className="group/img relative block h-48 w-full shrink-0 cursor-zoom-in overflow-hidden bg-line text-left md:h-auto md:min-h-[240px] md:w-60 lg:w-72"
+      className="group/img relative mt-0.5 block h-[68px] w-[68px] shrink-0 cursor-zoom-in overflow-hidden rounded-2xl bg-line shadow-md ring-2 ring-surface transition-shadow duration-300 hover:shadow-xl sm:h-24 sm:w-24 sm:rounded-3xl"
     >
-      <div className="absolute inset-0 scale-110 transition-transform duration-700 ease-out group-hover/img:scale-[1.22]">
+      <div className="absolute inset-0 scale-110 transition-transform duration-500 ease-out group-hover/img:scale-[1.3]">
         <motion.img
           {...imgProps(picture)}
           alt={name}
@@ -207,21 +207,9 @@ const BookingImage = ({ picture, place, category, duration, name, cancelled, onO
           className={`h-full w-full object-cover ${cancelled ? "grayscale" : ""}`}
         />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-scrim/80 via-scrim/10 to-scrim/30 transition-opacity duration-300 group-hover/img:opacity-80" />
-      {place && (
-        <span className="absolute left-3 top-3 inline-flex max-w-[85%] items-center gap-1.5 rounded-full bg-surface/90 px-3 py-1.5 text-[11px] font-black text-ink backdrop-blur">
-          <FiMapPin className="shrink-0 text-brand-ink" /> <span className="truncate">{place}</span>
-        </span>
-      )}
-      <div className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-2 text-on">
-        <div className="min-w-0 text-[11px] font-bold leading-tight">
-          {category && <p className="truncate uppercase tracking-widest text-accent-lt">{category}</p>}
-          {duration && <p className="mt-0.5 truncate text-on/85">{duration}</p>}
-        </div>
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-on/15 backdrop-blur transition group-hover/img:scale-110 group-hover/img:bg-on/30">
-          <FiMaximize2 size={13} />
-        </span>
-      </div>
+      <span className="absolute inset-0 grid place-items-center bg-scrim/0 text-on opacity-0 transition duration-300 group-hover/img:bg-scrim/35 group-hover/img:opacity-100">
+        <FiMaximize2 size={16} />
+      </span>
     </button>
   );
 };
@@ -571,35 +559,30 @@ const MyBookings = () => {
                       max={2.5}
                       className={`overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_10px_40px_rgba(16,24,40,0.06)] transition-shadow hover:shadow-[0_24px_60px_rgba(16,24,40,0.12)] ${b.status === "cancelled" ? "opacity-75" : ""}`}
                     >
-                      <div className="flex flex-col md:flex-row">
-                      <BookingImage
-                        picture={svc?.picture || b.servicePicture}
-                        place={svc?.location || b.serviceLocation}
-                        category={svc?.category}
-                        duration={svc?.duration}
-                        name={b.serviceName}
-                        cancelled={b.status === "cancelled"}
-                        onOpen={() =>
-                          setPreview({
-                            picture: svc?.picture || b.servicePicture,
-                            name: b.serviceName,
-                            place: svc?.location || b.serviceLocation,
-                            serviceId: svc ? b.serviceId : null,
-                          })
-                        }
-                      />
-                      <div className="min-w-0 flex-1">
                       <div className={`h-1.5 bg-gradient-to-r ${st.bar}`} />
-                      <div className="flex flex-col justify-between gap-3 p-5 md:flex-row md:items-start">
-                        <div className="min-w-0">
+                      <div className="flex items-start gap-3.5 p-4 sm:gap-4">
+                        <BookingImage
+                          picture={svc?.picture || b.servicePicture}
+                          name={b.serviceName}
+                          cancelled={b.status === "cancelled"}
+                          onOpen={() =>
+                            setPreview({
+                              picture: svc?.picture || b.servicePicture,
+                              name: b.serviceName,
+                              place: svc?.location || b.serviceLocation,
+                              serviceId: svc ? b.serviceId : null,
+                            })
+                          }
+                        />
+                        <div className="min-w-0 flex-1">
                           <span
-                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold capitalize ring-1 ${st.pill}`}
+                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-[11px] font-bold capitalize ring-1 ${st.pill}`}
                           >
                             <span className="h-1.5 w-1.5 rounded-full bg-current" />
                             {st.label}
                           </span>
                           <h3
-                            className="mt-2 text-lg font-black leading-tight text-ink md:text-xl"
+                            className="mt-1.5 text-lg font-black leading-tight text-ink md:text-xl"
                             style={serif}
                           >
                             {b.serviceId ? (
@@ -610,16 +593,25 @@ const MyBookings = () => {
                               b.serviceName
                             )}
                           </h3>
-                          <p className="mt-1 text-xs text-muted">
+                          {(svc?.location || b.serviceLocation) && (
+                            <p className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-ink/80">
+                              <FiMapPin className="shrink-0 text-brand-ink" />
+                              <span className="truncate">
+                                {svc?.location || b.serviceLocation}
+                                {svc?.duration ? ` · ${svc.duration}` : ""}
+                              </span>
+                            </p>
+                          )}
+                          <p className="mt-0.5 text-[11px] text-muted">
                             ID: <span className="font-mono">{b._id}</span>
                           </p>
-                          <p className="mt-2 text-xs text-muted">
+                          <p className="mt-1 text-xs text-muted">
                             {b.cancelReason === "advance_not_paid"
                               ? "Cancelled automatically: the 30% advance was not paid within 72 hours."
                               : st.note}
                           </p>
                         </div>
-                        <div className="shrink-0 md:text-right">
+                        <div className="shrink-0 text-right">
                           <p className="text-xl font-black text-accent" style={serif}>
                             <AnimatedNumber value={Number(b.totalAmount || 0)} prefix="BDT " />
                           </p>
@@ -629,12 +621,12 @@ const MyBookings = () => {
                         </div>
                       </div>
 
-                      <div className="px-5 pb-4">
+                      <div className="px-5 pb-3">
                         <Rail status={shown} bar={st.bar} />
                       </div>
 
                       {b.status === "awaiting_payment" && (
-                        <div className="px-5 pb-4">
+                        <div className="px-5 pb-3">
                           <HoldBanner
                             b={b}
                             compact
@@ -645,7 +637,7 @@ const MyBookings = () => {
                       )}
                       {(b.status === "confirmed" || b.status === "awaiting_payment" || moneyOf(b).paid > 0) && <MoneyStrip b={b} />}
 
-                      <div className="grid grid-cols-2 gap-3 border-t border-line bg-page-alt px-5 py-3.5 text-sm md:grid-cols-4">
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 border-t border-line bg-page-alt px-5 py-3 text-sm md:grid-cols-4">
                         <Info icon={<FiCalendar />} label="Trip date">
                           {fmt(b.preferredDate, { day: "numeric", month: "long", year: "numeric" })}
                         </Info>
@@ -656,9 +648,9 @@ const MyBookings = () => {
                           <Info icon={<FiMapPin />} label="Address">{b.address}</Info>
                         </div>
                         {extraRows(b).length > 0 && (
-                          <div className="col-span-2 mt-1 border-t border-line pt-3 md:col-span-4">
-                            <p className="mb-2.5 text-[10px] font-black uppercase tracking-widest text-brand-ink">Trip details</p>
-                            <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                          <div className="col-span-2 mt-0.5 border-t border-line pt-2.5 md:col-span-4">
+                            <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-brand-ink">Trip details</p>
+                            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
                               {extraRows(b).map((r) => (
                                 <div key={r.key} className="min-w-0">
                                   <p className="text-[10px] font-black uppercase tracking-widest text-muted">{r.label}</p>
@@ -687,8 +679,6 @@ const MyBookings = () => {
                         onEdit={() => setEditing(b)}
                         onBilling={() => navigate(`/my-bookings/${b._id}/billing`)}
                       />
-                      </div>
-                      </div>
                     </TiltCard>
                   </motion.article>
                 );
@@ -739,7 +729,7 @@ const BookingActions = ({
 
   return (
     <div className="border-t border-line">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-2.5">
         <div className="flex flex-wrap items-center gap-3">
           {showBilling && (
             <ActionBtn
