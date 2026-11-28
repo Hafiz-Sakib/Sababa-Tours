@@ -126,8 +126,8 @@ const Services = () => {
         </div>
       </section>
 
-      {/* ── Sticky Search Bar ── */}
-      <section className="sticky top-[76px] z-40 bg-surface/96 backdrop-blur-2xl border-b border-line py-5 shadow-sm">
+      {/* ── Search & sort strip (scrolls with the page; only the navbar is sticky) ── */}
+      <section className="relative bg-panel border-y border-line py-6 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
             {/* Search */}
@@ -137,7 +137,7 @@ const Services = () => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search destinations, hills, beaches, culture..."
-                className="w-full border border-line bg-page-alt pl-12 pr-11 py-4 rounded-2xl focus:border-brand/50 focus:bg-surface outline-none text-sm placeholder:text-muted/50 transition-all duration-300"
+                className="w-full border border-line bg-surface pl-12 pr-11 py-4 rounded-2xl focus:border-brand/50 outline-none text-sm placeholder:text-muted/50 transition-all duration-300"
               />
               {query && (
                 <button
@@ -161,7 +161,7 @@ const Services = () => {
                   className={`px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-xl border transition-all duration-300 active:scale-95 ${
                     sortBy === opt.value
                       ? "bg-btn text-white border-btn shadow-md"
-                      : "border-line text-muted hover:border-brand/40 hover:text-brand-ink"
+                      : "border-line bg-surface text-muted hover:border-brand/40 hover:text-brand-ink"
                   }`}
                 >
                   {opt.label}
