@@ -1,7 +1,8 @@
 // src/Components/Booking/Booking.js
 // Booking flow (inspired by the Nikah Community Center wizard):
-//   Trip -> Date -> Details -> Review & confirm, with a live receipt beside it.
-// Server contract is unchanged: POST /api/bookings { serviceId, travelers, preferredDate, phoneNumber, address, notes, userName }.
+//   Trip (+ category) -> Date -> Details (+ lead traveler) -> Stay & Flight -> Review & confirm, with a live receipt beside it.
+// POST /api/bookings { serviceId, travelers, preferredDate, phoneNumber, address, notes, userName,
+//                      category, traveler{}, hotel{}, flight{} }  (see Utilities/tripExtras.js and the backend's extras.js).
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -42,6 +43,8 @@ import { auth } from "../../Firebase.init";
 import { API_BASE_URL } from "../../config";
 import { authFetch } from "../Utilities/authFetch";
 import { imgProps } from "../Utilities/image";
+import { CategoryPicker, StayFlightFields, TravelerFields } from "./TripExtras";
+import { errorsFor, flightSummary, hotelSummary, stayDates, toPayload, travelerSummary, validateExtras, withDefaults } from "../Utilities/tripExtras";
 
 const MAX_TRAVELERS = 20;
 const MAX_ADDRESS_WORDS = 30;
@@ -51,9 +54,11 @@ const PHONE_REGEX = /^(013|014|015|016|017|018|019)\d{8}$/;
 const STEPS = [
   { id: "trip", label: "Trip", hint: "Travelers" },
   { id: "date", label: "Date", hint: "Pick a day" },
-  { id: "details", label: "Details", hint: "Contact & address" },
+  { id: "details", label: "Details", hint: "Contact & traveler" },
+  { id: "stay", label: "Stay & Flight", hint: "Hotel & travel" },
   { id: "confirm", label: "Confirm", hint: "Review & send" },
 ];
+const LAST = STEPS.length - 1;
 
 const inclusions = [
   "Dedicated trip coordinator",
@@ -203,7 +208,7 @@ const Row = ({ k, v }) => (
   </div>
 );
 
-const Receipt = ({ service, travelers, date, total, className = "" }) => (
+const Receipt = ({ service, travelers, date, total, extras, className = "" }) => (
   <div
     className={`relative overflow-hidden rounded-[1.75rem] bg-surface p-5 shadow-[0_20px_60px_rgba(16,24,40,0.12)] ring-1 ring-line sm:p-6 ${className}`}
   >
@@ -223,6 +228,16 @@ const Receipt = ({ service, travelers, date, total, className = "" }) => (
         <Row k="Duration" v={service.duration || "Flexible"} />
         <Row k="Travelers" v={travelers} />
         <Row k="Trip date" v={date ? new Date(`${date}T00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"} />
+        {extras?.category && <Row k="Trip type" v={extras.category} />}
+        {extras && (
+          <Row
+            k="Hotel"
+            v={extras.hotel.needed ? `${extras.hotel.roomType}${extras.hotel.rooms > 1 ? ` × ${extras.hotel.rooms}` : ""} · ${extras.hotel.nights}n` : "Own stay"}
+          />
+        )}
+        {extras && (
+          <Row k="Flight" v={extras.flight.mode === "own" ? extras.flight.flightNo || "Own flight" : extras.flight.mode === "arrange" ? "Desk arranges" : "Not needed"} />
+        )}
       </div>
       <div className="pt-2">
         <Row k={`${service.balance} × ${travelers}`} v={`BDT ${total.toLocaleString()}`} />
@@ -262,8 +277,9 @@ const Booking = () => {
   const [address, setAddress] = useState(draft.address || "");
   const [notes, setNotes] = useState(draft.notes || "");
   const [errors, setErrors] = useState({});
-  const [step, setStep] = useState(() => (draft.step >= 0 && draft.step <= 3 ? draft.step : 0));
+  const [step, setStep] = useState(() => (draft.step >= 0 && draft.step <= LAST ? draft.step : 0));
   const [dir, setDir] = useState(1);
+  const [extras, setExtras] = useState(() => withDefaults(draft.extras));
   const [agree, setAgree] = useState(false);
   const [tried, setTried] = useState(false);
   const [sheet, setSheet] = useState(false);
@@ -345,16 +361,32 @@ const Booking = () => {
     try {
       sessionStorage.setItem(
         draftKey(bookingId),
-        JSON.stringify({ date, travelers, phoneNumber, address, notes, step }),
+        JSON.stringify({ date, travelers, phoneNumber, address, notes, step, extras }),
       );
     } catch {
       /* storage unavailable — ignore */
     }
-  }, [bookingId, date, travelers, phoneNumber, address, notes, step]);
+  }, [bookingId, date, travelers, phoneNumber, address, notes, step, extras]);
+
+  // set("category", null, v) or set("hotel", "rooms", n)
+  const setX = (group, key, val) => {
+    setExtras((x) => (key === null ? { ...x, [group]: val } : { ...x, [group]: { ...x[group], [key]: val } }));
+  };
+  // children can never reach the number of travelers
+  useEffect(() => {
+    setExtras((x) => (Number(x.traveler.children) >= travelers ? { ...x, traveler: { ...x.traveler, children: Math.max(0, travelers - 1) } } : x));
+  }, [travelers]);
+  // pre-fill the lead traveler's name from the account
+  useEffect(() => {
+    const n = user?.displayName;
+    if (n) setExtras((x) => (x.traveler.fullName ? x : { ...x, traveler: { ...x.traveler, fullName: n } }));
+  }, [user]);
 
   const price = parsePrice(service?.balance);
   const total = Math.round(price * travelers);
   const wordCount = countWords(address);
+  const xErr = validateExtras(extras, { travelers, date });
+  const xShown = tried ? xErr : {};
 
   const validate = () => {
     const e = {};
@@ -383,6 +415,11 @@ const Booking = () => {
       return;
     }
 
+    if (Object.keys(xErr).length) {
+      toast.error("Please complete the trip details");
+      return;
+    }
+
     // Login is only required here, at the moment of confirming.
     if (!user) {
       toast("Please log in to confirm your booking. Your details are saved.", {
@@ -405,6 +442,7 @@ const Booking = () => {
           address: address.trim(),
           notes: notes.trim(),
           userName: user.displayName || user.email?.split("@")[0],
+          ...toPayload(extras),
         }),
       });
       const result = await response.json().catch(() => ({}));
@@ -453,9 +491,10 @@ const Booking = () => {
   };
 
   const stepOk = [
-    () => travelers >= 1 && travelers <= MAX_TRAVELERS,
+    () => travelers >= 1 && travelers <= MAX_TRAVELERS && !xErr.category,
     () => !!date && date >= todayLocal(),
-    () => PHONE_REGEX.test(phoneNumber) && !!address.trim() && wordCount <= MAX_ADDRESS_WORDS,
+    () => PHONE_REGEX.test(phoneNumber) && !!address.trim() && wordCount <= MAX_ADDRESS_WORDS && !errorsFor(xErr, "traveler").length,
+    () => !errorsFor(xErr, "hotel").length && !errorsFor(xErr, "flight").length,
     () => agree,
   ];
 
@@ -463,12 +502,12 @@ const Booking = () => {
     if (d > 0 && !stepOk[step]()) {
       setTried(true);
       setErrors(validate());
-      toast.error(step === 3 ? "Please accept the request terms first" : "Please complete the highlighted fields");
+      toast.error(step === LAST ? "Please accept the request terms first" : "Please complete the highlighted fields");
       return;
     }
     setTried(false);
     setDir(d);
-    setStep((s) => Math.max(0, Math.min(3, s + d)));
+    setStep((s) => Math.max(0, Math.min(LAST, s + d)));
   };
   const jump = (i) => {
     if (i < step) {
@@ -483,7 +522,7 @@ const Booking = () => {
       toast.error("Please accept the request terms first");
       return;
     }
-    const bad = [0, 1, 2].find((i) => !stepOk[i]());
+    const bad = [0, 1, 2, 3].find((i) => !stepOk[i]());
     if (bad !== undefined) {
       setErrors(validate());
       setTried(true);
@@ -726,6 +765,11 @@ const Booking = () => {
                             ))}
                           </div>
                         </div>
+
+                        <div>
+                          <Heading title="What kind of trip is it?" text="Helps our desk pick the right pace, stays and guides." />
+                          <CategoryPicker value={extras} set={setX} errors={xShown} />
+                        </div>
                       </div>
                     )}
 
@@ -836,17 +880,34 @@ const Booking = () => {
                             </div>
                           </div>
                         </div>
+                        <div className="rounded-[1.75rem] bg-surface p-5 ring-1 ring-line sm:p-7">
+                          <TravelerFields value={extras} set={setX} errors={xShown} travelers={travelers} />
+                        </div>
                       </div>
                     )}
 
-                    {/* STEP 3 — confirm */}
+                    {/* STEP 3 — hotel room + flight */}
                     {step === 3 && (
+                      <div className="space-y-6">
+                        <Heading title="Stay & flight" text="Room and flight preferences. Nothing is booked until our desk confirms with you." />
+                        <div className="rounded-[1.75rem] bg-surface p-5 ring-1 ring-line sm:p-7">
+                          <StayFlightFields value={extras} set={setX} errors={xShown} travelers={travelers} date={date} />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* STEP 4 — confirm */}
+                    {step === 4 && (
                       <div className="space-y-4">
                         <Heading title="Review your request" text="Check everything once. You can still cancel while it is pending." />
                         {[
                           [0, "Trip", service.name, `${travelers} ${travelers === 1 ? "traveler" : "travelers"}`],
                           [1, "Trip date", fmtLong(date), service.duration || ""],
                           [2, "Contact", phoneNumber, address],
+                          [0, "Trip type", extras.category, ""],
+                          [2, "Lead traveler", travelerSummary(extras.traveler, travelers), extras.traveler.emergencyName ? `Emergency: ${extras.traveler.emergencyName} · ${extras.traveler.emergencyPhone}` : ""],
+                          [3, "Hotel room", hotelSummary(toPayload(extras).hotel), extras.hotel.needed ? stayDates(date, extras.hotel.nights) || "" : ""],
+                          [3, "Flight", flightSummary(toPayload(extras).flight), ""],
                         ].map(([to, k, a, b]) => (
                           <div key={k} className="flex items-start justify-between gap-3 rounded-2xl bg-sandy p-4 ring-1 ring-line">
                             <div className="min-w-0">
@@ -870,7 +931,7 @@ const Booking = () => {
                           </div>
                         )}
                         <div className="lg:hidden">
-                          <Receipt service={service} travelers={travelers} date={date} total={total} />
+                          <Receipt service={service} travelers={travelers} date={date} total={total} extras={extras} />
                         </div>
                         <div className="flex items-start gap-3 rounded-2xl bg-amber-50 p-3.5 text-sm text-amber-900 ring-1 ring-amber-300">
                           <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-500 text-white">
@@ -931,7 +992,7 @@ const Booking = () => {
                         <RollingNumber value={total} prefix="BDT " className="text-base font-bold text-ink sm:text-xl" />
                       </span>
                     </button>
-                    {step < 3 ? (
+                    {step < LAST ? (
                       <button
                         type="button"
                         onClick={() => go(1)}
@@ -959,7 +1020,7 @@ const Booking = () => {
 
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-3">
-              <Receipt service={service} travelers={travelers} date={date} total={total} />
+              <Receipt service={service} travelers={travelers} date={date} total={total} extras={extras} />
               <ul className="grid grid-cols-2 gap-2 px-2 text-[11px] font-semibold text-muted">
                 {["No payment now", "Reply within 24h", "Cancel while pending", "Secure login"].map((t) => (
                   <li key={t} className="flex items-center gap-1.5">
@@ -1050,7 +1111,7 @@ const Booking = () => {
               transition={{ type: "spring", stiffness: 380, damping: 32 }}
               className="relative w-full max-w-sm"
             >
-              <Receipt service={service} travelers={travelers} date={date} total={total} />
+              <Receipt service={service} travelers={travelers} date={date} total={total} extras={extras} />
               <button onClick={() => setSheet(false)} className="mt-3 w-full rounded-full bg-surface py-3 text-sm font-bold text-ink">
                 Close
               </button>

@@ -4,6 +4,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import toast from "react-hot-toast";
 import {
   FiAlertTriangle,
+  FiBookOpen,
   FiCalendar,
   FiCheckCircle,
   FiChevronLeft,
@@ -24,7 +25,6 @@ import {
   FiTrash2,
   FiUsers,
   FiX,
-  FiXCircle,
   FiClock,
   FiMap,
 } from "react-icons/fi";
@@ -32,7 +32,7 @@ import { auth } from "../../Firebase.init";
 import { API_BASE_URL } from "../../config";
 import { authFetch } from "../Utilities/authFetch";
 import EditBookingModal from "../Booking/EditBookingModal";
-import HoldToDelete from "../ui/HoldToDelete";
+import HoldButton from "../ui/HoldButton";
 import StatusAnalytics from "./StatusAnalytics";
 import { HoldChip } from "../Billing/HoldBanner";
 import InvoiceModal from "../Billing/InvoiceModal";
@@ -62,11 +62,13 @@ import {
   motion,
 } from "../ui/Motion";
 import { fixImageUrl, imgProps } from "../Utilities/image";
+import { extraRows, extrasForCsv } from "../Utilities/tripExtras";
 
 const ADMIN_EMAIL = "hafizsakib5@gmail.com";
 const API_BOOKINGS = `${API_BASE_URL}/api/admin/bookings`;
 const API_SERVICES = `${API_BASE_URL}/api/admin/services`;
 const API_SERVICES_PUBLIC = `${API_BASE_URL}/api/services`;
+const API_BLOGS = `${API_BASE_URL}/api/admin/blogs`;
 const PER_PAGE = 10;
 const STATUSES = ["all", "pending", "awaiting_payment", "confirmed", "cancelled"];
 const STATUS_LABEL = { awaiting_payment: "advance due" };
@@ -168,7 +170,7 @@ const ConfirmDialog = ({ open, title, text, confirmLabel, danger, busy, onConfir
             Keep
           </button>
           {danger ? (
-            <HoldToDelete full disabled={busy} label={`Hold to ${String(confirmLabel || "delete").toLowerCase()}`} doneLabel="Done" onConfirm={onConfirm} className="flex-1" />
+            <HoldButton tone="delete" full disabled={busy} label={`Hold to ${String(confirmLabel || "delete").toLowerCase()}`} doneLabel="Done" onConfirm={onConfirm} className="flex-1" />
           ) : (
             <button
               onClick={onConfirm}
@@ -297,6 +299,9 @@ const BookingDrawer = ({ booking: b, all, busy, onClose, onStatus, onDeleteNow, 
           <Row icon={<FiMapPin size={14} />} label="Address">{b.address}</Row>
           <Row icon={<FiCalendar size={14} />} label="Preferred date">{fmtDate(b.preferredDate)}</Row>
           <Row icon={<FiUsers size={14} />} label="Travelers">{b.travelers}</Row>
+          {extraRows(b).map((r) => (
+            <Row key={r.key} icon={<FiList size={14} />} label={r.label}>{r.value}</Row>
+          ))}
           {b.notes && <Row icon={<FiList size={14} />} label="Special requests">{b.notes}</Row>}
           <Row icon={<FiClock size={14} />} label="Requested on">{fmtDate(b.createdAt)}</Row>
           <PaymentBlock b={b} />
@@ -311,29 +316,33 @@ const BookingDrawer = ({ booking: b, all, busy, onClose, onStatus, onDeleteNow, 
             </p>
           )}
           <div className="grid grid-cols-2 gap-3">
-            <button
+            <HoldButton
+              tone="confirm"
+              full
               disabled={busy || b.status === "confirmed" || b.status === "awaiting_payment"}
-              onClick={() => onStatus(b._id, "confirmed")}
-              className="py-3 rounded-2xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 disabled:opacity-40 flex items-center justify-center gap-2"
-            >
-              <FiCheckCircle /> {b.status === "awaiting_payment" ? "Awaiting advance" : "Confirm"}
-            </button>
-            <button
+              label={b.status === "awaiting_payment" ? "Awaiting advance" : b.status === "confirmed" ? "Confirmed" : "Hold to confirm"}
+              doneLabel="Confirmed"
+              onConfirm={() => onStatus(b._id, "confirmed")}
+            />
+            <HoldButton
+              tone="cancel"
+              full
               disabled={busy || b.status === "cancelled"}
-              onClick={() => onStatus(b._id, "cancelled")}
-              className="py-3 rounded-2xl bg-surface border border-red-200 text-red-600 text-sm font-bold hover:bg-red-50 disabled:opacity-40 flex items-center justify-center gap-2"
-            >
-              <FiXCircle /> Cancel
-            </button>
+              label={b.status === "cancelled" ? "Cancelled" : "Hold to cancel"}
+              doneLabel="Cancelled"
+              onConfirm={() => onStatus(b._id, "cancelled")}
+            />
           </div>
           {b.status !== "pending" && (
-            <button
+            <HoldButton
+              tone="neutral"
+              full
+              size="sm"
               disabled={busy}
-              onClick={() => onStatus(b._id, "pending")}
-              className="w-full py-2.5 rounded-2xl text-xs font-bold text-muted hover:bg-surface border border-line"
-            >
-              Move back to pending
-            </button>
+              label="Hold to move back to pending"
+              doneLabel="Moved to pending"
+              onConfirm={() => onStatus(b._id, "pending")}
+            />
           )}
           <div className="grid grid-cols-2 gap-3">
             <button
@@ -349,7 +358,7 @@ const BookingDrawer = ({ booking: b, all, busy, onClose, onStatus, onDeleteNow, 
               <FiFileText /> Invoice
             </button>
           </div>
-          <HoldToDelete full label="Hold to delete permanently" doneLabel="Deleting…" onConfirm={() => onDeleteNow(b)} />
+          <HoldButton tone="delete" full label="Hold to delete permanently" doneLabel="Deleting…" onConfirm={() => onDeleteNow(b)} />
         </div>
       </motion.aside>
     </div>
@@ -639,8 +648,8 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete, 
 
   const exportCsv = () => {
     const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const head = ["Booking ID", "Customer", "Email", "Phone", "Package", "Travelers", "Trip date", "Total (BDT)", "Status", "Address", "Notes", "Requested on"];
-    const rows = filtered.map((b) => [b._id, b.userName, b.userEmail, b.phoneNumber, b.serviceName, b.travelers, fmtDate(b.preferredDate), b.totalAmount, b.status, b.address, b.notes, fmtDate(b.createdAt)]);
+    const head = ["Booking ID", "Customer", "Email", "Phone", "Package", "Travelers", "Trip date", "Total (BDT)", "Status", "Address", "Notes", "Requested on", "Trip type", "Lead traveler", "Children", "Emergency contact", "Hotel room", "Flight", "Paid (BDT)"];
+    const rows = filtered.map((b) => [b._id, b.userName, b.userEmail, b.phoneNumber, b.serviceName, b.travelers, fmtDate(b.preferredDate), b.totalAmount, b.status, b.address, b.notes, fmtDate(b.createdAt), ...(() => { const x = extrasForCsv(b); return [x.category, x.traveler, x.children, x.emergency, x.hotel, x.flight, b.paidAmount || 0]; })()]);
     const csv = "\uFEFF" + [head, ...rows].map((r) => r.map(esc).join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
@@ -708,10 +717,10 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete, 
                     <td className="px-5 py-4"><div className="flex flex-col items-start gap-1.5"><StatusBadge status={b.status} /><HoldChip b={b} /></div></td>
                     <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
-                        <button title="Confirm" disabled={busyId === b._id || b.status === "confirmed" || b.status === "awaiting_payment"} onClick={() => onStatus(b._id, "confirmed")} className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-30"><FiCheckCircle size={17} /></button>
-                        <button title="Cancel booking" disabled={busyId === b._id || b.status === "cancelled"} onClick={() => onStatus(b._id, "cancelled")} className="p-2 rounded-lg text-amber-600 hover:bg-amber-50 disabled:opacity-30"><FiXCircle size={17} /></button>
+                        <HoldButton variant="icon" tone="confirm" title="Hold to confirm" disabled={busyId === b._id || b.status === "confirmed" || b.status === "awaiting_payment"} onConfirm={() => onStatus(b._id, "confirmed")} />
+                        <HoldButton variant="icon" tone="cancel" title="Hold to cancel the booking" disabled={busyId === b._id || b.status === "cancelled"} onConfirm={() => onStatus(b._id, "cancelled")} />
                         <button title="Edit details" onClick={() => onEdit(b)} className="p-2 rounded-lg text-ink/70 hover:bg-sandy"><FiEdit2 size={17} /></button>
-                        <button title="Delete permanently" onClick={() => onDelete(b)} className="p-2 rounded-lg text-red-500 hover:bg-red-50"><FiTrash2 size={17} /></button>
+                        <HoldButton variant="icon" tone="delete" title="Hold to delete permanently" onConfirm={() => onDelete(b)} />
                       </div>
                     </td>
                   </tr>
@@ -734,8 +743,8 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete, 
                   <b>{fmtAmt(b.totalAmount)}</b>
                 </div>
                 <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
-                  <button disabled={busyId === b._id || b.status === "confirmed" || b.status === "awaiting_payment"} onClick={() => onStatus(b._id, "confirmed")} className="flex-1 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold disabled:opacity-40">{b.status === "awaiting_payment" ? "Awaiting advance" : "Confirm"}</button>
-                  <button disabled={busyId === b._id || b.status === "cancelled"} onClick={() => onStatus(b._id, "cancelled")} className="flex-1 py-2 rounded-xl border border-red-200 text-red-600 text-xs font-bold disabled:opacity-40">Cancel</button>
+                  <HoldButton tone="confirm" size="sm" full className="flex-1" disabled={busyId === b._id || b.status === "confirmed" || b.status === "awaiting_payment"} label={b.status === "awaiting_payment" ? "Awaiting advance" : b.status === "confirmed" ? "Confirmed" : "Hold to confirm"} onConfirm={() => onStatus(b._id, "confirmed")} />
+                  <HoldButton tone="cancel" size="sm" full className="flex-1" disabled={busyId === b._id || b.status === "cancelled"} label={b.status === "cancelled" ? "Cancelled" : "Hold to cancel"} onConfirm={() => onStatus(b._id, "cancelled")} />
                 </div>
               </div>
             ))}
@@ -837,20 +846,243 @@ const ServicesPanel = ({ services, bookings, loading, onSave, onDelete }) => {
   );
 };
 
+/* ───────────── Blogs ───────────── */
+const BLOG_CATEGORIES = ["Travel Tips", "Planning", "Culture", "Visa & Documents", "Destination Guide", "Budget", "Pilgrimage", "Adventure"];
+const EMPTY_BLOG = {
+  title: "", category: "Travel Tips", excerpt: "", body: "", image: "",
+  author: "Sababa Travel Desk", tags: "", published: true, featured: false,
+};
+const readMins = (text) => Math.max(1, Math.round(String(text || "").trim().split(/\s+/).filter(Boolean).length / 200));
+
+const Toggle = ({ on, onChange, label, hint }) => (
+  <button
+    type="button"
+    onClick={() => onChange(!on)}
+    aria-pressed={on}
+    className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3.5 py-2.5 text-left transition ${on ? "border-brand bg-brand-soft/50" : "border-line bg-page-alt"}`}
+  >
+    <span>
+      <span className="block text-sm font-bold text-ink">{label}</span>
+      {hint && <span className="block text-[11px] text-muted">{hint}</span>}
+    </span>
+    <span className={`relative h-6 w-11 shrink-0 rounded-full transition ${on ? "bg-brand" : "bg-line"}`}>
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? "left-[22px]" : "left-0.5"}`} />
+    </span>
+  </button>
+);
+
+const BlogModal = ({ initial, categories, onClose, onSave }) => {
+  const [form, setForm] = useState(() =>
+    initial
+      ? { ...initial, body: Array.isArray(initial.body) ? initial.body.join("\n\n") : initial.body || "", tags: (initial.tags || []).join(", ") }
+      : EMPTY_BLOG,
+  );
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [imgOk, setImgOk] = useState(true);
+  const isEdit = !!initial?._id;
+  const set = (k) => (e) => {
+    setForm((p) => ({ ...p, [k]: e.target.value }));
+    setErrors((p) => ({ ...p, [k]: "" }));
+    if (k === "image") setImgOk(true);
+  };
+  const cats = [...new Set([...BLOG_CATEGORIES, ...categories])];
+
+  const submit = async () => {
+    const e = {};
+    if (form.title.trim().length < 5) e.title = "Write a title (at least 5 characters)";
+    if (form.excerpt.trim().length < 20) e.excerpt = "Write a short summary (at least 20 characters)";
+    if (form.body.trim().length < 80) e.body = "The article needs at least a few sentences";
+    if (form.image.trim() && !/^https?:\/\//i.test(form.image.trim())) e.image = "Must start with http(s)://";
+    setErrors(e);
+    if (Object.keys(e).length) return;
+    setSaving(true);
+    const ok = await onSave({
+      ...(initial?._id ? { _id: initial._id } : {}),
+      title: form.title.trim(),
+      category: form.category.trim() || "Travel Tips",
+      excerpt: form.excerpt.trim(),
+      body: form.body.trim(),
+      image: form.image.trim() ? fixImageUrl(form.image) : "",
+      author: form.author.trim() || "Sababa Travel Desk",
+      tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      published: !!form.published,
+      featured: !!form.featured,
+    });
+    if (!ok) setSaving(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+      <Backdrop onClick={onClose} />
+      <ModalShell className="relative bg-surface rounded-3xl w-full max-w-3xl shadow-2xl max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-line sticky top-0 bg-surface z-10 rounded-t-3xl">
+          <h2 className="text-lg font-black text-ink">{isEdit ? "Edit blog" : "New blog"}</h2>
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-sandy"><FiX size={18} /></button>
+        </div>
+        <div className="p-6 grid md:grid-cols-[230px_1fr] gap-6">
+          <div>
+            <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-sandy flex items-center justify-center border border-line">
+              {form.image && imgOk ? (
+                <img src={fixImageUrl(form.image)} referrerPolicy="no-referrer" alt="Preview" className="w-full h-full object-cover" onError={() => setImgOk(false)} />
+              ) : (
+                <div className="text-center text-muted text-xs p-4">
+                  <FiImage size={30} className="mx-auto mb-2" />
+                  {form.image ? "Image failed to load" : "Cover image preview"}
+                </div>
+              )}
+            </div>
+            <div className="mt-3 rounded-2xl bg-panel text-on p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-accent-lt">{form.category || "Category"}</p>
+              <p className="font-black leading-tight line-clamp-3 mt-1" style={serif}>{form.title || "Blog title"}</p>
+              <p className="text-on/60 text-xs mt-2">{readMins(form.body)} min read</p>
+            </div>
+            <div className="mt-3 space-y-2">
+              <Toggle on={form.published} onChange={(v) => setForm((p) => ({ ...p, published: v }))} label="Published" hint="Off = saved as a draft, hidden from the site" />
+              <Toggle on={form.featured} onChange={(v) => setForm((p) => ({ ...p, featured: v }))} label="Featured" hint="Shown big at the top of the blog" />
+            </div>
+          </div>
+          <div className="space-y-4">
+            <FormField label="Title" required error={errors.title}>
+              <input className={inp(errors.title)} value={form.title} onChange={set("title")} placeholder="e.g. Schengen visa from Bangladesh: a calm checklist" />
+            </FormField>
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Category">
+                <input className={inp()} list="blog-cats" value={form.category} onChange={set("category")} placeholder="Travel Tips" />
+                <datalist id="blog-cats">{cats.map((c) => <option key={c} value={c} />)}</datalist>
+              </FormField>
+              <FormField label="Author">
+                <input className={inp()} value={form.author} onChange={set("author")} />
+              </FormField>
+            </div>
+            <FormField label="Short summary" required error={errors.excerpt}>
+              <textarea rows={2} className={`${inp(errors.excerpt)} resize-none`} value={form.excerpt} onChange={set("excerpt")} placeholder="One or two lines shown on the blog card…" />
+            </FormField>
+            <FormField label="Article" required error={errors.body}>
+              <textarea rows={9} className={`${inp(errors.body)} resize-y`} value={form.body} onChange={set("body")} placeholder={"Write the article here.\n\nLeave a blank line between paragraphs."} />
+              <p className="text-[11px] text-muted mt-1">Leave a blank line between paragraphs. About {readMins(form.body)} min read.</p>
+            </FormField>
+            <FormField label="Cover image URL" error={errors.image}>
+              <input className={inp(errors.image)} value={form.image} onChange={set("image")} placeholder="Any image link: https://…" />
+            </FormField>
+            <FormField label="Tags (comma separated)">
+              <input className={inp()} value={form.tags} onChange={set("tags")} placeholder="visa, europe, paris" />
+            </FormField>
+          </div>
+        </div>
+        <div className="px-6 pb-6 flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 rounded-2xl border border-line text-sm font-bold text-muted hover:bg-sandy">Cancel</button>
+          <button onClick={submit} disabled={saving} className="flex-1 py-3 rounded-2xl bg-btn text-white text-sm font-bold hover:bg-brand disabled:opacity-60">
+            {saving ? "Saving…" : isEdit ? "Save changes" : form.published ? "Publish blog" : "Save draft"}
+          </button>
+        </div>
+      </ModalShell>
+    </div>
+  );
+};
+
+const BlogsPanel = ({ blogs, loading, onSave, onDelete }) => {
+  const [search, setSearch] = useState("");
+  const [cat, setCat] = useState("all");
+  // /admin#new-blog (the "Write a new blog" button on the Travel Blog page) opens the editor straight away
+  const [modal, setModal] = useState(() =>
+    typeof window !== "undefined" && window.location.hash === "#new-blog" ? {} : null,
+  );
+  const categories = useMemo(() => [...new Set(blogs.map((b) => b.category).filter(Boolean))], [blogs]);
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return blogs.filter(
+      (b) => (cat === "all" || b.category === cat) && (b.title.toLowerCase().includes(q) || (b.tags || []).join(" ").toLowerCase().includes(q)),
+    );
+  }, [blogs, search, cat]);
+
+  return (
+    <div>
+      <div className="flex flex-col md:flex-row gap-3 mb-5">
+        <div className="relative flex-1">
+          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search blogs by title or tag…" className="w-full pl-11 pr-4 py-3 rounded-2xl border border-line bg-surface text-sm outline-none focus:border-brand" />
+        </div>
+        <PillTabs id="blog-cats-admin" items={[{ id: "all", label: "All", badge: blogs.length }, ...categories.map((c) => ({ id: c, label: c }))]} value={cat} onChange={setCat} />
+        <button onClick={() => setModal({})} className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cta to-accent-lt text-deep text-sm font-black flex items-center justify-center gap-2 hover:shadow-lg">
+          <FiPlus /> Add blog
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="grid gap-4 md:grid-cols-2">{[0, 1, 2, 3].map((i) => <Shimmer key={i} className="h-32 rounded-3xl" />)}</div>
+      ) : filtered.length === 0 ? (
+        <Empty icon={<FiBookOpen size={30} />} title={blogs.length ? "No blog matches" : "No blogs yet"} text={blogs.length ? "Try another search or category." : "Press Add blog to write the first one, or run the blog seed (see seed/BLOG_GUIDE.md)."} />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          <AnimatePresence mode="popLayout">
+            {filtered.map((b) => (
+              <motion.article
+                key={b._id}
+                layout
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex overflow-hidden rounded-3xl border border-line bg-surface"
+              >
+                <div className="relative hidden w-36 shrink-0 bg-line sm:block">
+                  {b.image ? <img {...imgProps(b.image)} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <FiImage className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-muted" size={26} />}
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col p-4">
+                  <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                    <span className="text-brand-ink">{b.category}</span>
+                    {b.featured && <span className="rounded-full bg-accent-lt px-2 py-0.5 text-deep">Featured</span>}
+                    <span className={`rounded-full px-2 py-0.5 ring-1 ${b.published ? "bg-emerald-100 text-emerald-700 ring-emerald-200" : "bg-amber-100 text-amber-700 ring-amber-200"}`}>{b.published ? "Live" : "Draft"}</span>
+                  </div>
+                  <h3 className="mt-1.5 line-clamp-2 font-black leading-tight text-ink" style={serif}>{b.title}</h3>
+                  <p className="mt-1 text-[11px] text-muted">{fmtDate(b.publishedAt || b.createdAt)} · {b.readMinutes || 1} min · {b.author}</p>
+                  <div className="mt-auto flex items-center gap-2 pt-3">
+                    <button onClick={() => setModal(b)} className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-line px-3 text-xs font-bold text-ink hover:bg-sandy"><FiEdit2 size={13} /> Edit</button>
+                    <button onClick={() => onSave({ _id: b._id, published: !b.published })} className="inline-flex h-9 items-center rounded-xl border border-line px-3 text-xs font-bold text-muted hover:bg-sandy">{b.published ? "Unpublish" : "Publish"}</button>
+                    <span className="ml-auto" />
+                    <HoldButton variant="icon" tone="delete" title="Hold to delete this blog" onConfirm={() => onDelete(b)} />
+                  </div>
+                </div>
+              </motion.article>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {modal && (
+        <BlogModal
+          initial={modal._id ? modal : null}
+          categories={categories}
+          onClose={() => setModal(null)}
+          onSave={async (form) => {
+            const ok = await onSave(form);
+            if (ok) setModal(null);
+            return ok;
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
 /* ───────────── Root ───────────── */
 const TABS = [
   { id: "overview", label: "Overview", icon: <FiGrid /> },
   { id: "bookings", label: "Bookings", icon: <FiList /> },
   { id: "services", label: "Packages", icon: <FiMap /> },
+  { id: "blogs", label: "Blog", icon: <FiBookOpen /> },
 ];
 
 const AdminDashboard = () => {
   const [user, authLoading] = useAuthState(auth);
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState(() =>
+    typeof window !== "undefined" && /^#(new-)?blogs?$/.test(window.location.hash) ? "blogs" : "overview",
+  );
   const [rawBookings, setBookings] = useState([]);
   const [invoiceFor, setInvoiceFor] = useState(null);
   const now = useNow(30000);
   const [services, setServices] = useState([]);
+  const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
@@ -867,9 +1099,10 @@ const AdminDashboard = () => {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [bRes, sRes] = await Promise.all([
+      const [bRes, sRes, blRes] = await Promise.all([
         authFetch(API_BOOKINGS),
         fetch(API_SERVICES_PUBLIC),
+        authFetch(API_BLOGS).catch(() => null),
       ]);
       if (bRes.status === 401 || bRes.status === 403) {
         toast.error("Admin access denied by server. Check ADMIN_EMAILS and that your email is verified.");
@@ -880,6 +1113,8 @@ const AdminDashboard = () => {
       }
       const s = sRes.ok ? await sRes.json() : [];
       setServices(Array.isArray(s) ? s : []);
+      const bl = blRes && blRes.ok ? await blRes.json().catch(() => []) : [];
+      setBlogs(Array.isArray(bl) ? bl : []);
     } catch {
       toast.error("Could not load the dashboard data. Please refresh and try again.");
     } finally {
@@ -955,14 +1190,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const deleteBooking = (b) =>
-    setConfirm({
-      title: "Delete this booking?",
-      text: `${b.userName} · ${b.serviceName}. This removes the request from the database permanently and cannot be undone.`,
-      label: "Delete",
-      run: () => deleteBookingNow(b),
-    });
-
   const saveService = async (form) => {
     const isEdit = !!form._id;
     try {
@@ -979,6 +1206,41 @@ const AdminDashboard = () => {
     } catch (e) {
       toast.error(e.message || "Failed to save package");
       return false;
+    }
+  };
+
+  const saveBlog = async (form) => {
+    const isEdit = !!form._id;
+    try {
+      const res = await authFetch(isEdit ? `${API_BLOGS}/${form._id}` : API_BLOGS, {
+        method: isEdit ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const r = await res.json().catch(() => ({}));
+      if (!res.ok || !r.success) throw new Error(r.message || "Save failed");
+      setBlogs((p) => {
+        // featuring one blog un-features the others (the server does the same)
+        const base = r.blog.featured ? p.map((x) => ({ ...x, featured: false })) : p;
+        return isEdit ? base.map((x) => (x._id === r.blog._id ? r.blog : x)) : [r.blog, ...base];
+      });
+      toast.success(isEdit ? "Blog updated" : r.blog.published ? "Blog published" : "Draft saved");
+      return true;
+    } catch (e) {
+      toast.error(e.message || "Failed to save the blog");
+      return false;
+    }
+  };
+
+  const deleteBlog = async (b) => {
+    try {
+      const res = await authFetch(`${API_BLOGS}/${b._id}`, { method: "DELETE" });
+      const r = await res.json().catch(() => ({}));
+      if (!res.ok || !r.success) throw new Error(r.message || "Delete failed");
+      setBlogs((p) => p.filter((x) => x._id !== b._id));
+      toast.success("Blog deleted");
+    } catch (e) {
+      toast.error(e.message || "Delete failed");
     }
   };
 
@@ -1078,10 +1340,13 @@ const AdminDashboard = () => {
             {tab === "overview" &&
               (loading ? <Spinner /> : <Overview bookings={bookings} services={services} onOpen={(b) => setSelectedId(b._id)} goTab={setTab} />)}
             {tab === "bookings" && (
-              <BookingsPanel bookings={bookings} loading={loading} busyId={busyId} onOpen={(b) => setSelectedId(b._id)} onStatus={updateStatus} onDelete={deleteBooking} onEdit={setEditing} />
+              <BookingsPanel bookings={bookings} loading={loading} busyId={busyId} onOpen={(b) => setSelectedId(b._id)} onStatus={updateStatus} onDelete={deleteBookingNow} onEdit={setEditing} />
             )}
             {tab === "services" && (
               <ServicesPanel services={services} bookings={bookings} loading={loading} onSave={saveService} onDelete={deleteService} />
+            )}
+            {tab === "blogs" && (
+              <BlogsPanel blogs={blogs} loading={loading} onSave={saveBlog} onDelete={deleteBlog} />
             )}
           </motion.div>
         </AnimatePresence>

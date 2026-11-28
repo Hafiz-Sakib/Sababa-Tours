@@ -1,5 +1,6 @@
 // src/Components/MyBookings/MyBookings.js
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../Firebase.init";
@@ -13,6 +14,8 @@ import {
   FiFileText,
   FiLock,
   FiMapPin,
+  FiMaximize2,
+  FiX,
   FiPhone,
   FiRefreshCw,
   FiUsers,
@@ -22,9 +25,11 @@ import toast from "react-hot-toast";
 import { API_BASE_URL } from "../../config";
 import { authFetch } from "../Utilities/authFetch";
 import { customerAccess, LOCK_DAYS } from "../Utilities/bookingRules";
+import { extraRows } from "../Utilities/tripExtras";
 import EditBookingModal from "../Booking/EditBookingModal";
 import ActionBtn from "../ui/ActionBtn";
-import HoldToDelete from "../ui/HoldToDelete";
+import HoldButton from "../ui/HoldButton";
+import { imgProps } from "../Utilities/image";
 import { HoldBanner } from "../Billing/HoldBanner";
 import {
   canPay,
@@ -39,6 +44,7 @@ import {
   AnimatePresence,
   AnimatedNumber,
   Aurora,
+  Backdrop,
   BlurText,
   Magnetic,
   PillTabs,
@@ -166,6 +172,114 @@ const MoneyStrip = ({ b }) => {
   );
 };
 
+/* picture of the booked place: leans with the cursor, zooms on hover, press it to open it large */
+const BookingImage = ({ picture, place, category, duration, name, cancelled, onOpen }) => {
+  const reduce = useReducedMotion();
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const x = useSpring(useTransform(mx, (v) => v * -14), { stiffness: 140, damping: 20 });
+  const y = useSpring(useTransform(my, (v) => v * -14), { stiffness: 140, damping: 20 });
+  const move = (e) => {
+    if (reduce) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    mx.set((e.clientX - r.left) / r.width - 0.5);
+    my.set((e.clientY - r.top) / r.height - 0.5);
+  };
+  const leave = () => {
+    mx.set(0);
+    my.set(0);
+  };
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      onMouseMove={move}
+      onMouseLeave={leave}
+      aria-label={`Open picture of ${name}`}
+      className="group/img relative block h-48 w-full shrink-0 cursor-zoom-in overflow-hidden bg-line text-left md:h-auto md:min-h-[240px] md:w-60 lg:w-72"
+    >
+      <div className="absolute inset-0 scale-110 transition-transform duration-700 ease-out group-hover/img:scale-[1.22]">
+        <motion.img
+          {...imgProps(picture)}
+          alt={name}
+          loading="lazy"
+          style={{ x, y }}
+          className={`h-full w-full object-cover ${cancelled ? "grayscale" : ""}`}
+        />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-scrim/80 via-scrim/10 to-scrim/30 transition-opacity duration-300 group-hover/img:opacity-80" />
+      {place && (
+        <span className="absolute left-3 top-3 inline-flex max-w-[85%] items-center gap-1.5 rounded-full bg-surface/90 px-3 py-1.5 text-[11px] font-black text-ink backdrop-blur">
+          <FiMapPin className="shrink-0 text-brand-ink" /> <span className="truncate">{place}</span>
+        </span>
+      )}
+      <div className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-2 text-on">
+        <div className="min-w-0 text-[11px] font-bold leading-tight">
+          {category && <p className="truncate uppercase tracking-widest text-accent-lt">{category}</p>}
+          {duration && <p className="mt-0.5 truncate text-on/85">{duration}</p>}
+        </div>
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-on/15 backdrop-blur transition group-hover/img:scale-110 group-hover/img:bg-on/30">
+          <FiMaximize2 size={13} />
+        </span>
+      </div>
+    </button>
+  );
+};
+
+/* big preview of a booked place */
+const PicturePreview = ({ item, onClose }) => {
+  useEffect(() => {
+    if (!item) return undefined;
+    const h = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [item, onClose]);
+  return (
+    <AnimatePresence>
+      {item && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
+          <Backdrop onClick={onClose} />
+          <motion.figure
+            initial={{ opacity: 0, scale: 0.92, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            transition={{ type: "spring", stiffness: 320, damping: 30 }}
+            className="relative w-full max-w-3xl overflow-hidden rounded-[2rem] bg-surface shadow-[0_32px_90px_rgba(0,0,0,0.5)]"
+          >
+            <img {...imgProps(item.picture)} alt={item.name} className="max-h-[68vh] w-full object-cover" />
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-scrim/60 text-on backdrop-blur transition hover:bg-scrim/80"
+            >
+              <FiX />
+            </button>
+            <figcaption className="flex flex-wrap items-center justify-between gap-3 p-5">
+              <div className="min-w-0">
+                <p className="truncate text-lg font-black text-ink" style={serif}>{item.name}</p>
+                {item.place && (
+                  <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted">
+                    <FiMapPin className="text-brand-ink" /> {item.place}
+                  </p>
+                )}
+              </div>
+              {item.serviceId && (
+                <Link
+                  to={`/booking/${item.serviceId}`}
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cta to-accent-lt px-5 py-2.5 text-sm font-black text-deep"
+                >
+                  View package <FiArrowRight />
+                </Link>
+              )}
+            </figcaption>
+          </motion.figure>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 const MyBookings = () => {
   const [user] = useAuthState(auth);
   const navigate = useNavigate();
@@ -173,7 +287,8 @@ const MyBookings = () => {
   const [rawBookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState(null);
-  const [confirmId, setConfirmId] = useState(null); // cancel confirmation
+  const [services, setServices] = useState({}); // package id -> package (for the picture and place)
+  const [preview, setPreview] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -207,6 +322,24 @@ const MyBookings = () => {
     fetchBookings();
   }, [fetchBookings]);
 
+  // package pictures come from the public package list, matched by id
+  useEffect(() => {
+    let off = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/services`);
+        const list = await res.json();
+        if (off || !Array.isArray(list)) return;
+        setServices(Object.fromEntries(list.map((x) => [x._id, x])));
+      } catch {
+        /* cards just show without a picture */
+      }
+    })();
+    return () => {
+      off = true;
+    };
+  }, []);
+
   const cancelBooking = async (id) => {
     setCancellingId(id);
     try {
@@ -224,7 +357,6 @@ const MyBookings = () => {
       toast.error(e.message);
     } finally {
       setCancellingId(null);
-      setConfirmId(null);
     }
   };
 
@@ -425,6 +557,7 @@ const MyBookings = () => {
               {visible.map((b, idx) => {
                 const shown = displayStatus(b);
                 const st = STATUS[shown] || STATUS.pending;
+                const svc = services[b.serviceId];
                 return (
                   <motion.article
                     key={b._id}
@@ -438,6 +571,24 @@ const MyBookings = () => {
                       max={2.5}
                       className={`overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_10px_40px_rgba(16,24,40,0.06)] transition-shadow hover:shadow-[0_24px_60px_rgba(16,24,40,0.12)] ${b.status === "cancelled" ? "opacity-75" : ""}`}
                     >
+                      <div className="flex flex-col md:flex-row">
+                      <BookingImage
+                        picture={svc?.picture || b.servicePicture}
+                        place={svc?.location || b.serviceLocation}
+                        category={svc?.category}
+                        duration={svc?.duration}
+                        name={b.serviceName}
+                        cancelled={b.status === "cancelled"}
+                        onOpen={() =>
+                          setPreview({
+                            picture: svc?.picture || b.servicePicture,
+                            name: b.serviceName,
+                            place: svc?.location || b.serviceLocation,
+                            serviceId: svc ? b.serviceId : null,
+                          })
+                        }
+                      />
+                      <div className="min-w-0 flex-1">
                       <div className={`h-1.5 bg-gradient-to-r ${st.bar}`} />
                       <div className="flex flex-col justify-between gap-3 p-5 md:flex-row md:items-start">
                         <div className="min-w-0">
@@ -504,6 +655,19 @@ const MyBookings = () => {
                         <div className="col-span-2 md:col-span-4">
                           <Info icon={<FiMapPin />} label="Address">{b.address}</Info>
                         </div>
+                        {extraRows(b).length > 0 && (
+                          <div className="col-span-2 mt-1 border-t border-line pt-3 md:col-span-4">
+                            <p className="mb-2.5 text-[10px] font-black uppercase tracking-widest text-brand-ink">Trip details</p>
+                            <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                              {extraRows(b).map((r) => (
+                                <div key={r.key} className="min-w-0">
+                                  <p className="text-[10px] font-black uppercase tracking-widest text-muted">{r.label}</p>
+                                  <p className="break-words text-sm font-semibold text-ink">{r.value}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         {b.notes && (
                           <div className="col-span-2 text-muted md:col-span-4">
                             <span className="text-[10px] font-black uppercase tracking-widest">
@@ -516,8 +680,6 @@ const MyBookings = () => {
 
                       <BookingActions
                         booking={b}
-                        confirmId={confirmId}
-                        setConfirmId={setConfirmId}
                         cancellingId={cancellingId}
                         onCancel={cancelBooking}
                         deletingId={deletingId}
@@ -525,6 +687,8 @@ const MyBookings = () => {
                         onEdit={() => setEditing(b)}
                         onBilling={() => navigate(`/my-bookings/${b._id}/billing`)}
                       />
+                      </div>
+                      </div>
                     </TiltCard>
                   </motion.article>
                 );
@@ -533,6 +697,8 @@ const MyBookings = () => {
           </motion.div>
         )}
       </div>
+
+      <PicturePreview item={preview} onClose={() => setPreview(null)} />
 
       {editing && (
         <EditBookingModal
@@ -555,11 +721,10 @@ const minTripDate = () => {
 };
 
 /* action row of one booking card:
-   Billing / Pay, Update and Cancel inside the change window, a lock note after it, Delete (hold) for cancelled ones */
+   Billing / Pay, Update, Hold-to-cancel (amber) inside the change window, a lock note after it,
+   Hold-to-delete (red) for cancelled ones */
 const BookingActions = ({
   booking: b,
-  confirmId,
-  setConfirmId,
   cancellingId,
   onCancel,
   deletingId,
@@ -569,75 +734,58 @@ const BookingActions = ({
 }) => {
   const access = customerAccess(b);
   const m = moneyOf(b);
-  const askingCancel = confirmId === b._id;
   const awaiting = b.status === "awaiting_payment";
   const showBilling = b.status !== "cancelled" || m.paid > 0;
 
   return (
     <div className="border-t border-line">
-      <AnimatePresence mode="wait" initial={false}>
-        {askingCancel ? (
-          <motion.div
-            key="confirm"
-            initial={{ opacity: 0, x: 12 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -12 }}
-            className="flex flex-wrap items-center gap-3 px-5 py-3"
-          >
-            <span className="mr-auto min-w-[200px] text-sm text-muted">
-              Cancel this request?
-              {m.paid > 0 && ` You have paid ${money(m.paid)}: our travel desk will contact you about the refund.`}
-            </span>
-            <ActionBtn tone="keep" onClick={() => setConfirmId(null)}>
-              Keep it
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {showBilling && (
+            <ActionBtn
+              tone={awaiting ? "pay" : "billing"}
+              icon={awaiting ? FiCreditCard : FiFileText}
+              attention={awaiting}
+              onClick={onBilling}
+            >
+              {awaiting ? `Pay ${money(m.advanceDue)} advance` : canPay(b) && m.balance > 0 ? "Billing & pay" : "Billing & invoice"}
             </ActionBtn>
-            <ActionBtn tone="danger" icon={FiXCircle} busy={cancellingId === b._id} disabled={cancellingId === b._id} onClick={() => onCancel(b._id)}>
-              Yes, cancel
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          {access.canEdit && (
+            <ActionBtn tone="update" icon={FiEdit2} onClick={onEdit}>
+              Update
             </ActionBtn>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="ask"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
-          >
-            <div className="flex flex-wrap items-center gap-3">
-              {showBilling && (
-                <ActionBtn
-                  tone={awaiting ? "pay" : "billing"}
-                  icon={awaiting ? FiCreditCard : FiFileText}
-                  attention={awaiting}
-                  onClick={onBilling}
-                >
-                  {awaiting ? `Pay ${money(m.advanceDue)} advance` : canPay(b) && m.balance > 0 ? "Billing & pay" : "Billing & invoice"}
-                </ActionBtn>
-              )}
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              {access.canEdit && (
-                <ActionBtn tone="update" icon={FiEdit2} onClick={onEdit}>
-                  Update
-                </ActionBtn>
-              )}
-              {access.canCancel && (
-                <ActionBtn tone="cancel" icon={FiXCircle} onClick={() => setConfirmId(b._id)}>
-                  Cancel request
-                </ActionBtn>
-              )}
-              {access.canDelete && (
-                <HoldToDelete
-                  disabled={deletingId === b._id}
-                  onConfirm={() => onDelete(b._id)}
-                />
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+          {access.canCancel && (
+            <HoldButton
+              tone="cancel"
+              label="Hold to cancel"
+              doneLabel="Cancelled"
+              disabled={cancellingId === b._id}
+              onConfirm={() => onCancel(b._id)}
+            />
+          )}
+          {access.canDelete && (
+            <HoldButton
+              tone="delete"
+              label="Hold to delete"
+              doneLabel="Deleted"
+              disabled={deletingId === b._id}
+              onConfirm={() => onDelete(b._id)}
+            />
+          )}
+        </div>
+      </div>
 
-      {access.locked && !askingCancel && (
+      {access.canCancel && m.paid > 0 && (
+        <p className="border-t border-line px-5 py-2.5 text-xs text-muted">
+          If you cancel after paying {money(m.paid)}, our travel desk will contact you about the refund.
+        </p>
+      )}
+
+      {access.locked && (
         <div className="flex items-start gap-3 border-t border-line px-5 py-2.5 text-sm text-muted">
           <FiLock className="mt-0.5 shrink-0 text-brand-ink" />
           <p>{access.lockMessage}</p>

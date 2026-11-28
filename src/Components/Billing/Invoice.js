@@ -4,6 +4,7 @@
 import { forwardRef } from "react";
 import logoMark from "../../assets/logo/logo-mark.png";
 import { fmtDate, fmtDateTime, invoiceNo, money, moneyOf, paymentsOf } from "../Utilities/payment";
+import { extraRows } from "../Utilities/tripExtras";
 
 const BRAND = "#1D8A84";
 const FOREST = "#0F5C46";
@@ -86,6 +87,9 @@ const Invoice = forwardRef(function Invoice({ b }, ref) {
                   </>
                 ) : null}
               </p>
+              {b.traveler?.fullName && (
+                <p className="mt-2 text-xs leading-relaxed text-[#546470]">Lead traveler: <b className="text-[#101828]">{b.traveler.fullName}</b></p>
+              )}
             </div>
             <div className="rounded-2xl bg-[#f1f9f8] p-4">
               <p className="text-[10px] font-black uppercase tracking-widest text-[#546470]">Trip</p>
@@ -95,6 +99,11 @@ const Invoice = forwardRef(function Invoice({ b }, ref) {
                 <br />
                 {b.travelers} traveler{Number(b.travelers) > 1 ? "s" : ""} · Booking ID {String(b._id).slice(-8)}
               </p>
+              {extraRows(b).filter((r) => ["category", "hotel", "stay", "flight"].includes(r.key)).map((r) => (
+                <p key={r.key} className="mt-1 text-xs leading-relaxed text-[#546470]">
+                  {r.label}: <b className="text-[#101828]">{r.value}</b>
+                </p>
+              ))}
             </div>
           </div>
 

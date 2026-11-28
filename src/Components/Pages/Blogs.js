@@ -2,8 +2,12 @@
 // Travel Blog: featured story, category tabs, search, expandable articles, FAQ.
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiArrowRight, FiCalendar, FiChevronDown, FiClock, FiHeart, FiSearch, FiTag, FiThumbsUp, FiZap } from "react-icons/fi";
-import { articles } from "../../data/travel";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { FiArrowRight, FiCalendar, FiChevronDown, FiClock, FiEdit3, FiHeart, FiSearch, FiTag, FiThumbsUp, FiUser, FiZap } from "react-icons/fi";
+import { auth } from "../../Firebase.init";
+import { useBlogs } from "../Utilities/blogs";
+import { imgProps } from "../Utilities/image";
+import { Shimmer } from "../ui/Motion";
 import ColumnCard from "../ui/brew/ColumnCard";
 import ReactionCard from "../ui/brew/ReactionCard";
 import {
@@ -37,15 +41,35 @@ const faqs = [
   },
 ];
 
-const categories = ["All", ...new Set(articles.map((a) => a.category))];
+const ADMIN_EMAIL = "hafizsakib5@gmail.com";
 
 const Meta = ({ a }) => (
   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-bold uppercase tracking-widest text-muted">
     <span className="flex items-center gap-1.5"><FiTag className="text-brand-ink" /> {a.category}</span>
     <span className="flex items-center gap-1.5"><FiCalendar className="text-brand-ink" /> {a.date}</span>
     <span className="flex items-center gap-1.5"><FiClock className="text-brand-ink" /> {a.read}</span>
+    {a.author && <span className="flex items-center gap-1.5"><FiUser className="text-brand-ink" /> {a.author}</span>}
   </div>
 );
+
+/* cover picture, or a soft gradient with the category when a post has none */
+const Cover = ({ a, className = "" }) =>
+  a.image ? (
+    <img {...imgProps(a.image)} alt={a.title} loading="lazy" className={className} />
+  ) : (
+    <div className={`${className} grid place-items-center bg-gradient-to-br from-brand to-accent-lt text-on`}>
+      <span className="px-6 text-center text-xs font-black uppercase tracking-[0.3em] opacity-80">{a.category}</span>
+    </div>
+  );
+
+const Tags = ({ tags }) =>
+  tags?.length ? (
+    <div className="mt-4 flex flex-wrap gap-2">
+      {tags.map((t) => (
+        <span key={t} className="rounded-full bg-brand-soft/60 px-3 py-1 text-[11px] font-bold text-brand-ink">#{t}</span>
+      ))}
+    </div>
+  ) : null;
 
 const Body = ({ a, open }) => (
   <AnimatePresence initial={false}>
@@ -60,6 +84,7 @@ const Body = ({ a, open }) => (
         <div className="space-y-3 pt-4 text-muted leading-relaxed">
           {a.body.map((p, i) => <p key={i}>{p}</p>)}
         </div>
+        <Tags tags={a.tags} />
       </motion.div>
     )}
   </AnimatePresence>
@@ -81,18 +106,28 @@ const Blogs = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [openTitle, setOpenTitle] = useState(null);
+  const { blogs: articles, loading } = useBlogs();
+  const [user] = useAuthState(auth);
+  const isAdmin = user?.email === ADMIN_EMAIL;
+  const categories = useMemo(() => ["All", ...new Set(articles.map((a) => a.category))], [articles]);
 
   const filtered = useMemo(
     () =>
       articles.filter((a) => {
         const q = searchTerm.toLowerCase();
-        const matchesSearch = a.title.toLowerCase().includes(q) || a.excerpt.toLowerCase().includes(q);
+        const matchesSearch =
+          a.title.toLowerCase().includes(q) ||
+          a.excerpt.toLowerCase().includes(q) ||
+          a.category.toLowerCase().includes(q) ||
+          a.tags.some((t) => t.toLowerCase().includes(q));
         return matchesSearch && (activeCategory === "All" || a.category === activeCategory);
       }),
-    [searchTerm, activeCategory],
+    [articles, searchTerm, activeCategory],
   );
 
-  const [featured, ...rest] = filtered;
+  // the post marked "featured" leads, otherwise the newest one
+  const featured = filtered.find((a) => a.featured) || filtered[0];
+  const rest = filtered.filter((a) => a !== featured);
   const toggle = (t) => setOpenTitle((cur) => (cur === t ? null : t));
 
   return (
@@ -113,8 +148,13 @@ const Blogs = () => {
             <BlurText text="Useful insight before you pack." />
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-on/80">
-            Destination guides, planning advice, and stories from the field by the Sababa travel desk.
+            Destination guides, visa and planning advice, and stories from the field by the Sababa travel desk.
           </p>
+          {isAdmin && (
+            <Link to="/admin#new-blog" className="mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cta to-accent-lt px-6 py-3 text-sm font-black text-deep hover:shadow-lg hover:shadow-accent/30">
+              <FiEdit3 /> Write a new blog
+            </Link>
+          )}
         </div>
       </section>
 
@@ -142,7 +182,13 @@ const Blogs = () => {
           <b className="text-ink"><AnimatedNumber value={filtered.length} /></b> {filtered.length === 1 ? "article" : "articles"}
         </p>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="grid gap-8 md:grid-cols-2">
+            <Shimmer className="h-72 rounded-[2rem] md:col-span-2" />
+            <Shimmer className="h-80 rounded-3xl" />
+            <Shimmer className="h-80 rounded-3xl" />
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="rounded-3xl border border-line bg-surface py-16 text-center">
             <p className="text-lg font-bold">Nothing matches that search.</p>
             <button onClick={() => { setSearchTerm(""); setActiveCategory("All"); }} className="mt-4 rounded-full bg-btn px-6 py-3 text-sm font-bold text-white hover:bg-brand">
@@ -155,15 +201,15 @@ const Blogs = () => {
             <Reveal>
               <article className="grid overflow-hidden rounded-[2rem] border border-line bg-surface shadow-sm lg:grid-cols-2">
                 <div className="relative min-h-[260px] overflow-hidden">
-                  <img src={featured.image} alt={featured.title} className="absolute inset-0 h-full w-full object-cover" />
+                  <Cover a={featured} className="absolute inset-0 h-full w-full object-cover" />
                   <span className="absolute left-5 top-5 rounded-full bg-accent-lt px-3 py-1 text-[10px] font-black uppercase tracking-widest text-deep">Featured</span>
                 </div>
                 <div className="p-8 md:p-10">
                   <Meta a={featured} />
                   <h2 className="mt-4 text-3xl font-black leading-tight md:text-4xl">{featured.title}</h2>
                   <p className="mt-3 text-muted">{featured.excerpt}</p>
-                  <Body a={featured} open={openTitle === featured.title} />
-                  <Toggle open={openTitle === featured.title} onClick={() => toggle(featured.title)} />
+                  <Body a={featured} open={openTitle === featured.id} />
+                  <Toggle open={openTitle === featured.id} onClick={() => toggle(featured.id)} />
                 </div>
               </article>
             </Reveal>
@@ -173,18 +219,18 @@ const Blogs = () => {
               <motion.div layout className="mt-8 grid items-start gap-8 md:grid-cols-2">
                 <AnimatePresence mode="popLayout">
                   {rest.map((a, i) => (
-                    <motion.div key={a.title} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: i * 0.05 }}>
+                    <motion.div key={a.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: i * 0.05 }}>
                       <TiltCard max={3} className="rounded-3xl">
                         <article className="overflow-hidden rounded-3xl border border-line bg-surface transition-shadow hover:shadow-xl">
                           <div className="relative h-56 overflow-hidden">
-                            <img src={a.image} alt={a.title} className="h-full w-full object-cover" />
+                            <Cover a={a} className="h-full w-full object-cover" />
                           </div>
                           <div className="p-7">
                             <Meta a={a} />
                             <h3 className="mt-4 text-xl font-black leading-tight">{a.title}</h3>
                             <p className="mt-2 text-muted">{a.excerpt}</p>
-                            <Body a={a} open={openTitle === a.title} />
-                            <Toggle open={openTitle === a.title} onClick={() => toggle(a.title)} />
+                            <Body a={a} open={openTitle === a.id} />
+                            <Toggle open={openTitle === a.id} onClick={() => toggle(a.id)} />
                           </div>
                         </article>
                       </TiltCard>
@@ -219,7 +265,7 @@ const Blogs = () => {
           <Reveal>
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">Short on time?</p>
             <h2 className="text-3xl font-black leading-tight md:text-4xl">Pick a story by the minutes you have</h2>
-            <p className="mt-4 max-w-md text-muted">Every journal story is a quick read. Hover a column to see which story it is, then press it to open it.</p>
+            <p className="mt-4 max-w-md text-muted">Every story is a quick read. Hover a column to see which story it is, then press it to open it.</p>
           </Reveal>
           <Reveal delay={0.1}>
             <ColumnCard
@@ -230,7 +276,7 @@ const Blogs = () => {
               onPick={(i) => {
                 setSearchTerm("");
                 setActiveCategory("All");
-                setOpenTitle(articles[i].title);
+                setOpenTitle(articles[i].id);
                 document.getElementById("stories")?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
             />

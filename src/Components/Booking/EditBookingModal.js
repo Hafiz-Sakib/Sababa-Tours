@@ -1,9 +1,12 @@
 // src/Components/Booking/EditBookingModal.js
-// Small form to change a booking: travelers, trip date, phone, address, notes.
+// Form to change a booking: travelers, trip date, phone, address, notes, and the trip details
+// (category, lead traveler, hotel room, flight).
 // Used by the customer (My Bookings) and by the admin (dashboard). The server recalculates the total.
 import { useState } from "react";
 import { FiSave, FiX } from "react-icons/fi";
 import { AnimatePresence, Backdrop, ModalShell, motion } from "../ui/Motion";
+import { CategoryPicker, StayFlightFields, TravelerFields } from "./TripExtras";
+import { toPayload, validateExtras, withDefaults } from "../Utilities/tripExtras";
 
 const MAX_TRAVELERS = 20;
 const MAX_ADDRESS_WORDS = 30;
@@ -39,8 +42,13 @@ const EditBookingModal = ({ booking, minDate, saving, onSave, onClose }) => {
   const [phone, setPhone] = useState(booking.phoneNumber || "");
   const [address, setAddress] = useState(booking.address || "");
   const [notes, setNotes] = useState(booking.notes || "");
+  const [extras, setExtras] = useState(() => withDefaults(booking, booking.userName || ""));
   const [errors, setErrors] = useState({});
   const min = minDate || todayLocal();
+
+  const setX = (group, key, val) =>
+    setExtras((x) => (key === null ? { ...x, [group]: val } : { ...x, [group]: { ...x[group], [key]: val } }));
+  const n = Number(travelers) || 1;
 
   const submit = (e) => {
     e.preventDefault();
@@ -51,16 +59,17 @@ const EditBookingModal = ({ booking, minDate, saving, onSave, onClose }) => {
     if (!PHONE_REGEX.test(phone)) er.phone = "Enter a valid number, e.g. 017XXXXXXXX.";
     if (!address.trim()) er.address = "Address is required.";
     else if (words(address) > MAX_ADDRESS_WORDS) er.address = `Keep the address under ${MAX_ADDRESS_WORDS} words.`;
+    Object.assign(er, validateExtras(extras, { travelers: n, date }));
     setErrors(er);
     if (Object.keys(er).length) return;
-    onSave({ travelers: Number(travelers), preferredDate: date, phoneNumber: phone.trim(), address: address.trim(), notes: notes.trim() });
+    onSave({ travelers: Number(travelers), preferredDate: date, phoneNumber: phone.trim(), address: address.trim(), notes: notes.trim(), ...toPayload(extras) });
   };
 
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
         <Backdrop onClick={saving ? undefined : onClose} className="absolute" />
-        <ModalShell className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-surface p-6 shadow-2xl sm:p-8">
+        <ModalShell className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-surface p-6 shadow-2xl sm:p-8">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-brand-ink">Edit booking</p>
@@ -87,6 +96,11 @@ const EditBookingModal = ({ booking, minDate, saving, onSave, onClose }) => {
             <Field label="Notes (optional)">
               <textarea rows={3} maxLength={MAX_NOTES} value={notes} onChange={(e) => setNotes(e.target.value)} className={`${cls(false)} resize-none`} />
             </Field>
+            <div className="space-y-6 border-t border-line pt-6">
+              <CategoryPicker value={extras} set={setX} errors={errors} />
+              <TravelerFields value={extras} set={setX} errors={errors} travelers={n} />
+              <StayFlightFields value={extras} set={setX} errors={errors} travelers={n} date={date} />
+            </div>
             <p className="text-xs text-muted">The total is recalculated from the package price and the number of travelers.</p>
 
             <div className="flex gap-3 pt-1">

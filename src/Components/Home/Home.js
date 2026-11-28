@@ -18,6 +18,10 @@ import {
 } from "react-icons/fi";
 import ServiceCard from "../Services/ServiceCard";
 import Showcase from "./Showcase";
+import JourneyMap from "./JourneyMap";
+import VibeQuiz from "./VibeQuiz";
+import ItineraryExplorer from "./ItineraryExplorer";
+import PackingChecklist from "./PackingChecklist";
 import DepthCarousel from "../ui/brew/DepthCarousel";
 import HighlightText from "../ui/brew/HighlightText";
 import SeasonPicker from "../ui/SeasonPicker";
@@ -409,6 +413,9 @@ const Home = () => {
         <DestinationStrip />
       </section>
 
+      {/* ══════════════════ ROUTE MAP (interactive) ══════════════════ */}
+      <JourneyMap />
+
       {/* ══════════════════ BEST TIME TO GO ══════════════════ */}
       <section className="mx-auto max-w-5xl px-6 pb-24 lg:px-10">
         <div className="grid items-start gap-10 lg:grid-cols-[0.8fr_1.2fr]">
@@ -429,6 +436,9 @@ const Home = () => {
           </Reveal>
         </div>
       </section>
+
+      {/* ══════════════════ VIBE QUIZ (interactive) ══════════════════ */}
+      <VibeQuiz />
 
       {/* ══════════════════ LIVE PACKAGES ══════════════════ */}
       <section className="relative overflow-hidden bg-surface py-24">
@@ -565,6 +575,10 @@ const Home = () => {
           <Journey />
         </div>
       </section>
+
+      {/* ══════════════════ SAMPLE ITINERARY + PACKING (interactive) ══════════════════ */}
+      <ItineraryExplorer />
+      <PackingChecklist />
 
       {/* ══════════════════ TRAVEL BLOG TEASER ══════════════════ */}
       <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
