@@ -13,6 +13,7 @@ import {
 } from "react-icons/fi";
 import { FlipCard, Reveal, TiltCard } from "../ui/Motion";
 import Review from "../Home/Review";
+import TotalCalculator from "./TotalCalculator";
 
 const promises = [
   { icon: <FiCheckCircle />, title: "Honest totals", text: "A package total is the price multiplied by travelers. Our desk confirms the final amount with you before anything else." },
@@ -303,6 +304,9 @@ const About = () => {
           </div>
         </div>
       </section>
+
+      {/* ── Honest totals: Rolling stepper ── */}
+      <TotalCalculator />
 
       {/* ── Traveler reviews (moved here from Home) ── */}
       <Review />

@@ -16,6 +16,7 @@ import {
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { BlurAccordion, Reveal, TiltCard } from "../ui/Motion";
+import BookingCard from "../ui/brew/BookingCard";
 
 const EMAIL = "hello@sababatours.com";
 
@@ -103,6 +104,20 @@ const Contact = () => {
     else if (form.message.trim().length < 20)
       nextErrors.message = "Message must be at least 20 characters.";
     return nextErrors;
+  };
+
+  /* a call request goes to the same inbox as the form, with the chosen day and time in the message */
+  const requestCall = async ({ date, time, name, email }) => {
+    const payload = new FormData();
+    payload.append("access_key", WEB3FORMS_ACCESS_KEY);
+    payload.append("name", name);
+    payload.append("email", email);
+    payload.append("subject", "Call request from the Sababa Tours website");
+    payload.append("message", `Please call me on ${date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} around ${time} (Bangladesh time). Reply to ${email} to confirm the slot.`);
+    payload.append("from_name", "Sababa Tours Website");
+    const response = await fetch("https://api.web3forms.com/submit", { method: "POST", body: payload });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error("send failed");
   };
 
   const handleSubmit = async (event) => {
@@ -339,6 +354,20 @@ const Contact = () => {
       </section>
 
       {/* What happens next + FAQ */}
+      {/* ── Prefer to talk? Booking card ── */}
+      <section className="mx-auto max-w-7xl px-6 py-16 md:py-24 lg:px-10">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <Reveal>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">Prefer to talk?</p>
+            <h2 className="text-3xl font-black tracking-tight md:text-4xl">Pick a day and a time for a call</h2>
+            <p className="mt-4 max-w-md text-muted">Choose the slot that suits you. We read every request and confirm the time by email, so nothing is booked until you hear back.</p>
+          </Reveal>
+          <Reveal delay={0.1} className="flex justify-center lg:justify-end">
+            <BookingCard onConfirm={requestCall} />
+          </Reveal>
+        </div>
+      </section>
+
       <section className="bg-surface py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 grid gap-14 lg:grid-cols-2">
           <Reveal>

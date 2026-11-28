@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FiFilter, FiSearch, FiX } from "react-icons/fi";
 import toast from "react-hot-toast";
 import ServiceCard from "./ServiceCard";
+import BudgetMatch from "./BudgetMatch";
+import RequestFlow from "./RequestFlow";
 import { API_BASE_URL } from "../../config";
 
 const API = `${API_BASE_URL}/api/services`;
@@ -19,6 +21,7 @@ const Services = () => {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("default");
+  const [maxPrice, setMaxPrice] = useState(null);
   const gridRef = useRef(null);
 
   useEffect(() => {
@@ -77,6 +80,7 @@ const Services = () => {
 
   const filtered = useMemo(() => {
     return services
+      .filter((s) => maxPrice === null || (s.price > 0 && s.price <= maxPrice))
       .filter((s) =>
         `${s.name || ""} ${s.about || ""}`
           .toLowerCase()
@@ -91,7 +95,7 @@ const Services = () => {
           return (a.name || "").localeCompare(b.name || "");
         return 0;
       });
-  }, [query, services, sortBy]);
+  }, [query, services, sortBy, maxPrice]);
 
   return (
     <main className="min-h-screen bg-sandy pt-[76px] text-ink">
@@ -178,7 +182,15 @@ const Services = () => {
       </section>
 
       {/* ── Grid ── */}
-      <section className="max-w-7xl mx-auto px-6 py-14 lg:px-10 pb-28">
+      <section id="package-grid" className="max-w-7xl mx-auto px-6 py-14 lg:px-10 pb-16">
+        {maxPrice !== null && (
+          <div className="mb-8 flex flex-wrap items-center gap-3">
+            <span className="rounded-full bg-brand/10 px-4 py-2 text-sm font-bold text-brand-ink">Up to ৳{maxPrice.toLocaleString()} per traveler</span>
+            <button type="button" onClick={() => setMaxPrice(null)} className="inline-flex items-center gap-1.5 text-sm font-bold text-muted transition hover:text-ink">
+              <FiX /> Clear budget
+            </button>
+          </div>
+        )}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-36 gap-4">
             <div className="h-14 w-14 animate-spin rounded-full border-4 border-line border-t-brand" />
@@ -216,6 +228,22 @@ const Services = () => {
           </div>
         )}
       </section>
+
+      {/* ── Budget: Amount slider ── */}
+      {!loading && (
+        <BudgetMatch
+          services={services}
+          applied={maxPrice}
+          onApply={(v) => {
+            setMaxPrice(v);
+            setQuery("");
+            document.getElementById("package-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        />
+      )}
+
+      {/* ── What happens next: Verify flow ── */}
+      <RequestFlow />
     </main>
   );
 };

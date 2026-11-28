@@ -18,6 +18,8 @@ import {
 } from "react-icons/fi";
 import ServiceCard from "../Services/ServiceCard";
 import Showcase from "./Showcase";
+import DepthCarousel from "../ui/brew/DepthCarousel";
+import HighlightText from "../ui/brew/HighlightText";
 import SeasonPicker from "../ui/SeasonPicker";
 import { articles, destinations } from "../../data/travel";
 import { API_BASE_URL } from "../../config";
@@ -280,6 +282,16 @@ const Journey = () => {
 };
 
 /* ─────────────────────────── component ─────────────────────────── */
+/* every region's highlight line ("A · B · C") becomes one card; regions alternate so neighbours differ */
+const moments = [0, 1, 2].flatMap((j) =>
+  destinations
+    .map((d) => {
+      const t = d.highlight.split("·").map((x) => x.trim())[j];
+      return t && { title: t.charAt(0).toUpperCase() + t.slice(1), kicker: d.name, image: d.image, text: d.tag };
+    })
+    .filter(Boolean),
+);
+
 const Home = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -498,6 +510,46 @@ const Home = () => {
       </section>
 
       <Showcase services={services} places={places} fromPrice={fromPrice} />
+
+      {/* ══════════════════ HOW WE WORK: Highlight text ══════════════════ */}
+      <section className="mx-auto max-w-4xl px-6 py-24 text-center lg:px-10">
+        <Reveal>
+          <p className="mb-6 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">Why travelers pick Sababa</p>
+        </Reveal>
+        <HighlightText
+          className="text-3xl font-black leading-[1.35] md:text-5xl md:leading-[1.3]"
+          parts={[
+            "Every trip is ",
+            { mark: "planned by hand" },
+            " by a real person on our desk, with ",
+            { mark: "vetted local guides and drivers" },
+            " matched to the place and your pace, and ",
+            { mark: "honest totals" },
+            " confirmed before anything moves.",
+          ]}
+        />
+      </section>
+
+      {/* ══════════════════ MOMENTS: Depth carousel ══════════════════ */}
+      <section className="relative overflow-hidden bg-sandy py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 lg:grid-cols-2 lg:px-10">
+          <Reveal>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">Built into every plan</p>
+            <h2 className="text-4xl font-black md:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
+              The moments you will remember
+            </h2>
+            <p className="mt-5 max-w-md text-muted leading-relaxed">
+              A waterfall picnic, a lake cruise, a sunset dinner. These are the highlights our desk builds each region's itinerary around. Swipe, use the arrows, or tap a card behind.
+            </p>
+            <Link to="/destinations" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-4">
+              See each region <FiArrowRight />
+            </Link>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <DepthCarousel cards={moments} label="Trip highlights" />
+          </Reveal>
+        </div>
+      </section>
 
       {/* ══════════════════ JOURNEY ══════════════════ */}
       <section className="bg-surface py-24">

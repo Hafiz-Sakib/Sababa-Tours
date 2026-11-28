@@ -2,8 +2,10 @@
 // Travel Blog: featured story, category tabs, search, expandable articles, FAQ.
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiArrowRight, FiCalendar, FiChevronDown, FiClock, FiSearch, FiTag } from "react-icons/fi";
+import { FiArrowRight, FiCalendar, FiChevronDown, FiClock, FiHeart, FiSearch, FiTag, FiThumbsUp, FiZap } from "react-icons/fi";
 import { articles } from "../../data/travel";
+import ColumnCard from "../ui/brew/ColumnCard";
+import ReactionCard from "../ui/brew/ReactionCard";
 import {
   AnimatePresence,
   AnimatedNumber,
@@ -116,7 +118,7 @@ const Blogs = () => {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-6 py-16 lg:px-10">
+      <section id="stories" className="max-w-7xl mx-auto px-6 py-16 lg:px-10">
         <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <PillTabs
             id="journal-cats"
@@ -209,6 +211,52 @@ const Blogs = () => {
             </div>
           </div>
         </Reveal>
+      </section>
+
+      {/* Reading time: Column card */}
+      <section className="mx-auto max-w-7xl px-6 pb-16 lg:px-10 lg:pb-24">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <Reveal>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">Short on time?</p>
+            <h2 className="text-3xl font-black leading-tight md:text-4xl">Pick a story by the minutes you have</h2>
+            <p className="mt-4 max-w-md text-muted">Every journal story is a quick read. Hover a column to see which story it is, then press it to open it.</p>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <ColumnCard
+              title="Minutes to read"
+              caption="Hover a column to see the story"
+              unit=" min"
+              columns={articles.map((a) => ({ name: a.title, label: a.category, value: parseInt(a.read, 10) || 1 }))}
+              onPick={(i) => {
+                setSearchTerm("");
+                setActiveCategory("All");
+                setOpenTitle(articles[i].title);
+                document.getElementById("stories")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Feedback: Reaction card */}
+      <section className="bg-sandy px-6 py-16 md:py-24">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-10 md:flex-row md:justify-between">
+          <Reveal className="max-w-md text-center md:text-left">
+            <h2 className="text-3xl font-black leading-tight md:text-4xl">Tell us what to write next</h2>
+            <p className="mt-3 text-muted">One tap is enough. Your answer is kept on this device only, and nothing is sent.</p>
+          </Reveal>
+          <Reveal delay={0.1} className="w-full max-w-md">
+            <ReactionCard
+              question="Was the journal useful?"
+              storageKey="sababa-journal-feedback"
+              options={[
+                { id: "useful", label: "Useful", icon: <FiThumbsUp /> },
+                { id: "loved", label: "Loved it", icon: <FiHeart /> },
+                { id: "more", label: "Need more", icon: <FiZap /> },
+              ]}
+            />
+          </Reveal>
+        </div>
       </section>
 
       {/* FAQ Section */}

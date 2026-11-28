@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { FiAlertTriangle, FiArrowRight, FiCheck, FiRotateCcw } from "react-icons/fi";
 import { guideTips, packing } from "../../data/travel";
 import { Aurora, BlurAccordion, BlurText, PillTabs, Reveal, ScrollProgress, motion } from "../ui/Motion";
+import DownloadButton from "../ui/brew/DownloadButton";
+import AnnotationText from "../ui/brew/AnnotationText";
 
 const serif = { fontFamily: "var(--font-display)" };
 const TYPES = [
@@ -62,6 +64,20 @@ const Guide = () => {
     [pct, checked, list.length],
   );
 
+  /* the checklist for the chosen trip type as a plain text file: [x] packed, [ ] still to pack */
+  const saveChecklist = () => {
+    const title = TYPES.find((t) => t.id === type).label;
+    const text = [`Sababa Tours: ${title} packing checklist`, "", ...list.map((it) => `${done[`${type}:${it}`] ? "[x]" : "[ ]"} ${it}`), ""].join("\n");
+    const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sababa-${type}-packing-list.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
   return (
     <main className="min-h-screen bg-sandy pt-[76px] text-ink">
       <ScrollProgress />
@@ -116,6 +132,19 @@ const Guide = () => {
         </div>
       </section>
 
+      {/* ── Keep a copy: Download button ── */}
+      <section className="mx-auto max-w-5xl px-6 pb-20 lg:px-10">
+        <Reveal>
+          <div className="flex flex-col items-start justify-between gap-6 rounded-[2rem] border border-line bg-surface p-8 shadow-card md:flex-row md:items-center md:p-10">
+            <div className="max-w-md">
+              <h2 className="text-2xl font-black md:text-3xl" style={serif}>Take the {TYPES.find((t) => t.id === type).label.toLowerCase()} list with you</h2>
+              <p className="mt-2 text-muted">Signal can be patchy on trails and boats. Save the list, with your ticks, as a text file on your phone.</p>
+            </div>
+            <DownloadButton key={type} label={`Save ${TYPES.find((t) => t.id === type).label.toLowerCase()} checklist`} doneLabel="Checklist saved" onDownload={saveChecklist} />
+          </div>
+        </Reveal>
+      </section>
+
       <section className="bg-surface py-20">
         <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-2 lg:px-10">
           <Reveal>
@@ -133,6 +162,23 @@ const Guide = () => {
             <BlurAccordion items={guideTips} />
           </Reveal>
         </div>
+      </section>
+
+      {/* ── The short version: Annotation text ── */}
+      <section className="mx-auto max-w-4xl px-6 py-24 text-center">
+        <p className="mb-8 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">The short version</p>
+        <AnnotationText
+          className="text-2xl font-black md:text-4xl"
+          parts={[
+            "Follow your guide, wear a ",
+            { text: "life jacket on any boat", mark: "underline" },
+            ", ",
+            { text: "start early", mark: "circle" },
+            ", and ",
+            { text: "take your rubbish with you", mark: "box" },
+            ". Small habits do most of the work.",
+          ]}
+        />
       </section>
 
       <section className="mx-auto max-w-4xl px-6 py-20 text-center">

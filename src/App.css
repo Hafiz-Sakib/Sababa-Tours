@@ -708,3 +708,33 @@ html:not(.dark) .text-accent-lt { color: rgb(var(--accent)); }
     print-color-adjust: exact;
   }
 }
+
+/* ── Motion Brew style range slider (AmountSlider) ── */
+.amount-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: linear-gradient(to right, rgb(var(--brand)) var(--fill, 0%), rgb(var(--line)) var(--fill, 0%));
+}
+.amount-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgb(var(--surface));
+  border: 3px solid rgb(var(--btn));
+  box-shadow: 0 6px 16px -6px rgba(16, 24, 40, 0.4);
+  transition: transform 0.2s;
+}
+.amount-slider:active::-webkit-slider-thumb { transform: scale(1.15); }
+.amount-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgb(var(--surface));
+  border: 3px solid rgb(var(--btn));
+}
+.amount-slider:focus-visible { outline: 2px solid rgb(var(--brand)); outline-offset: 6px; }

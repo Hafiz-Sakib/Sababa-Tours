@@ -5,7 +5,9 @@ import { Link } from "react-router-dom";
 import { FiArrowRight, FiClock, FiCompass, FiMapPin, FiUsers } from "react-icons/fi";
 import ServiceCard from "../Services/ServiceCard";
 import SeasonPicker from "../ui/SeasonPicker";
-import { API_BASE_URL } from "../../config";
+import TripIndex from "../ui/brew/TripIndex";
+import ContactCard from "../ui/brew/ContactCard";
+import { API_BASE_URL, DESK_EMAIL } from "../../config";
 import { MONTHS, destinations, matchesRegion, seasonLabel, seasons } from "../../data/travel";
 import {
   AnimatePresence,
@@ -20,6 +22,9 @@ import {
 } from "../ui/Motion";
 
 const serif = { fontFamily: "var(--font-display)" };
+
+/* shortest trip first: sorted by the first number in "3–5 Days" */
+const byLength = [...destinations].sort((a, b) => parseInt(a.duration, 10) - parseInt(b.duration, 10));
 
 const Destinations = () => {
   const [active, setActive] = useState(destinations[0].slug);
@@ -78,7 +83,7 @@ const Destinations = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-14 lg:px-10">
+      <section id="region" className="mx-auto max-w-7xl px-6 py-14 lg:px-10">
         <div className="-mt-20 mb-10 relative z-10">
           <PillTabs id="dest-tabs" items={destinations.map((x) => ({ id: x.slug, label: x.name }))} value={active} onChange={setActive} />
         </div>
@@ -177,6 +182,24 @@ const Destinations = () => {
         </div>
       </section>
 
+      {/* ── Choose by days: Trip index ── */}
+      <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
+        <Reveal>
+          <div className="mb-10 max-w-2xl">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-brand-ink">How long do you have?</p>
+            <h2 className="text-3xl font-black md:text-4xl" style={serif}>Start from the days you can spare</h2>
+            <p className="mt-3 text-muted">Regions sorted from the shortest trip to the longest. Hover one for its picture, press it to open its details above.</p>
+          </div>
+        </Reveal>
+        <TripIndex
+          items={byLength.map((d) => ({ title: d.name, meta: `${d.duration} · best for ${d.bestFor}`, image: d.image, caption: d.highlight }))}
+          onSelect={(i) => {
+            setActive(byLength[i].slug);
+            document.getElementById("region")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        />
+      </section>
+
       <section className="mx-auto max-w-4xl px-6 py-20">
         <Reveal>
           <div className="mb-10 text-center">
@@ -193,6 +216,18 @@ const Destinations = () => {
             </div>
             <Link to="/guide" className="shrink-0 rounded-full bg-gradient-to-r from-cta to-accent-lt px-8 py-4 text-sm font-black uppercase tracking-widest text-deep">Open the guide</Link>
           </div>
+        </Reveal>
+      </section>
+
+      {/* ── Still deciding: Contact card ── */}
+      <section className="bg-surface px-6 py-20 text-center">
+        <Reveal>
+          <h2 className="mx-auto max-w-2xl text-3xl font-black md:text-4xl" style={serif}>
+            Torn between two regions?
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-muted">
+            Tell us your dates and who is travelling, and our desk will suggest one. <ContactCard label="Ask the travel desk" email={DESK_EMAIL} title="Travel desk" note="Tell us your month and group size." />
+          </p>
         </Reveal>
       </section>
     </main>
