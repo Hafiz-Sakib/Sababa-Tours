@@ -681,3 +681,30 @@ html:not(.dark) .text-accent-lt { color: rgb(var(--accent)); }
 @media (max-width: 1279.98px) {
   body { padding-top: env(safe-area-inset-top); }
 }
+
+/* ─── Invoice: print / "Save as PDF" ───
+   Only the invoice is printed: everything else on the page is hidden. */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  .inv-print,
+  .inv-print * {
+    visibility: visible !important;
+  }
+  .inv-print {
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  .inv-print * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

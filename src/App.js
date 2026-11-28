@@ -21,6 +21,7 @@ import AuthRedirectHandler from "./Components/Auth/AuthRedirectHandler";
 
 import Booking from "./Components/Booking/Booking";
 import MyBookings from "./Components/MyBookings/MyBookings";
+import BillingPage from "./Components/Billing/BillingPage";
 import AdminDashboard from "./Components/Admin/AdminDashboard";
 import { API_BASE_URL } from "./config";
 
@@ -55,6 +56,14 @@ function App() {
           element={
             <RequireAuth>
               <MyBookings />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/my-bookings/:bookingId/billing"
+          element={
+            <RequireAuth>
+              <BillingPage />
             </RequireAuth>
           }
         />

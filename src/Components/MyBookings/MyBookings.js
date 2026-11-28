@@ -1,6 +1,6 @@
 // src/Components/MyBookings/MyBookings.js
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../Firebase.init";
 import {
@@ -8,12 +8,13 @@ import {
   FiCalendar,
   FiCheckCircle,
   FiClock,
+  FiCreditCard,
   FiEdit2,
+  FiFileText,
   FiLock,
   FiMapPin,
   FiPhone,
   FiRefreshCw,
-  FiTrash2,
   FiUsers,
   FiXCircle,
 } from "react-icons/fi";
@@ -22,6 +23,18 @@ import { API_BASE_URL } from "../../config";
 import { authFetch } from "../Utilities/authFetch";
 import { customerAccess, LOCK_DAYS } from "../Utilities/bookingRules";
 import EditBookingModal from "../Booking/EditBookingModal";
+import ActionBtn from "../ui/ActionBtn";
+import HoldToDelete from "../ui/HoldToDelete";
+import { HoldBanner } from "../Billing/HoldBanner";
+import {
+  canPay,
+  displayStatus,
+  money,
+  moneyOf,
+  paidOf,
+  useNow,
+  withLiveStatus,
+} from "../Utilities/payment";
 import {
   AnimatePresence,
   AnimatedNumber,
@@ -38,21 +51,33 @@ const serif = { fontFamily: "var(--font-display)" };
 
 const STATUS = {
   pending: {
+    label: "pending",
     pill: "bg-amber-100 text-amber-700 ring-amber-200",
     bar: "from-amber-400 to-amber-300",
-    step: 1,
     note: "Waiting for our team to review your request.",
   },
+  awaiting_payment: {
+    label: "advance due",
+    pill: "bg-orange-100 text-orange-700 ring-orange-200",
+    bar: "from-orange-400 to-amber-300",
+    note: "Approved! Pay the 30% advance to confirm your booking.",
+  },
   confirmed: {
+    label: "confirmed",
     pill: "bg-emerald-100 text-emerald-700 ring-emerald-200",
     bar: "from-emerald-500 to-teal-400",
-    step: 2,
-    note: "Confirmed! Our team will share the next steps.",
+    note: "Confirmed! You can pay the rest any time from the billing page.",
+  },
+  paid: {
+    label: "paid in full",
+    pill: "bg-emerald-100 text-emerald-700 ring-emerald-200",
+    bar: "from-emerald-500 to-teal-400",
+    note: "Everything is paid. Have a great trip!",
   },
   cancelled: {
+    label: "cancelled",
     pill: "bg-red-100 text-red-600 ring-red-200",
     bar: "from-red-400 to-red-300",
-    step: 0,
     note: "This request was cancelled.",
   },
 };
@@ -60,10 +85,9 @@ const STATUS = {
 const fmt = (d, opts) =>
   d ? new Date(d).toLocaleDateString("en-GB", opts) : "—";
 
-/* progress rail: Requested → Reviewed → Confirmed */
-const Rail = ({ status }) => {
-  const st = STATUS[status] || STATUS.pending;
-  const labels = ["Requested", "Reviewing", "Confirmed"];
+/* progress rail: Requested → Approved → Confirmed → Paid */
+const Rail = ({ status, bar }) => {
+  const labels = ["Requested", "Approved", "Confirmed", "Paid"];
   if (status === "cancelled") {
     return (
       <div className="flex items-center gap-2 text-xs font-bold text-red-500">
@@ -71,7 +95,7 @@ const Rail = ({ status }) => {
       </div>
     );
   }
-  const filled = status === "confirmed" ? 3 : 2;
+  const filled = { pending: 1, awaiting_payment: 2, confirmed: 3, paid: 4 }[status] || 1;
   return (
     <div className="flex items-center gap-2">
       {labels.map((l, i) => (
@@ -82,9 +106,7 @@ const Rail = ({ status }) => {
               animate={{ scale: 1 }}
               transition={{ delay: 0.15 * i, type: "spring", stiffness: 400 }}
               className={`grid h-6 w-6 place-items-center rounded-full text-[10px] font-black ${
-                i < filled
-                  ? "bg-brand text-white"
-                  : "bg-line text-muted"
+                i < filled ? "bg-brand text-white" : "bg-line text-muted"
               }`}
             >
               {i < filled ? <FiCheckCircle size={12} /> : i + 1}
@@ -98,7 +120,7 @@ const Rail = ({ status }) => {
           {i < labels.length - 1 && (
             <div className="h-0.5 flex-1 overflow-hidden rounded-full bg-line">
               <motion.div
-                className={`h-full bg-gradient-to-r ${st.bar}`}
+                className={`h-full bg-gradient-to-r ${bar}`}
                 initial={{ width: 0 }}
                 animate={{ width: i < filled - 1 ? "100%" : "0%" }}
                 transition={{ duration: 0.8, delay: 0.2 + 0.2 * i }}
@@ -111,17 +133,54 @@ const Rail = ({ status }) => {
   );
 };
 
+/* paid / balance strip on a card, with a marker where the 30% advance sits */
+const MoneyStrip = ({ b }) => {
+  const m = moneyOf(b);
+  return (
+    <div className="mx-7 mb-6 rounded-2xl border border-line bg-page-alt p-4">
+      <div className="grid grid-cols-3 gap-3 text-center sm:text-left">
+        {[
+          ["Total", m.total, "text-ink"],
+          ["Paid", m.paid, "text-emerald-600"],
+          [b.status === "cancelled" ? "Refund due" : "Balance", b.status === "cancelled" ? m.refundDue : m.balance, "text-amber-600"],
+        ].map(([l, v, c]) => (
+          <div key={l}>
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted">{l}</p>
+            <p className={`mt-0.5 text-sm font-black sm:text-base ${c}`}>{money(v)}</p>
+          </div>
+        ))}
+      </div>
+      <div className="relative mt-3 h-2 rounded-full bg-line">
+        <motion.div
+          className="h-full rounded-full bg-gradient-to-r from-brand to-accent-lt"
+          initial={{ width: 0 }}
+          animate={{ width: `${m.pct}%` }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        />
+        <span className="absolute -top-1 bottom-[-4px] w-0.5 bg-ink/40" style={{ left: "30%" }} aria-hidden />
+      </div>
+      <p className="mt-1.5 text-[10px] font-bold text-muted" style={{ marginLeft: "calc(30% - 28px)" }}>
+        30% advance {m.advanceMet ? "✓" : ""}
+      </p>
+    </div>
+  );
+};
+
 const MyBookings = () => {
   const [user] = useAuthState(auth);
-  const [bookings, setBookings] = useState([]);
+  const navigate = useNavigate();
+  const now = useNow(30000);
+  const [rawBookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState(null);
   const [confirmId, setConfirmId] = useState(null); // cancel confirmation
-  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState("all");
+
+  /* an unpaid advance whose 72 hours ran out already reads "cancelled" (the server cancels it for real) */
+  const bookings = useMemo(() => rawBookings.map((b) => withLiveStatus(b, now)), [rawBookings, now]);
 
   const fetchBookings = useCallback(async () => {
     if (!user) {
@@ -182,7 +241,6 @@ const MyBookings = () => {
       toast.error(e.message);
     } finally {
       setDeletingId(null);
-      setDeleteConfirmId(null);
     }
   };
 
@@ -203,12 +261,12 @@ const MyBookings = () => {
         ...b,
         ...fields,
         totalAmount: Math.round(perTraveler * fields.travelers),
-        status: b.status === "confirmed" ? "pending" : b.status,
+        status: b.status === "confirmed" || b.status === "awaiting_payment" ? "pending" : b.status,
       };
       setBookings((prev) => prev.map((x) => (x._id === b._id ? { ...x, ...merged } : x)));
       toast.success(
-        b.status === "confirmed"
-          ? "Booking updated. Our team will review the changes and confirm again."
+        b.status === "confirmed" || b.status === "awaiting_payment"
+          ? "Booking updated. Our team will review the changes and confirm again. Your payments are kept."
           : "Booking updated.",
       );
       setEditing(null);
@@ -223,16 +281,17 @@ const MyBookings = () => {
     () => ({
       all: bookings.length,
       pending: bookings.filter((b) => b.status === "pending").length,
+      awaiting_payment: bookings.filter((b) => b.status === "awaiting_payment").length,
       confirmed: bookings.filter((b) => b.status === "confirmed").length,
       cancelled: bookings.filter((b) => b.status === "cancelled").length,
     }),
     [bookings],
   );
-  const spent = useMemo(
+  const paidTotal = useMemo(
     () =>
       bookings
         .filter((b) => b.status !== "cancelled")
-        .reduce((s, b) => s + Number(b.totalAmount || 0), 0),
+        .reduce((s, b) => s + paidOf(b), 0),
     [bookings],
   );
 
@@ -250,10 +309,12 @@ const MyBookings = () => {
   }
 
   const visible = bookings.filter((b) => filter === "all" || b.status === filter);
-  const tabs = ["all", "pending", "confirmed", "cancelled"].map((s) => ({
+  const tabLabel = { awaiting_payment: "to pay" };
+  const tabs = ["all", "pending", "awaiting_payment", "confirmed", "cancelled"].map((s) => ({
     id: s,
-    label: s,
+    label: tabLabel[s] || s,
     badge: counts[s],
+    badgeTone: s === "awaiting_payment" && counts[s] > 0 ? "alert" : undefined,
   }));
 
   return (
@@ -295,9 +356,9 @@ const MyBookings = () => {
         <div className="relative mx-auto grid max-w-5xl grid-cols-2 gap-3 px-6 pb-12 sm:grid-cols-4 lg:px-10">
           {[
             ["Total trips", counts.all, ""],
-            ["Pending", counts.pending, ""],
+            ["To pay", counts.awaiting_payment, ""],
             ["Confirmed", counts.confirmed, ""],
-            ["Est. total", spent, "BDT "],
+            ["Paid so far", paidTotal, "BDT "],
           ].map(([l, n, p], i) => (
             <motion.div
               key={l}
@@ -362,7 +423,8 @@ const MyBookings = () => {
           <motion.div layout className="grid gap-6">
             <AnimatePresence mode="popLayout">
               {visible.map((b, idx) => {
-                const st = STATUS[b.status] || STATUS.pending;
+                const shown = displayStatus(b);
+                const st = STATUS[shown] || STATUS.pending;
                 return (
                   <motion.article
                     key={b._id}
@@ -383,7 +445,7 @@ const MyBookings = () => {
                             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold capitalize ring-1 ${st.pill}`}
                           >
                             <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                            {b.status}
+                            {st.label}
                           </span>
                           <h3
                             className="mt-3 text-2xl font-black leading-tight text-ink md:text-3xl"
@@ -400,7 +462,11 @@ const MyBookings = () => {
                           <p className="mt-1 text-xs text-muted">
                             ID: <span className="font-mono">{b._id}</span>
                           </p>
-                          <p className="mt-3 text-sm text-muted">{st.note}</p>
+                          <p className="mt-3 text-sm text-muted">
+                            {b.cancelReason === "advance_not_paid"
+                              ? "Cancelled automatically: the 30% advance was not paid within 72 hours."
+                              : st.note}
+                          </p>
                         </div>
                         <div className="shrink-0 md:text-right">
                           <p className="text-3xl font-black text-accent" style={serif}>
@@ -413,8 +479,20 @@ const MyBookings = () => {
                       </div>
 
                       <div className="px-7 pb-6">
-                        <Rail status={b.status} />
+                        <Rail status={shown} bar={st.bar} />
                       </div>
+
+                      {b.status === "awaiting_payment" && (
+                        <div className="px-7 pb-6">
+                          <HoldBanner
+                            b={b}
+                            compact
+                            onPay={() => navigate(`/my-bookings/${b._id}/billing`)}
+                            onExpire={fetchBookings}
+                          />
+                        </div>
+                      )}
+                      {(b.status === "confirmed" || b.status === "awaiting_payment" || moneyOf(b).paid > 0) && <MoneyStrip b={b} />}
 
                       <div className="grid grid-cols-2 gap-5 border-t border-line bg-page-alt px-7 py-5 text-sm md:grid-cols-4">
                         <Info icon={<FiCalendar />} label="Trip date">
@@ -442,11 +520,10 @@ const MyBookings = () => {
                         setConfirmId={setConfirmId}
                         cancellingId={cancellingId}
                         onCancel={cancelBooking}
-                        deleteConfirmId={deleteConfirmId}
-                        setDeleteConfirmId={setDeleteConfirmId}
                         deletingId={deletingId}
                         onDelete={deleteBooking}
                         onEdit={() => setEditing(b)}
+                        onBilling={() => navigate(`/my-bookings/${b._id}/billing`)}
                       />
                     </TiltCard>
                   </motion.article>
@@ -477,70 +554,95 @@ const minTripDate = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
-/* action row of one booking card: Edit + Cancel inside the change window, a lock note after it, Delete for cancelled ones */
+/* action row of one booking card:
+   Billing / Pay, Update and Cancel inside the change window, a lock note after it, Delete (hold) for cancelled ones */
 const BookingActions = ({
   booking: b,
   confirmId,
   setConfirmId,
   cancellingId,
   onCancel,
-  deleteConfirmId,
-  setDeleteConfirmId,
   deletingId,
   onDelete,
   onEdit,
+  onBilling,
 }) => {
   const access = customerAccess(b);
+  const m = moneyOf(b);
   const askingCancel = confirmId === b._id;
-  const askingDelete = deleteConfirmId === b._id;
-
-  if (access.locked) {
-    return (
-      <div className="flex items-start gap-3 border-t border-line px-7 py-4 text-sm text-muted">
-        <FiLock className="mt-0.5 shrink-0 text-brand-ink" />
-        <p>{access.lockMessage}</p>
-      </div>
-    );
-  }
-  if (!access.canEdit && !access.canDelete) return null;
-
-  const confirmRow = (text, keepFn, goFn, busy, goLabel, busyLabel) => (
-    <motion.div key="confirm" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} className="flex w-full flex-wrap items-center gap-3">
-      <span className="mr-auto text-sm text-muted">{text}</span>
-      <button onClick={keepFn} className="rounded-full border border-line px-4 py-2 text-xs font-bold text-muted hover:bg-sandy">Keep it</button>
-      <button onClick={goFn} disabled={busy} className="rounded-full bg-red-500 px-4 py-2 text-xs font-bold text-white hover:bg-red-600 disabled:opacity-60">
-        {busy ? busyLabel : goLabel}
-      </button>
-    </motion.div>
-  );
+  const awaiting = b.status === "awaiting_payment";
+  const showBilling = b.status !== "cancelled" || m.paid > 0;
 
   return (
-    <div className="flex items-center justify-end gap-3 border-t border-line px-7 py-4">
+    <div className="border-t border-line">
       <AnimatePresence mode="wait" initial={false}>
         {askingCancel ? (
-          confirmRow("Cancel this request?", () => setConfirmId(null), () => onCancel(b._id), cancellingId === b._id, "Yes, cancel", "Cancelling…")
-        ) : askingDelete ? (
-          confirmRow("Delete this booking permanently?", () => setDeleteConfirmId(null), () => onDelete(b._id), deletingId === b._id, "Yes, delete", "Deleting…")
+          <motion.div
+            key="confirm"
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -12 }}
+            className="flex flex-wrap items-center gap-3 px-7 py-4"
+          >
+            <span className="mr-auto min-w-[200px] text-sm text-muted">
+              Cancel this request?
+              {m.paid > 0 && ` You have paid ${money(m.paid)}: our travel desk will contact you about the refund.`}
+            </span>
+            <ActionBtn tone="keep" onClick={() => setConfirmId(null)}>
+              Keep it
+            </ActionBtn>
+            <ActionBtn tone="danger" icon={FiXCircle} busy={cancellingId === b._id} disabled={cancellingId === b._id} onClick={() => onCancel(b._id)}>
+              Yes, cancel
+            </ActionBtn>
+          </motion.div>
         ) : (
-          <motion.div key="ask" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-wrap items-center justify-end gap-3">
-            {access.canEdit && (
-              <button onClick={onEdit} className="flex items-center gap-2 rounded-full border border-line px-4 py-2 text-xs font-bold text-ink hover:bg-sandy">
-                <FiEdit2 /> Edit
-              </button>
-            )}
-            {access.canCancel && (
-              <button onClick={() => setConfirmId(b._id)} className="flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50">
-                <FiXCircle /> Cancel request
-              </button>
-            )}
-            {access.canDelete && (
-              <button onClick={() => setDeleteConfirmId(b._id)} className="flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50">
-                <FiTrash2 /> Delete
-              </button>
-            )}
+          <motion.div
+            key="ask"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-wrap items-center justify-between gap-3 px-7 py-4"
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              {showBilling && (
+                <ActionBtn
+                  tone={awaiting ? "pay" : "billing"}
+                  icon={awaiting ? FiCreditCard : FiFileText}
+                  attention={awaiting}
+                  onClick={onBilling}
+                >
+                  {awaiting ? `Pay ${money(m.advanceDue)} advance` : canPay(b) && m.balance > 0 ? "Billing & pay" : "Billing & invoice"}
+                </ActionBtn>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              {access.canEdit && (
+                <ActionBtn tone="update" icon={FiEdit2} onClick={onEdit}>
+                  Update
+                </ActionBtn>
+              )}
+              {access.canCancel && (
+                <ActionBtn tone="cancel" icon={FiXCircle} onClick={() => setConfirmId(b._id)}>
+                  Cancel request
+                </ActionBtn>
+              )}
+              {access.canDelete && (
+                <HoldToDelete
+                  disabled={deletingId === b._id}
+                  onConfirm={() => onDelete(b._id)}
+                />
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {access.locked && !askingCancel && (
+        <div className="flex items-start gap-3 border-t border-line px-7 py-3.5 text-sm text-muted">
+          <FiLock className="mt-0.5 shrink-0 text-brand-ink" />
+          <p>{access.lockMessage}</p>
+        </div>
+      )}
     </div>
   );
 };

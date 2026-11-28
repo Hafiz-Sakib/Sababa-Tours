@@ -11,6 +11,7 @@ import {
   FiDollarSign,
   FiDownload,
   FiEdit2,
+  FiFileText,
   FiGrid,
   FiImage,
   FiList,
@@ -31,6 +32,22 @@ import { auth } from "../../Firebase.init";
 import { API_BASE_URL } from "../../config";
 import { authFetch } from "../Utilities/authFetch";
 import EditBookingModal from "../Booking/EditBookingModal";
+import HoldToDelete from "../ui/HoldToDelete";
+import { HoldChip } from "../Billing/HoldBanner";
+import InvoiceModal from "../Billing/InvoiceModal";
+import {
+  ADVANCE_PERCENT,
+  HOLD_HOURS,
+  confirmLocally,
+  fmtDateTime,
+  money,
+  moneyOf,
+  needsAdvance,
+  paidOf,
+  paymentsOf,
+  useNow,
+  withLiveStatus,
+} from "../Utilities/payment";
 import {
   AnimatePresence,
   AnimatedNumber,
@@ -49,7 +66,8 @@ const API_BOOKINGS = `${API_BASE_URL}/api/admin/bookings`;
 const API_SERVICES = `${API_BASE_URL}/api/admin/services`;
 const API_SERVICES_PUBLIC = `${API_BASE_URL}/api/services`;
 const PER_PAGE = 10;
-const STATUSES = ["all", "pending", "confirmed", "cancelled"];
+const STATUSES = ["all", "pending", "awaiting_payment", "confirmed", "cancelled"];
+const STATUS_LABEL = { awaiting_payment: "advance due" };
 
 /* ───────────── helpers ───────────── */
 const fmtDate = (d) =>
@@ -66,6 +84,7 @@ const serif = { fontFamily: "var(--font-display)" };
 
 const STATUS_STYLE = {
   pending: "bg-amber-100 text-amber-700 ring-amber-200",
+  awaiting_payment: "bg-orange-100 text-orange-700 ring-orange-200",
   confirmed: "bg-emerald-100 text-emerald-700 ring-emerald-200",
   cancelled: "bg-red-100 text-red-600 ring-red-200",
 };
@@ -75,7 +94,7 @@ const StatusBadge = ({ status }) => (
     className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold capitalize ring-1 ${STATUS_STYLE[status] || STATUS_STYLE.pending}`}
   >
     <span className="w-1.5 h-1.5 rounded-full bg-current" />
-    {status}
+    {STATUS_LABEL[status] || status}
   </span>
 );
 
@@ -146,13 +165,17 @@ const ConfirmDialog = ({ open, title, text, confirmLabel, danger, busy, onConfir
           <button onClick={onCancel} className="flex-1 py-3 rounded-2xl border border-line text-sm font-bold text-muted hover:bg-sandy">
             Keep
           </button>
-          <button
-            onClick={onConfirm}
-            disabled={busy}
-            className={`flex-1 py-3 rounded-2xl text-sm font-bold text-white disabled:opacity-60 ${danger ? "bg-red-500 hover:bg-red-600" : "bg-btn hover:bg-brand"}`}
-          >
-            {busy ? "Please wait…" : confirmLabel}
-          </button>
+          {danger ? (
+            <HoldToDelete full disabled={busy} label={`Hold to ${String(confirmLabel || "delete").toLowerCase()}`} doneLabel="Done" onConfirm={onConfirm} className="flex-1" />
+          ) : (
+            <button
+              onClick={onConfirm}
+              disabled={busy}
+              className="flex-1 py-3 rounded-2xl text-sm font-bold text-white disabled:opacity-60 bg-btn hover:bg-brand"
+            >
+              {busy ? "Please wait…" : confirmLabel}
+            </button>
+          )}
         </div>
       </ModalShell>
     </div>
@@ -174,7 +197,43 @@ const Row = ({ icon, label, children }) => (
   </div>
 );
 
-const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete, onEdit }) => {
+const PaymentBlock = ({ b }) => {
+  const m = moneyOf(b);
+  const pays = paymentsOf(b);
+  if (b.status === "pending" && m.paid === 0) return null;
+  return (
+    <div className="py-4">
+      <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-2">Payment</p>
+      <div className="grid grid-cols-3 gap-2 text-center">
+        {[["Total", m.total, "text-ink"], ["Paid", m.paid, "text-emerald-600"], ["Balance", m.balance, "text-amber-600"]].map(([l, v, c]) => (
+          <div key={l} className="rounded-xl bg-sandy px-2 py-2.5">
+            <p className="text-[9px] font-black uppercase tracking-widest text-muted">{l}</p>
+            <p className={`text-sm font-black ${c}`}>{fmtAmt(v)}</p>
+          </div>
+        ))}
+      </div>
+      <div className="relative mt-3 h-2 rounded-full bg-line">
+        <div className="h-full rounded-full bg-gradient-to-r from-brand to-accent-lt" style={{ width: `${m.pct}%` }} />
+        <span className="absolute -top-1 bottom-[-4px] w-0.5 bg-ink/40" style={{ left: "30%" }} />
+      </div>
+      <p className="mt-1.5 text-[11px] text-muted">
+        {b.status === "awaiting_payment" ? <HoldChip b={b} /> : m.advanceMet ? `✓ ${ADVANCE_PERCENT}% advance received` : `${ADVANCE_PERCENT}% advance: ${fmtAmt(m.advance)}`}
+      </p>
+      {pays.length > 0 && (
+        <ul className="mt-3 divide-y divide-line rounded-xl border border-line text-xs">
+          {[...pays].reverse().map((p, i) => (
+            <li key={p._id || i} className="flex items-center justify-between gap-2 px-3 py-2">
+              <span className="text-muted">{fmtDateTime(p.paidAt || p.createdAt)} · {p.method || "Online"}</span>
+              <b className="text-emerald-600">+ {fmtAmt(p.amount)}</b>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+const BookingDrawer = ({ booking: b, all, busy, onClose, onStatus, onDeleteNow, onEdit, onInvoice }) => {
   useEffect(() => {
     const h = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", h);
@@ -236,16 +295,24 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete, onEdit }
           <Row icon={<FiUsers size={14} />} label="Travelers">{b.travelers}</Row>
           {b.notes && <Row icon={<FiList size={14} />} label="Special requests">{b.notes}</Row>}
           <Row icon={<FiClock size={14} />} label="Requested on">{fmtDate(b.createdAt)}</Row>
+          <PaymentBlock b={b} />
         </div>
 
         <div className="p-5 border-t border-line space-y-3 bg-page-alt">
+          {b.status === "pending" && (
+            <p className="text-[11px] leading-relaxed text-muted px-1">
+              {needsAdvance(b, all)
+                ? `This date is free in the schedule: confirming asks the client for a ${ADVANCE_PERCENT}% advance (${money(Math.ceil((Number(b.totalAmount || 0) * ADVANCE_PERCENT) / 100))}) within ${HOLD_HOURS} hours, otherwise the booking cancels itself.`
+                : "This date already has a confirmed trip, so confirming confirms the booking right away (no advance needed)."}
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <button
-              disabled={busy || b.status === "confirmed"}
+              disabled={busy || b.status === "confirmed" || b.status === "awaiting_payment"}
               onClick={() => onStatus(b._id, "confirmed")}
               className="py-3 rounded-2xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 disabled:opacity-40 flex items-center justify-center gap-2"
             >
-              <FiCheckCircle /> Confirm
+              <FiCheckCircle /> {b.status === "awaiting_payment" ? "Awaiting advance" : "Confirm"}
             </button>
             <button
               disabled={busy || b.status === "cancelled"}
@@ -272,12 +339,13 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete, onEdit }
               <FiEdit2 /> Edit details
             </button>
             <button
-              onClick={() => onDelete(b)}
-              className="py-2.5 rounded-2xl text-xs font-bold text-red-500 border border-red-200 hover:bg-red-50 flex items-center justify-center gap-2"
+              onClick={() => onInvoice(b)}
+              className="py-2.5 rounded-2xl text-xs font-bold text-ink border border-line hover:bg-surface flex items-center justify-center gap-2"
             >
-              <FiTrash2 /> Delete permanently
+              <FiFileText /> Invoice
             </button>
           </div>
+          <HoldToDelete full label="Hold to delete permanently" doneLabel="Deleting…" onConfirm={() => onDeleteNow(b)} />
         </div>
       </motion.aside>
     </>
@@ -414,7 +482,8 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
       pending: by("pending").length,
       confirmed: confirmed.length,
       cancelled: by("cancelled").length,
-      revenue: confirmed.reduce((s, b) => s + Number(b.totalAmount || 0), 0),
+      revenue: bookings.filter((b) => b.status !== "cancelled").reduce((s, b) => s + paidOf(b), 0),
+      awaiting: by("awaiting_payment").length,
       pipeline: by("pending").reduce((s, b) => s + Number(b.totalAmount || 0), 0),
       travelers: confirmed.reduce((s, b) => s + Number(b.travelers || 0), 0),
       upcoming, top,
@@ -436,9 +505,9 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard i={0} icon={<FiList />} label="Total bookings" value={bookings.length} sub={`${stats.pending} awaiting review`} />
-        <StatCard i={1} icon={<FiClock />} tone="amber" label="Pending" value={stats.pending} sub={`${fmtAmt(stats.pipeline)} in pipeline`} />
+        <StatCard i={1} icon={<FiClock />} tone="amber" label="Pending" value={stats.pending} sub={`${stats.awaiting} waiting for advance`} />
         <StatCard i={2} icon={<FiCheckCircle />} tone="green" label="Confirmed" value={stats.confirmed} sub={`${stats.travelers} travelers`} />
-        <StatCard i={3} icon={<FiDollarSign />} tone="accent" label="Confirmed revenue" prefix="BDT " value={stats.revenue} sub={`${services.length} packages live`} />
+        <StatCard i={3} icon={<FiDollarSign />} tone="accent" label="Payments received" prefix="BDT " value={stats.revenue} sub={`${services.length} packages live`} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -626,11 +695,14 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete, 
                     <td className="px-5 py-4 max-w-[220px]"><p className="font-semibold truncate">{b.serviceName}</p></td>
                     <td className="px-5 py-4 whitespace-nowrap">{fmtDate(b.preferredDate)}</td>
                     <td className="px-5 py-4">{b.travelers}</td>
-                    <td className="px-5 py-4 font-black whitespace-nowrap">{fmtAmt(b.totalAmount)}</td>
-                    <td className="px-5 py-4"><StatusBadge status={b.status} /></td>
+                    <td className="px-5 py-4 whitespace-nowrap">
+                      <p className="font-black">{fmtAmt(b.totalAmount)}</p>
+                      {b.status !== "pending" && b.status !== "cancelled" && <p className="text-[11px] font-bold text-emerald-600">Paid {fmtAmt(paidOf(b))}</p>}
+                    </td>
+                    <td className="px-5 py-4"><div className="flex flex-col items-start gap-1.5"><StatusBadge status={b.status} /><HoldChip b={b} /></div></td>
                     <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
-                        <button title="Confirm" disabled={busyId === b._id || b.status === "confirmed"} onClick={() => onStatus(b._id, "confirmed")} className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-30"><FiCheckCircle size={17} /></button>
+                        <button title="Confirm" disabled={busyId === b._id || b.status === "confirmed" || b.status === "awaiting_payment"} onClick={() => onStatus(b._id, "confirmed")} className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-30"><FiCheckCircle size={17} /></button>
                         <button title="Cancel booking" disabled={busyId === b._id || b.status === "cancelled"} onClick={() => onStatus(b._id, "cancelled")} className="p-2 rounded-lg text-amber-600 hover:bg-amber-50 disabled:opacity-30"><FiXCircle size={17} /></button>
                         <button title="Edit details" onClick={() => onEdit(b)} className="p-2 rounded-lg text-ink/70 hover:bg-sandy"><FiEdit2 size={17} /></button>
                         <button title="Delete permanently" onClick={() => onDelete(b)} className="p-2 rounded-lg text-red-500 hover:bg-red-50"><FiTrash2 size={17} /></button>
@@ -656,7 +728,7 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete, 
                   <b>{fmtAmt(b.totalAmount)}</b>
                 </div>
                 <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
-                  <button disabled={busyId === b._id || b.status === "confirmed"} onClick={() => onStatus(b._id, "confirmed")} className="flex-1 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold disabled:opacity-40">Confirm</button>
+                  <button disabled={busyId === b._id || b.status === "confirmed" || b.status === "awaiting_payment"} onClick={() => onStatus(b._id, "confirmed")} className="flex-1 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold disabled:opacity-40">{b.status === "awaiting_payment" ? "Awaiting advance" : "Confirm"}</button>
                   <button disabled={busyId === b._id || b.status === "cancelled"} onClick={() => onStatus(b._id, "cancelled")} className="flex-1 py-2 rounded-xl border border-red-200 text-red-600 text-xs font-bold disabled:opacity-40">Cancel</button>
                 </div>
               </div>
@@ -769,7 +841,9 @@ const TABS = [
 const AdminDashboard = () => {
   const [user, authLoading] = useAuthState(auth);
   const [tab, setTab] = useState("overview");
-  const [bookings, setBookings] = useState([]);
+  const [rawBookings, setBookings] = useState([]);
+  const [invoiceFor, setInvoiceFor] = useState(null);
+  const now = useNow(30000);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
@@ -778,6 +852,9 @@ const AdminDashboard = () => {
   const [confirmBusy, setConfirmBusy] = useState(false);
   const [editing, setEditing] = useState(null);
   const [savingEdit, setSavingEdit] = useState(false);
+
+  /* an unpaid advance past its 72 hours already reads cancelled (the server cancels it for real) */
+  const bookings = useMemo(() => rawBookings.map((b) => withLiveStatus(b, now)), [rawBookings, now]);
 
   const isAdmin = user?.email === ADMIN_EMAIL;
 
@@ -820,8 +897,15 @@ const AdminDashboard = () => {
       });
       const result = await res.json().catch(() => ({}));
       if (!res.ok || !result.success) throw new Error(result.message);
-      setBookings((p) => p.map((b) => (b._id === id ? { ...b, status } : b)));
-      toast.success(status === "cancelled" ? "Booking cancelled. It stays in the list as cancelled." : `Booking marked as ${status}.`);
+      const current = rawBookings.find((b) => b._id === id);
+      let next = { status };
+      if (result.booking) next = result.booking;
+      else if (status === "confirmed" && current) next = confirmLocally(current, rawBookings);
+      setBookings((p) => p.map((b) => (b._id === id ? { ...b, ...next } : b)));
+      if (status === "cancelled") toast.success("Booking cancelled. It stays in the list as cancelled.");
+      else if (status === "confirmed" && next.status === "awaiting_payment")
+        toast.success(`Approved. The client has ${HOLD_HOURS} hours to pay the ${ADVANCE_PERCENT}% advance.`);
+      else toast.success(`Booking marked as ${next.status}.`);
     } catch (e) {
       toast.error(e.message || "Could not update the booking status. Please try again.");
     } finally {
@@ -852,19 +936,25 @@ const AdminDashboard = () => {
     }
   };
 
+  const deleteBookingNow = async (b) => {
+    try {
+      const res = await authFetch(`${API_BOOKINGS}/${b._id}`, { method: "DELETE" });
+      const r = await res.json().catch(() => ({}));
+      if (!res.ok || !r.success) throw new Error(r.message || "Delete failed");
+      setBookings((p) => p.filter((x) => x._id !== b._id));
+      setSelectedId(null);
+      toast.success("Booking deleted");
+    } catch (e) {
+      toast.error(e.message || "Delete failed");
+    }
+  };
+
   const deleteBooking = (b) =>
     setConfirm({
       title: "Delete this booking?",
       text: `${b.userName} · ${b.serviceName}. This removes the request from the database permanently and cannot be undone.`,
       label: "Delete",
-      run: async () => {
-        const res = await authFetch(`${API_BOOKINGS}/${b._id}`, { method: "DELETE" });
-        const r = await res.json().catch(() => ({}));
-        if (!res.ok || !r.success) throw new Error(r.message || "Delete failed");
-        setBookings((p) => p.filter((x) => x._id !== b._id));
-        setSelectedId(null);
-        toast.success("Booking deleted");
-      },
+      run: () => deleteBookingNow(b),
     });
 
   const saveService = async (form) => {
@@ -983,12 +1073,13 @@ const AdminDashboard = () => {
 
       <AnimatePresence>
         {selected && (
-          <BookingDrawer key={selected._id} booking={selected} busy={busyId === selected._id} onClose={() => setSelectedId(null)} onStatus={updateStatus} onDelete={deleteBooking} onEdit={setEditing} />
+          <BookingDrawer key={selected._id} booking={selected} all={bookings} busy={busyId === selected._id} onClose={() => setSelectedId(null)} onStatus={updateStatus} onDeleteNow={deleteBookingNow} onEdit={setEditing} onInvoice={setInvoiceFor} />
         )}
       </AnimatePresence>
       {editing && (
         <EditBookingModal booking={editing} minDate="2000-01-01" saving={savingEdit} onSave={saveBookingEdit} onClose={() => setEditing(null)} />
       )}
+      <InvoiceModal booking={invoiceFor} onClose={() => setInvoiceFor(null)} />
       <ConfirmDialog open={!!confirm} title={confirm?.title} text={confirm?.text} confirmLabel={confirm?.label} danger busy={confirmBusy} onConfirm={runConfirm} onCancel={() => setConfirm(null)} />
     </main>
   );

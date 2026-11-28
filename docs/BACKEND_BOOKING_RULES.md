@@ -1,5 +1,8 @@
 # Backend changes needed for booking edit / cancel / delete
 
+> The advance / billing flow (status `awaiting_payment`, 30% advance, 72 h auto-cancel, payments) is in `BACKEND_PAYMENT_RULES.md`.
+> Where the two documents differ, `BACKEND_PAYMENT_RULES.md` wins (e.g. editing an `awaiting_payment` booking also sends it back to `pending`).
+
 The website (front end) now shows these buttons, but **the 5‑day rule must also be enforced on the server**
 (`sababa-tours-backend`), otherwise anyone could call the API directly. This repo has no server code,
 so add the routes below to your Express backend and adjust the names (`Booking`, `Service`, `verifyToken`,
