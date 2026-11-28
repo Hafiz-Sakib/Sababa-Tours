@@ -21,8 +21,7 @@ const links = [
   { id: "packages", name: "Packages", path: "/services", icon: "packages" },
   { id: "guide", name: "Guide", path: "/guide", icon: "guide" },
   { id: "journal", name: "Travel Blog", path: "/blogs", icon: "journal" },
-  { id: "about", name: "About", path: "/about", icon: "about" },
-  { id: "contact", name: "Contact", path: "/contact", icon: "contact" },
+  { id: "meet", name: "Meet Us", path: "/meet-us", icon: "about" },
 ];
 
 /* bottom tab bar: every main page + Profile (the Profile sheet now only holds account things) */
@@ -32,8 +31,7 @@ const tabs = [
   { id: "packages", label: "Tours", icon: "packages" },
   { id: "guide", label: "Guide", icon: "guide" },
   { id: "journal", label: "Blog", icon: "journal" },
-  { id: "about", label: "About", icon: "about" },
-  { id: "contact", label: "Contact", icon: "contact" },
+  { id: "meet", label: "Meet Us", icon: "about" },
   { id: "profile", label: "Profile", icon: "profile" },
 ];
 

@@ -220,7 +220,7 @@ const Blogs = () => {
             <p className="mt-6 text-muted text-lg">
               Need something specific? Reach out — we’re happy to help shape your journey.
             </p>
-            <Link to="/contact" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-4">
+            <Link to="/meet-us#talk" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-4">
               Talk to the desk <FiArrowRight />
             </Link>
           </div>

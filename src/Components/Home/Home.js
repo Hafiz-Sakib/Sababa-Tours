@@ -362,7 +362,7 @@ const Home = () => {
                 </Link>
               </Magnetic>
               <Link
-                to="/contact"
+                to="/meet-us#talk"
                 className="flex items-center justify-center rounded-full border border-on/30 px-9 py-4 text-sm font-bold uppercase tracking-widest text-on transition hover:bg-on/10"
               >
                 Talk to our desk
@@ -577,7 +577,7 @@ const Home = () => {
           </h2>
           <p className="mx-auto mb-12 max-w-xl text-lg text-white/75">Tell us your dream destination. Our team will shape the rest.</p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Link to="/contact" className="rounded-full bg-surface px-10 py-4 font-black uppercase tracking-widest text-brand-ink transition hover:bg-accent hover:text-deep">
+            <Link to="/meet-us#talk" className="rounded-full bg-surface px-10 py-4 font-black uppercase tracking-widest text-brand-ink transition hover:bg-accent hover:text-deep">
               Start planning
             </Link>
             <Link to="/register" className="rounded-full border-2 border-white/40 px-10 py-4 font-bold uppercase tracking-widest transition hover:border-surface hover:bg-white/10">

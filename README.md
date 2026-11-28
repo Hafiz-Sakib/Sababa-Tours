@@ -79,8 +79,7 @@ sababa-tours/
 - **Home** — Hero section, Trip Planner, Destinations, Stats
 - **Packages** — Tour packages with search, filter, and sorting
 - **Travel Blog** — Travel blogs and FAQs
-- **About** — Company story, values, and metrics
-- **Contact** — Concierge form and location map
+- **Meet Us** (`/meet-us`) — one page with an animated switch: *Our Story* (company story, values, metrics) and *Talk to Us* (concierge form, location map, FAQ). `/about` and `/contact` redirect here.
 - **Authentication** — Login and Registration system
 
 ---

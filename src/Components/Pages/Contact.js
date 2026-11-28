@@ -1,4 +1,5 @@
-// src/Components/Contact/Contact.js
+// src/Components/Pages/Contact.js
+// The "Talk to Us" half of the Meet Us page (hero + tab switch live in MeetUs.js).
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -152,30 +153,8 @@ const Contact = () => {
     }`;
 
   return (
-    <main className="min-h-screen bg-page pt-[76px] text-ink">
+    <>
       {success && <SuccessModal onClose={() => setSuccess(false)} />}
-
-      {/* Hero */}
-      <section className="relative bg-panel2 py-20 md:py-28 text-on overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1600&q=85"
-          alt="Travel consultation"
-          className="absolute inset-0 h-full w-full object-cover opacity-30"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-scrim/95 via-scrim/80 to-scrim/70" />
-
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 text-center">
-          <p className="text-accent-lt uppercase tracking-widest text-sm font-bold">
-            Concierge Desk
-          </p>
-          <h1 className="mt-4 text-5xl md:text-6xl font-black tracking-tighter">
-            Tell us where you want to go.
-          </h1>
-          <p className="mt-6 text-lg text-on/80 max-w-2xl mx-auto">
-            Share your vision. We’ll craft the perfect journey for you.
-          </p>
-        </div>
-      </section>
 
       {/* Quick channels */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 -mt-10 relative z-10">
@@ -386,7 +365,7 @@ const Contact = () => {
           </Reveal>
         </div>
       </section>
-    </main>
+    </>
   );
 };
 

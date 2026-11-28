@@ -123,7 +123,7 @@ const Showcase = ({ services = [], places = 0, fromPrice = 0 }) => {
                   label="Travel with people who care"
                   subtitle="Families, friends and solo explorers plan their Bangladesh trips with our desk. Hover the rings, or drag to spin them."
                   cta="Start planning"
-                  href="/contact"
+                  href="/meet-us#talk"
                   linkAs={Link}
                   members={members}
                   logo={<img src={logoMark} alt="" data-keep draggable="false" className="h-9 w-auto" />}

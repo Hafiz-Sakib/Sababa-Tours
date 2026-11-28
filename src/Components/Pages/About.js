@@ -1,4 +1,5 @@
 // src/Components/Pages/About.js
+// The "Our Story" half of the Meet Us page (hero + tab switch live in MeetUs.js).
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -10,7 +11,7 @@ import {
   FiStar,
   FiUsers,
 } from "react-icons/fi";
-import { FlipCard, Reveal, ScrollProgress, TiltCard } from "../ui/Motion";
+import { FlipCard, Reveal, TiltCard } from "../ui/Motion";
 import Review from "../Home/Review";
 
 const promises = [
@@ -92,39 +93,7 @@ const About = () => {
   const selected = metrics[activeMetric];
 
   return (
-    <main className="min-h-screen bg-sandy pt-[76px] text-ink">
-      <ScrollProgress />
-      {/* ── Hero ── */}
-      <section className="relative min-h-[75vh] flex items-center bg-panel text-on overflow-hidden noise">
-        <div className="absolute inset-0 img-zoom">
-          <img
-            src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?w=1600&q=85"
-            alt="Travel planning"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-scrim/97 via-scrim/80 to-scrim/40" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_50%,rgba(38,165,158,0.15)_0%,transparent_55%)]" />
-
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-20">
-          <p className="text-accent uppercase tracking-[0.28em] text-[10px] font-bold mb-6 animate-fade-in">
-            About Sababa Tours
-          </p>
-          <h1
-            className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-tight mb-8 animate-fade-up"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            A travel agency built for calm,
-            <br />
-            <em className="text-shimmer not-italic">confident journeys.</em>
-          </h1>
-          <p className="animate-fade-up delay-200 max-w-2xl text-lg text-on/70 leading-relaxed">
-            We plan refined, reliable trips with careful pacing, trusted local
-            partners, and hands-on support from first idea to final return.
-          </p>
-        </div>
-      </section>
-
+    <>
       {/* ── Philosophy ── */}
       <section className="py-20 md:py-28 bg-surface">
         <div
@@ -275,7 +244,7 @@ const About = () => {
               Details handled by people who know the ground.
             </h2>
             <Link
-              to="/contact"
+              to="/meet-us#talk"
               className="mt-8 inline-flex items-center gap-3 bg-btn text-white px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest hover:bg-accent hover:text-deep transition-all duration-300 group btn-glow"
             >
               Speak With Us
@@ -387,7 +356,7 @@ const About = () => {
           </Link>
         </div>
       </section>
-    </main>
+    </>
   );
 };
 

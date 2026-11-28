@@ -184,7 +184,7 @@ const Review = () => {
         </Reveal>
 
         <div className="mt-8 text-center">
-          <Link to="/contact" className="inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-4">
+          <Link to="/meet-us#talk" className="inline-flex items-center gap-2 text-sm font-bold text-brand-ink transition-all hover:gap-4">
             Plan your own trip <FiArrowRight />
           </Link>
         </div>

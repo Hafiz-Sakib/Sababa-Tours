@@ -23,6 +23,6 @@
   "shortcuts": [
     { "name": "Packages", "short_name": "Packages", "url": "/services?source=shortcut", "icons": [{ "src": "logo192.png", "sizes": "192x192" }] },
     { "name": "My Bookings", "short_name": "Bookings", "url": "/my-bookings?source=shortcut", "icons": [{ "src": "logo192.png", "sizes": "192x192" }] },
-    { "name": "Contact", "short_name": "Contact", "url": "/contact?source=shortcut", "icons": [{ "src": "logo192.png", "sizes": "192x192" }] }
+    { "name": "Contact", "short_name": "Contact", "url": "/meet-us?source=shortcut#talk", "icons": [{ "src": "logo192.png", "sizes": "192x192" }] }
   ]
 }

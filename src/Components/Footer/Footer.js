@@ -21,8 +21,7 @@ const explore = [
   { label: "Destinations", to: "/destinations" },
   { label: "Travel Guide", to: "/guide" },
   { label: "Travel Blog", to: "/blogs" },
-  { label: "About Us", to: "/about" },
-  { label: "Contact", to: "/contact" },
+  { label: "Meet Us", to: "/meet-us" },
 ];
 
 const contact = [

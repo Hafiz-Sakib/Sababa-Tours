@@ -1,6 +1,6 @@
 import "./App.css";
 import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Home from "./Components/Home/Home";
 import NavBar from "./Components/Navbar/Navbar";
@@ -9,8 +9,7 @@ import RequireAuth from "../src/Components/Auth/RequireAuth";
 import Services from "./Components/Services/Services";
 
 import Blogs from "./Components/Pages/Blogs";
-import About from "./Components/Pages/About";
-import Contact from "./Components/Pages/Contact";
+import MeetUs from "./Components/Pages/MeetUs";
 import Destinations from "./Components/Pages/Destinations";
 import Guide from "./Components/Pages/Guide";
 import NotFound from "./Components/Pages/NotFound";
@@ -41,8 +40,10 @@ function App() {
         <Route path="/destinations" element={<Destinations />} />
         <Route path="/guide" element={<Guide />} />
         <Route path="/blogs" element={<Blogs />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/meet-us" element={<MeetUs />} />
+        {/* old About / Contact links keep working */}
+        <Route path="/about" element={<Navigate to="/meet-us#story" replace />} />
+        <Route path="/contact" element={<Navigate to="/meet-us#talk" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

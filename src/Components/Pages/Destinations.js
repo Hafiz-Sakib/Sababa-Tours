@@ -171,7 +171,7 @@ const Destinations = () => {
           ) : (
             <div className="rounded-3xl bg-sandy p-10 text-center">
               <p className="text-muted">No listed package for {d.name} right now. We can still build one for you.</p>
-              <Link to="/contact" className="mt-5 inline-block rounded-full bg-btn px-7 py-3 text-sm font-bold text-white hover:bg-brand">Ask our desk</Link>
+              <Link to="/meet-us#talk" className="mt-5 inline-block rounded-full bg-btn px-7 py-3 text-sm font-bold text-white hover:bg-brand">Ask our desk</Link>
             </div>
           )}
         </div>
