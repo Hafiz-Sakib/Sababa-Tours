@@ -444,7 +444,7 @@ const Booking = () => {
       if (error.message === "NOT_LOGGED_IN") {
         navigate("/login", { state: { from: location } });
       } else {
-        toast.error("Network error. Please try again.");
+        toast.error("Could not reach the server. It may be waking up, so please wait a few seconds and try again.");
       }
     } finally {
       setSubmitting(false);

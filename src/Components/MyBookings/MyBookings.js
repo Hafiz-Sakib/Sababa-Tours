@@ -8,15 +8,20 @@ import {
   FiCalendar,
   FiCheckCircle,
   FiClock,
+  FiEdit2,
+  FiLock,
   FiMapPin,
   FiPhone,
   FiRefreshCw,
+  FiTrash2,
   FiUsers,
   FiXCircle,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "../../config";
 import { authFetch } from "../Utilities/authFetch";
+import { customerAccess, LOCK_DAYS } from "../Utilities/bookingRules";
+import EditBookingModal from "../Booking/EditBookingModal";
 import {
   AnimatePresence,
   AnimatedNumber,
@@ -111,7 +116,11 @@ const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState(null);
-  const [confirmId, setConfirmId] = useState(null);
+  const [confirmId, setConfirmId] = useState(null); // cancel confirmation
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState("all");
 
   const fetchBookings = useCallback(async () => {
@@ -147,16 +156,66 @@ const MyBookings = () => {
       });
       const result = await res.json().catch(() => ({}));
       if (!res.ok || !result.success)
-        throw new Error(result.message || "Could not cancel booking");
+        throw new Error(result.message || "Could not cancel this booking. Please try again.");
       setBookings((prev) =>
         prev.map((b) => (b._id === id ? { ...b, status: "cancelled" } : b)),
       );
-      toast.success("Booking cancelled");
+      toast.success("Booking cancelled.");
     } catch (e) {
       toast.error(e.message);
     } finally {
       setCancellingId(null);
       setConfirmId(null);
+    }
+  };
+
+  const deleteBooking = async (id) => {
+    setDeletingId(id);
+    try {
+      const res = await authFetch(`${API_BASE_URL}/api/bookings/${id}`, { method: "DELETE" });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result.success)
+        throw new Error(result.message || "Could not delete this booking. Please try again.");
+      setBookings((prev) => prev.filter((b) => b._id !== id));
+      toast.success("Booking deleted.");
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setDeletingId(null);
+      setDeleteConfirmId(null);
+    }
+  };
+
+  const saveEdit = async (fields) => {
+    const b = editing;
+    setSaving(true);
+    try {
+      const res = await authFetch(`${API_BASE_URL}/api/bookings/${b._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result.success)
+        throw new Error(result.message || "Could not update this booking. Please try again.");
+      const perTraveler = b.travelers ? Number(b.totalAmount || 0) / Number(b.travelers) : 0;
+      const merged = result.booking || {
+        ...b,
+        ...fields,
+        totalAmount: Math.round(perTraveler * fields.travelers),
+        status: b.status === "confirmed" ? "pending" : b.status,
+      };
+      setBookings((prev) => prev.map((x) => (x._id === b._id ? { ...x, ...merged } : x)));
+      toast.success(
+        b.status === "confirmed"
+          ? "Booking updated. Our team will review the changes and confirm again."
+          : "Booking updated.",
+      );
+      setEditing(null);
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -377,49 +436,18 @@ const MyBookings = () => {
                         )}
                       </div>
 
-                      {b.status === "pending" && (
-                        <div className="flex items-center justify-end gap-3 border-t border-line px-7 py-4">
-                          <AnimatePresence mode="wait" initial={false}>
-                            {confirmId === b._id ? (
-                              <motion.div
-                                key="confirm"
-                                initial={{ opacity: 0, x: 12 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -12 }}
-                                className="flex w-full items-center gap-3"
-                              >
-                                <span className="mr-auto text-sm text-muted">
-                                  Cancel this request?
-                                </span>
-                                <button
-                                  onClick={() => setConfirmId(null)}
-                                  className="rounded-full border border-line px-4 py-2 text-xs font-bold text-muted hover:bg-sandy"
-                                >
-                                  Keep it
-                                </button>
-                                <button
-                                  onClick={() => cancelBooking(b._id)}
-                                  disabled={cancellingId === b._id}
-                                  className="rounded-full bg-red-500 px-4 py-2 text-xs font-bold text-white hover:bg-red-600 disabled:opacity-60"
-                                >
-                                  {cancellingId === b._id ? "Cancelling…" : "Yes, cancel"}
-                                </button>
-                              </motion.div>
-                            ) : (
-                              <motion.button
-                                key="ask"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                onClick={() => setConfirmId(b._id)}
-                                className="flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50"
-                              >
-                                <FiXCircle /> Cancel request
-                              </motion.button>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      )}
+                      <BookingActions
+                        booking={b}
+                        confirmId={confirmId}
+                        setConfirmId={setConfirmId}
+                        cancellingId={cancellingId}
+                        onCancel={cancelBooking}
+                        deleteConfirmId={deleteConfirmId}
+                        setDeleteConfirmId={setDeleteConfirmId}
+                        deletingId={deletingId}
+                        onDelete={deleteBooking}
+                        onEdit={() => setEditing(b)}
+                      />
                     </TiltCard>
                   </motion.article>
                 );
@@ -428,7 +456,92 @@ const MyBookings = () => {
           </motion.div>
         )}
       </div>
+
+      {editing && (
+        <EditBookingModal
+          booking={editing}
+          minDate={minTripDate()}
+          saving={saving}
+          onSave={saveEdit}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </main>
+  );
+};
+
+/* earliest trip date a customer may move a booking to (today + the lock window) */
+const minTripDate = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + LOCK_DAYS);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+/* action row of one booking card: Edit + Cancel inside the change window, a lock note after it, Delete for cancelled ones */
+const BookingActions = ({
+  booking: b,
+  confirmId,
+  setConfirmId,
+  cancellingId,
+  onCancel,
+  deleteConfirmId,
+  setDeleteConfirmId,
+  deletingId,
+  onDelete,
+  onEdit,
+}) => {
+  const access = customerAccess(b);
+  const askingCancel = confirmId === b._id;
+  const askingDelete = deleteConfirmId === b._id;
+
+  if (access.locked) {
+    return (
+      <div className="flex items-start gap-3 border-t border-line px-7 py-4 text-sm text-muted">
+        <FiLock className="mt-0.5 shrink-0 text-brand-ink" />
+        <p>{access.lockMessage}</p>
+      </div>
+    );
+  }
+  if (!access.canEdit && !access.canDelete) return null;
+
+  const confirmRow = (text, keepFn, goFn, busy, goLabel, busyLabel) => (
+    <motion.div key="confirm" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} className="flex w-full flex-wrap items-center gap-3">
+      <span className="mr-auto text-sm text-muted">{text}</span>
+      <button onClick={keepFn} className="rounded-full border border-line px-4 py-2 text-xs font-bold text-muted hover:bg-sandy">Keep it</button>
+      <button onClick={goFn} disabled={busy} className="rounded-full bg-red-500 px-4 py-2 text-xs font-bold text-white hover:bg-red-600 disabled:opacity-60">
+        {busy ? busyLabel : goLabel}
+      </button>
+    </motion.div>
+  );
+
+  return (
+    <div className="flex items-center justify-end gap-3 border-t border-line px-7 py-4">
+      <AnimatePresence mode="wait" initial={false}>
+        {askingCancel ? (
+          confirmRow("Cancel this request?", () => setConfirmId(null), () => onCancel(b._id), cancellingId === b._id, "Yes, cancel", "Cancelling…")
+        ) : askingDelete ? (
+          confirmRow("Delete this booking permanently?", () => setDeleteConfirmId(null), () => onDelete(b._id), deletingId === b._id, "Yes, delete", "Deleting…")
+        ) : (
+          <motion.div key="ask" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-wrap items-center justify-end gap-3">
+            {access.canEdit && (
+              <button onClick={onEdit} className="flex items-center gap-2 rounded-full border border-line px-4 py-2 text-xs font-bold text-ink hover:bg-sandy">
+                <FiEdit2 /> Edit
+              </button>
+            )}
+            {access.canCancel && (
+              <button onClick={() => setConfirmId(b._id)} className="flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50">
+                <FiXCircle /> Cancel request
+              </button>
+            )}
+            {access.canDelete && (
+              <button onClick={() => setDeleteConfirmId(b._id)} className="flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50">
+                <FiTrash2 /> Delete
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

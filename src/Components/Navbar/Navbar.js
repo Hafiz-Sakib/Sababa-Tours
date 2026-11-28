@@ -111,8 +111,13 @@ const NavBar = () => {
   const location = useLocation();
   const isAdmin = user?.email === ADMIN_EMAIL;
 
-  /* extra desktop tab for signed-in people: their bookings (or the admin dashboard) */
-  const account = user ? [{ id: isAdmin ? "admin" : "bookings", name: isAdmin ? "Admin" : "Bookings", path: isAdmin ? "/admin" : "/my-bookings", icon: isAdmin ? "admin" : "bookings" }] : [];
+  /* extra desktop tabs for signed-in people: their bookings, plus the dashboard for the admin (who can also book trips) */
+  const account = user
+    ? [
+        { id: "bookings", name: "My Bookings", path: "/my-bookings", icon: "bookings" },
+        ...(isAdmin ? [{ id: "admin", name: "Admin", path: "/admin", icon: "admin" }] : []),
+      ]
+    : [];
   const active = idForPath(location.pathname, account);
   const showTabBar = !NO_TABBAR.some((p) => location.pathname === p || location.pathname.startsWith(p + "/"));
   /* the Profile tab lights up while its sheet is open and on the account pages */

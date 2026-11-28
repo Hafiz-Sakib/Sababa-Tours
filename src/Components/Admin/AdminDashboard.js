@@ -30,6 +30,7 @@ import {
 import { auth } from "../../Firebase.init";
 import { API_BASE_URL } from "../../config";
 import { authFetch } from "../Utilities/authFetch";
+import EditBookingModal from "../Booking/EditBookingModal";
 import {
   AnimatePresence,
   AnimatedNumber,
@@ -173,7 +174,7 @@ const Row = ({ icon, label, children }) => (
   </div>
 );
 
-const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
+const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete, onEdit }) => {
   useEffect(() => {
     const h = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", h);
@@ -263,12 +264,20 @@ const BookingDrawer = ({ booking: b, busy, onClose, onStatus, onDelete }) => {
               Move back to pending
             </button>
           )}
-          <button
-            onClick={() => onDelete(b)}
-            className="w-full py-2.5 rounded-2xl text-xs font-bold text-red-500 hover:bg-red-50 flex items-center justify-center gap-2"
-          >
-            <FiTrash2 /> Delete permanently
-          </button>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => onEdit(b)}
+              className="py-2.5 rounded-2xl text-xs font-bold text-ink border border-line hover:bg-surface flex items-center justify-center gap-2"
+            >
+              <FiEdit2 /> Edit details
+            </button>
+            <button
+              onClick={() => onDelete(b)}
+              className="py-2.5 rounded-2xl text-xs font-bold text-red-500 border border-red-200 hover:bg-red-50 flex items-center justify-center gap-2"
+            >
+              <FiTrash2 /> Delete permanently
+            </button>
+          </div>
         </div>
       </motion.aside>
     </>
@@ -524,7 +533,7 @@ const Overview = ({ bookings, services, onOpen, goTab }) => {
 };
 
 /* ───────────── Bookings panel ───────────── */
-const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete }) => {
+const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete, onEdit }) => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [sort, setSort] = useState("date-desc");
@@ -622,8 +631,9 @@ const BookingsPanel = ({ bookings, loading, busyId, onOpen, onStatus, onDelete }
                     <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
                         <button title="Confirm" disabled={busyId === b._id || b.status === "confirmed"} onClick={() => onStatus(b._id, "confirmed")} className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-30"><FiCheckCircle size={17} /></button>
-                        <button title="Cancel" disabled={busyId === b._id || b.status === "cancelled"} onClick={() => onStatus(b._id, "cancelled")} className="p-2 rounded-lg text-amber-600 hover:bg-amber-50 disabled:opacity-30"><FiXCircle size={17} /></button>
-                        <button title="Delete" onClick={() => onDelete(b)} className="p-2 rounded-lg text-red-500 hover:bg-red-50"><FiTrash2 size={17} /></button>
+                        <button title="Cancel booking" disabled={busyId === b._id || b.status === "cancelled"} onClick={() => onStatus(b._id, "cancelled")} className="p-2 rounded-lg text-amber-600 hover:bg-amber-50 disabled:opacity-30"><FiXCircle size={17} /></button>
+                        <button title="Edit details" onClick={() => onEdit(b)} className="p-2 rounded-lg text-ink/70 hover:bg-sandy"><FiEdit2 size={17} /></button>
+                        <button title="Delete permanently" onClick={() => onDelete(b)} className="p-2 rounded-lg text-red-500 hover:bg-red-50"><FiTrash2 size={17} /></button>
                       </div>
                     </td>
                   </tr>
@@ -766,6 +776,8 @@ const AdminDashboard = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [confirm, setConfirm] = useState(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const isAdmin = user?.email === ADMIN_EMAIL;
 
@@ -786,7 +798,7 @@ const AdminDashboard = () => {
       const s = sRes.ok ? await sRes.json() : [];
       setServices(Array.isArray(s) ? s : []);
     } catch {
-      toast.error("Failed to load dashboard data");
+      toast.error("Could not load the dashboard data. Please refresh and try again.");
     } finally {
       setLoading(false);
     }
@@ -809,18 +821,41 @@ const AdminDashboard = () => {
       const result = await res.json().catch(() => ({}));
       if (!res.ok || !result.success) throw new Error(result.message);
       setBookings((p) => p.map((b) => (b._id === id ? { ...b, status } : b)));
-      toast.success(`Booking marked as ${status}`);
+      toast.success(status === "cancelled" ? "Booking cancelled. It stays in the list as cancelled." : `Booking marked as ${status}.`);
     } catch (e) {
-      toast.error(e.message || "Failed to update status");
+      toast.error(e.message || "Could not update the booking status. Please try again.");
     } finally {
       setBusyId(null);
+    }
+  };
+
+  const saveBookingEdit = async (fields) => {
+    const b = editing;
+    setSavingEdit(true);
+    try {
+      const res = await authFetch(`${API_BOOKINGS}/${b._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      const r = await res.json().catch(() => ({}));
+      if (!res.ok || !r.success) throw new Error(r.message || "Could not update this booking. Please try again.");
+      const perTraveler = b.travelers ? Number(b.totalAmount || 0) / Number(b.travelers) : 0;
+      const merged = r.booking || { ...b, ...fields, totalAmount: Math.round(perTraveler * fields.travelers) };
+      setBookings((p) => p.map((x) => (x._id === b._id ? { ...x, ...merged } : x)));
+      toast.success("Booking updated.");
+      setEditing(null);
+    } catch (e) {
+      toast.error(e.message || "Could not update this booking. Please try again.");
+    } finally {
+      setSavingEdit(false);
     }
   };
 
   const deleteBooking = (b) =>
     setConfirm({
       title: "Delete this booking?",
-      text: `${b.userName} · ${b.serviceName}. This cannot be undone.`,
+      text: `${b.userName} · ${b.serviceName}. This removes the request from the database permanently and cannot be undone.`,
       label: "Delete",
       run: async () => {
         const res = await authFetch(`${API_BOOKINGS}/${b._id}`, { method: "DELETE" });
@@ -939,7 +974,7 @@ const AdminDashboard = () => {
         {tab === "overview" &&
           (loading ? <Spinner /> : <Overview bookings={bookings} services={services} onOpen={(b) => setSelectedId(b._id)} goTab={setTab} />)}
         {tab === "bookings" && (
-          <BookingsPanel bookings={bookings} loading={loading} busyId={busyId} onOpen={(b) => setSelectedId(b._id)} onStatus={updateStatus} onDelete={deleteBooking} />
+          <BookingsPanel bookings={bookings} loading={loading} busyId={busyId} onOpen={(b) => setSelectedId(b._id)} onStatus={updateStatus} onDelete={deleteBooking} onEdit={setEditing} />
         )}
         {tab === "services" && (
           <ServicesPanel services={services} bookings={bookings} loading={loading} onSave={saveService} onDelete={deleteService} />
@@ -948,9 +983,12 @@ const AdminDashboard = () => {
 
       <AnimatePresence>
         {selected && (
-          <BookingDrawer key={selected._id} booking={selected} busy={busyId === selected._id} onClose={() => setSelectedId(null)} onStatus={updateStatus} onDelete={deleteBooking} />
+          <BookingDrawer key={selected._id} booking={selected} busy={busyId === selected._id} onClose={() => setSelectedId(null)} onStatus={updateStatus} onDelete={deleteBooking} onEdit={setEditing} />
         )}
       </AnimatePresence>
+      {editing && (
+        <EditBookingModal booking={editing} minDate="2000-01-01" saving={savingEdit} onSave={saveBookingEdit} onClose={() => setEditing(null)} />
+      )}
       <ConfirmDialog open={!!confirm} title={confirm?.title} text={confirm?.text} confirmLabel={confirm?.label} danger busy={confirmBusy} onConfirm={runConfirm} onCancel={() => setConfirm(null)} />
     </main>
   );

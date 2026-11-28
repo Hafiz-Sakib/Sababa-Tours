@@ -52,7 +52,11 @@ const MeetUs = () => {
   }, [active]);
 
   useEffect(() => {
+    const prev = document.title;
     document.title = `${t.label} · Sababa Tours`;
+    return () => {
+      document.title = prev;
+    };
   }, [t.label]);
 
   return (

@@ -25,7 +25,7 @@ const Services = () => {
     const fetchServices = async () => {
       // Render free tier may take ~50s to wake up
       const wakeTimer = setTimeout(() => {
-        toast.loading("Server jagche, ektu opekkha korun...", {
+        toast.loading("Waking up the server, this can take up to a minute. Please wait…", {
           id: "server-wake",
           duration: 60000,
         });
