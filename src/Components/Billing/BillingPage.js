@@ -18,7 +18,6 @@ import {
   FiPrinter,
   FiRefreshCw,
   FiUsers,
-  FiZap,
 } from "react-icons/fi";
 import { auth } from "../../Firebase.init";
 import { API_BASE_URL } from "../../config";
@@ -40,6 +39,7 @@ import {
 import { AnimatedNumber, Aurora, BlurText, PillTabs, Shimmer, motion, AnimatePresence } from "../ui/Motion";
 import ActionBtn from "../ui/ActionBtn";
 import HoldBanner from "./HoldBanner";
+import PayModal from "./PayModal";
 import Invoice from "./Invoice";
 
 const serif = { fontFamily: "var(--font-display)" };
@@ -137,7 +137,7 @@ const PayCard = ({ b, m, busy, onPay }) => {
           </h3>
         </div>
         <span className="hidden items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-[11px] font-bold text-emerald-700 sm:inline-flex">
-          <FiZap size={12} /> Instant, no verification
+          <FiLock size={12} /> Secure checkout
         </span>
       </div>
 
@@ -261,7 +261,9 @@ const History = ({ b }) => {
                 <p className="text-sm font-bold text-ink">Payment received</p>
                 <p className="text-xs text-muted">
                   {fmtDateTime(p.paidAt || p.createdAt)} · {p.method || "Online"}
+                  {p.last4 ? ` •••• ${p.last4}` : p.account ? ` ${p.account}` : ""}
                 </p>
+                {p.ref && <p className="font-mono text-[10px] text-muted/80">{p.ref}</p>}
               </div>
               <p className="font-black text-emerald-600">+ {money(p.amount)}</p>
             </li>
@@ -281,6 +283,7 @@ const BillingPage = () => {
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState("bill");
   const [receipt, setReceipt] = useState(null);
+  const [checkout, setCheckout] = useState(null); // { amount, method } while the pay modal is open
   const now = useNow(30000);
 
   const load = useCallback(async () => {
@@ -307,27 +310,28 @@ const BillingPage = () => {
   const b = useMemo(() => (raw ? withLiveStatus(raw, now) : null), [raw, now]);
   const m = b ? moneyOf(b) : null;
 
-  const pay = async (amount, method) => {
-    setBusy(true);
-    try {
-      const res = await authFetch(`${API_BASE_URL}/api/bookings/${raw._id}/pay`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, method }),
-      });
-      const r = await res.json().catch(() => ({}));
-      if (!res.ok || !r.success) throw new Error(r.message || "Payment failed. Please try again.");
-      const next = r.booking ? { ...raw, ...r.booking } : payLocally(raw, amount, method);
-      const wasAwaiting = raw.status === "awaiting_payment";
-      setRaw(next);
-      setReceipt({ amount, confirmed: wasAwaiting && next.status === "confirmed", full: moneyOf(next).paidInFull });
-      toast.success(`${money(amount)} paid.`);
-    } catch (e) {
-      toast.error(e.message);
-    } finally {
-      setBusy(false);
-    }
-  };
+  // Called by the pay modal once the customer has verified. Throws on failure so the modal can show it.
+  const pay = useCallback(
+    async (amount, method, meta = {}) => {
+      setBusy(true);
+      try {
+        const res = await authFetch(`${API_BASE_URL}/api/bookings/${raw._id}/pay`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount, method, ref: meta.ref, brand: meta.brand, last4: meta.last4, account: meta.account }),
+        });
+        const r = await res.json().catch(() => ({}));
+        if (!res.ok || !r.success) throw new Error(r.message || "Payment failed. Please try again.");
+        const next = r.booking ? { ...raw, ...r.booking } : payLocally(raw, amount, method);
+        const wasAwaiting = raw.status === "awaiting_payment";
+        setRaw(next);
+        setReceipt({ amount, confirmed: wasAwaiting && next.status === "confirmed", full: moneyOf(next).paidInFull });
+      } finally {
+        setBusy(false);
+      }
+    },
+    [raw],
+  );
 
   if (!user) return null;
 
@@ -489,7 +493,7 @@ const BillingPage = () => {
                     </Card>
                   )}
 
-                  {canPay(b) && <PayCard key={b.status + m.paid} b={b} m={m} busy={busy} onPay={pay} />}
+                  {canPay(b) && <PayCard key={b.status + m.paid} b={b} m={m} busy={busy} onPay={(amount, method) => setCheckout({ amount, method })} />}
 
                   <History b={b} />
                 </div>
@@ -540,6 +544,17 @@ const BillingPage = () => {
           </>
         )}
       </div>
+
+      <PayModal
+        open={!!checkout}
+        amount={checkout?.amount}
+        method={checkout?.method}
+        booking={b}
+        user={user}
+        onConfirm={(meta) => pay(checkout.amount, checkout.method, meta)}
+        onClose={() => setCheckout(null)}
+        onInvoice={(close) => { close(); setTab("invoice"); setReceipt(null); }}
+      />
     </main>
   );
 };

@@ -242,14 +242,16 @@ const BookingDrawer = ({ booking: b, all, busy, onClose, onStatus, onDeleteNow, 
   if (!b) return null;
   const wa = `https://wa.me/88${String(b.phoneNumber || "").replace(/\D/g, "")}`;
   return (
-    <>
-      <Backdrop onClick={onClose} className="fixed z-40" />
+    <div className="fixed inset-0 z-[75] flex items-center justify-center p-3 sm:p-6">
+      <Backdrop onClick={onClose} />
       <motion.aside
-        initial={{ x: "100%" }}
-        animate={{ x: 0 }}
-        exit={{ x: "100%" }}
-        transition={{ type: "spring", stiffness: 320, damping: 34 }}
-        className="fixed right-0 top-0 h-full w-full max-w-md bg-surface z-50 shadow-2xl flex flex-col"
+        initial={{ opacity: 0, y: 28, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 18, scale: 0.97 }}
+        transition={{ type: "spring", stiffness: 380, damping: 32 }}
+        role="dialog"
+        aria-modal="true"
+        className="relative w-full max-w-lg max-h-[92vh] bg-surface rounded-[28px] border border-line shadow-[0_32px_90px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col"
       >
         <div className="relative overflow-hidden p-6 bg-panel text-on">
           <Aurora />
@@ -348,7 +350,7 @@ const BookingDrawer = ({ booking: b, all, busy, onClose, onStatus, onDeleteNow, 
           <HoldToDelete full label="Hold to delete permanently" doneLabel="Deleting…" onConfirm={() => onDeleteNow(b)} />
         </div>
       </motion.aside>
-    </>
+    </div>
   );
 };
 
